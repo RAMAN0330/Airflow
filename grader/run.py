@@ -5,7 +5,7 @@ Usage:
 
 Prints the result payload as JSON:
     {exercise_id, status, passed_tests, total_tests, score, tests[], stdout,
-     stderr, duration_ms, remediation[]}
+     stderr, duration_ms, error_tags[], remediation[]}
 
 This is the local reference implementation of the execution plane. In
 production the same steps run inside a disposable, network-less pod; here the
@@ -38,7 +38,8 @@ ERROR_PATTERNS = [
 def _limits(cpu_seconds, memory_mb):
     def apply():
         os.setsid()
-        resource.setrlimit(resource.RLIMIT_CPU, (cpu_seconds, cpu_seconds))
+        # Soft < hard so the kernel sends SIGXCPU (classifiable) before SIGKILL.
+        resource.setrlimit(resource.RLIMIT_CPU, (cpu_seconds, cpu_seconds + 1))
         mem = memory_mb * 1024 * 1024
         resource.setrlimit(resource.RLIMIT_AS, (mem, mem))
         resource.setrlimit(resource.RLIMIT_FSIZE, (10 * 1024 * 1024,) * 2)
@@ -105,7 +106,8 @@ def grade(submission_code, exercise_dir, timeout=None):
     passed = sum(t["outcome"] == "passed" for t in tests)
     total = len(tests)
 
-    if timed_out or proc.returncode == -signal.SIGXCPU:
+    cpu_exceeded = proc.returncode in (-signal.SIGXCPU, -signal.SIGKILL) and not timed_out
+    if timed_out or cpu_exceeded:
         status = "timeout"
     elif collection_errors or (not tests and proc.returncode != 0):
         status = "error"  # syntax/import error or crash before tests ran
@@ -117,14 +119,24 @@ def grade(submission_code, exercise_dir, timeout=None):
     stderr = "\n".join(collection_errors) + (err or "")
     if timed_out:
         stderr += f"\nExecution exceeded the {wall}s wall-clock limit."
+    elif cpu_exceeded:
+        stderr += f"\nExecution exceeded the {limits.get('cpu_seconds', 10)}s CPU-time limit."
 
     tags = _classify(tests)
     if status == "error":
         stdout_text = out
     else:
         stdout_text = "".join(t.pop("stdout") or "" for t in tests)
+    hints = meta.get("hints", {})
     for t in tests:
         t.pop("stdout", None)
+        t["hint"] = hints.get(t["name"].split("[", 1)[0]) if t["outcome"] == "failed" else None
+
+    remediation = []
+    for tag in tags:
+        entry = meta.get("remediation", {}).get(tag)
+        if entry:
+            remediation.append({"tag": tag, "hint": entry["hint"], "exercise": entry.get("exercise")})
 
     return {
         "exercise_id": meta["id"],
@@ -137,7 +149,7 @@ def grade(submission_code, exercise_dir, timeout=None):
         "stderr": stderr[-MAX_STREAM_CHARS:],
         "duration_ms": duration_ms,
         "error_tags": tags,
-        "remediation": [meta["remediation"][t] for t in tags if t in meta.get("remediation", {})],
+        "remediation": remediation,
     }
 
 

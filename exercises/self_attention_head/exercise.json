@@ -1,14 +1,31 @@
 {
   "id": "self_attention_head",
   "title": "Scaled Dot-Product Self-Attention Head",
+  "summary": "Implement softmax(QKᵀ/√d_k)V with batching and causal masking, then wrap it in a learnable single attention head.",
   "phase": 3,
-  "track": "transformers",
-  "prerequisites": ["softmax_from_scratch", "matrix_multiplication", "linear_regression_gd"],
-  "unlocks": ["multi_head_attention", "rope_embeddings"],
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["transformers", "numpy", "masking"],
+  "prerequisites": ["activation_functions"],
   "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
-  "allowed_imports": ["numpy", "math"],
   "remediation": {
-    "ShapeMismatch": "linear_transform_sandbox",
-    "NaNInSoftmax": "softmax_from_scratch"
+    "ShapeMismatch": {"hint": "Matrix shapes don't line up. Write down (…, T, d) for Q, K and V and check which axes each matmul contracts.", "exercise": "linear_regression_gd"},
+    "NaNInSoftmax": {"hint": "Your softmax is overflowing. Revisit the max-subtraction trick.", "exercise": "activation_functions"}
+  },
+  "hints": {
+    "test_softmax_sums_to_one": "Normalize by the sum along the same axis you exponentiate over, with keepdims=True.",
+    "test_softmax_is_numerically_stable": "exp(1000) overflows. Softmax is invariant to shifting all logits, so subtract the max first.",
+    "test_softmax_respects_axis": "Pass axis through to both max and sum.",
+    "test_causal_mask": "Query i may see keys 0…i, which is the lower triangle including the diagonal.",
+    "test_attention_unbatched_matches_reference": "Scores are Q @ Kᵀ, shape (T_q, T_k). Softmax runs over the key axis, then multiply by V.",
+    "test_attention_batched_matches_reference": ".T reverses every axis of a batched tensor. Swap only the last two axes.",
+    "test_scaling_by_sqrt_dk_is_applied": "Divide the scores by √d_k before the softmax, where d_k is Q's last dimension.",
+    "test_masked_positions_get_zero_weight": "Set masked scores to -inf before softmax so they get exactly zero weight.",
+    "test_dimension_mismatch_raises": "Compare Q.shape[-1] and K.shape[-1] before doing any math.",
+    "test_head_weight_shapes": "Each projection maps d_model features to d_head features.",
+    "test_head_forward_matches_reference": "Project X with W_q, W_k and W_v, then reuse your attention function.",
+    "test_head_is_deterministic_per_seed": "Build every weight from a single np.random.default_rng(seed).",
+    "test_causal_head_ignores_future_tokens": "Build the mask from the sequence length (X.shape[-2]) and pass it through when causal=True.",
+    "test_unmasked_attention_is_permutation_equivariant": "Without positional information, attention shouldn't depend on token order. Look for anything position-specific."
   }
 }

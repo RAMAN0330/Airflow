@@ -1,0 +1,38 @@
+{
+  "phases": [
+    {
+      "id": 1,
+      "title": "Classical Machine Learning",
+      "description": "Build the geometric and probabilistic foundations: losses, gradients and the classic estimators.",
+      "modules": [
+        {"id": "regression", "title": "Linear & Ridge Regression", "concepts": ["MSE", "Gradient descent", "L2 regularization"], "exercise": "linear_regression_gd"},
+        {"id": "classification", "title": "Logistic Regression & SVM", "concepts": ["Sigmoid", "Binary cross-entropy", "Max margin", "Kernels"], "exercise": null},
+        {"id": "trees", "title": "Decision Trees & Random Forests", "concepts": ["Entropy", "Gini impurity", "Bagging"], "exercise": null},
+        {"id": "clustering", "title": "K-Means & GMMs", "concepts": ["Distance matrices", "EM loop", "Centroid updates"], "exercise": null},
+        {"id": "pca", "title": "Principal Component Analysis", "concepts": ["Covariance", "Eigendecomposition", "SVD"], "exercise": null}
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Deep Learning Foundations",
+      "description": "Move from array manipulation to forward passes and hand-written backpropagation.",
+      "modules": [
+        {"id": "activations", "title": "Activation Functions", "concepts": ["ReLU", "GELU", "Stable softmax", "Local gradients"], "exercise": "activation_functions"},
+        {"id": "mlp", "title": "Multilayer Perceptron Backprop", "concepts": ["Forward pass", "Jacobians", "Chain rule"], "exercise": null},
+        {"id": "cnn", "title": "Convolutional Networks", "concepts": ["Multi-channel conv", "Stride & padding", "Max-pooling"], "exercise": null},
+        {"id": "rnn", "title": "RNNs & LSTMs", "concepts": ["Hidden state", "BPTT", "Gradient clipping"], "exercise": null}
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Generative AI & LLMs",
+      "description": "Implement the internals of transformers and the techniques used to adapt and ground them.",
+      "modules": [
+        {"id": "attention", "title": "Self-Attention Head", "concepts": ["Scaled dot-product", "Causal masking"], "exercise": "self_attention_head"},
+        {"id": "mha", "title": "Multi-Head Attention & RoPE", "concepts": ["Head slicing", "Rotary embeddings"], "exercise": null},
+        {"id": "lora", "title": "LoRA Fine-Tuning", "concepts": ["Frozen base weights", "Low-rank ΔW = BA"], "exercise": null},
+        {"id": "rag", "title": "Retrieval-Augmented Generation", "concepts": ["Chunking", "Cosine similarity", "Context injection"], "exercise": null}
+      ]
+    }
+  ]
+}

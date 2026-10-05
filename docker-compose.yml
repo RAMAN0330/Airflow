@@ -1,0 +1,35 @@
+services:
+  api:
+    image: gradient-api
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      MAX_CONCURRENT_RUNS: "4"
+    volumes:
+      - gradient-data:/data
+    # Learner code runs inside this container. Keep it off the network and
+    # unprivileged until runs move to dedicated sandbox pods.
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    pids_limit: 256
+    mem_limit: 4g
+
+  web:
+    image: gradient-web
+    build:
+      context: web
+      args:
+        API_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  gradient-data:

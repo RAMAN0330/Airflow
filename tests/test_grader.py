@@ -8,12 +8,13 @@ from grader.run import grade
 ROOT = Path(__file__).resolve().parents[1]
 LINREG = ROOT / "exercises" / "linear_regression_gd"
 ATTN = ROOT / "exercises" / "self_attention_head"
+ACT = ROOT / "exercises" / "activation_functions"
 
 EXPECTED_KEYS = {"exercise_id", "status", "passed_tests", "total_tests", "score", "tests",
                  "stdout", "stderr", "duration_ms", "error_tags", "remediation"}
 
 
-@pytest.mark.parametrize("exercise", [LINREG, ATTN], ids=lambda p: p.name)
+@pytest.mark.parametrize("exercise", [LINREG, ACT, ATTN], ids=lambda p: p.name)
 def test_reference_solution_passes_everything(exercise):
     r = grade((exercise / "solution.py").read_text(), exercise)
     assert set(r) == EXPECTED_KEYS
@@ -21,7 +22,7 @@ def test_reference_solution_passes_everything(exercise):
     assert r["passed_tests"] == r["total_tests"] > 0
 
 
-@pytest.mark.parametrize("exercise", [LINREG, ATTN], ids=lambda p: p.name)
+@pytest.mark.parametrize("exercise", [LINREG, ACT, ATTN], ids=lambda p: p.name)
 def test_starter_imports_but_fails(exercise):
     r = grade((exercise / "starter.py").read_text(), exercise)
     assert r["status"] == "failed"
@@ -37,7 +38,9 @@ def test_transpose_bug_is_tagged_as_shape_mismatch():
     assert "test_attention_batched_matches_reference" in failed
     assert "test_attention_unbatched_matches_reference" not in failed
     assert "ShapeMismatch" in r["error_tags"]
-    assert "linear_transform_sandbox" in r["remediation"]
+    assert {"tag": "ShapeMismatch", "exercise": "linear_regression_gd"}.items() <= r["remediation"][0].items()
+    batched = next(t for t in r["tests"] if t["name"] == "test_attention_batched_matches_reference")
+    assert "swap only the last two axes" in batched["hint"].lower()
 
 
 def test_missing_scale_is_caught():
@@ -100,6 +103,13 @@ def test_infinite_loop_times_out():
     assert r["duration_ms"] < 10_000
 
 
+def test_cpu_limit_reports_timeout():
+    r = grade("while True:\n    pass\n", LINREG, timeout=60)
+    assert r["status"] == "timeout"
+    assert "CPU-time limit" in r["stderr"]
+    assert r["duration_ms"] < 20_000
+
+
 def test_memory_bomb_is_contained():
     code = (LINREG / "solution.py").read_text().replace(
         "def predict(X, w, b):\n", "def predict(X, w, b):\n    _ = np.ones(10**10)\n")
@@ -107,3 +117,21 @@ def test_memory_bomb_is_contained():
     assert r["status"] == "failed"
     errors = {t["error_type"] for t in r["tests"] if t["outcome"] == "failed"}
     assert "MemoryError" in errors or "_ArrayMemoryError" in errors
+
+
+def test_unstable_softmax_is_tagged_and_hinted():
+    buggy = (ACT / "solution.py").read_text().replace("np.exp(x - np.max(x, axis=axis, keepdims=True))", "np.exp(x)")
+    r = grade(buggy, ACT)
+    failed = {t["name"]: t for t in r["tests"] if t["outcome"] == "failed"}
+    assert set(failed) == {"test_softmax_is_numerically_stable"}
+    assert "NaNInSoftmax" in r["error_tags"]
+    assert failed["test_softmax_is_numerically_stable"]["hint"]
+
+
+def test_every_hidden_test_has_a_hint():
+    import ast, json
+    for ex in (LINREG, ACT, ATTN):
+        hints = json.loads((ex / "exercise.json").read_text())["hints"]
+        tree = ast.parse((ex / "tests_hidden.py").read_text())
+        names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef) and n.name.startswith("test_")}
+        assert names == set(hints), f"{ex.name}: hint keys out of sync with tests"

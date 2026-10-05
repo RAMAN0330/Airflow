@@ -1,0 +1,26 @@
+{
+  "id": "activation_functions",
+  "title": "Activation Functions & Their Gradients",
+  "summary": "Write ReLU, its backward pass, the tanh-approximated GELU and a numerically stable softmax: the building blocks of every network.",
+  "phase": 2,
+  "difficulty": "beginner",
+  "estimated_minutes": 20,
+  "tags": ["numpy", "backprop", "numerics"],
+  "prerequisites": ["linear_regression_gd"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "Activations are element-wise (softmax normalizes along one axis), so the output shape must equal the input shape."},
+    "NaNInSoftmax": {"hint": "exp() overflows above ~709. Shift the logits by their max along the softmax axis before exponentiating."}
+  },
+  "hints": {
+    "test_relu_values": "ReLU(x) = max(0, x), element-wise. np.maximum broadcasts the scalar 0.",
+    "test_relu_preserves_shape_and_input": "Return a new array rather than writing into x.",
+    "test_relu_backward": "Upstream gradient flows through only where x > 0. Multiply dout by that boolean mask.",
+    "test_gelu_values": "Use 0.5·x·(1 + tanh(√(2/π)·(x + 0.044715·x³))).",
+    "test_gelu_asymptotics": "For large positive x, GELU ≈ x; for large negative x, GELU ≈ 0.",
+    "test_softmax_sums_to_one": "Divide by the sum along the chosen axis, with keepdims=True so it broadcasts.",
+    "test_softmax_is_numerically_stable": "Subtract x.max(axis, keepdims=True) first. Softmax is shift-invariant.",
+    "test_softmax_axis": "Use the axis argument in both the max and the sum.",
+    "test_softmax_invariant_to_shift": "If adding a constant changes your output, the normalization is wrong."
+  }
+}

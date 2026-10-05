@@ -1,14 +1,28 @@
 {
   "id": "linear_regression_gd",
-  "title": "Linear & Ridge Regression with Batch Gradient Descent",
+  "title": "Linear & Ridge Regression with Gradient Descent",
+  "summary": "Derive MSE gradients, add an L2 penalty and make batch gradient descent converge to the least-squares solution.",
   "phase": 1,
-  "track": "classical-ml",
-  "prerequisites": ["numpy_vectorization", "matrix_multiplication", "partial_derivatives"],
-  "unlocks": ["logistic_regression", "mlp_backprop"],
+  "difficulty": "beginner",
+  "estimated_minutes": 25,
+  "tags": ["numpy", "optimization", "regularization"],
+  "prerequisites": [],
   "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
-  "allowed_imports": ["numpy", "math"],
   "remediation": {
-    "ShapeMismatch": "numpy_broadcasting_sandbox",
-    "NotConverging": "learning_rate_intuition_sandbox"
+    "ShapeMismatch": {"hint": "Your arrays are broadcasting unexpectedly. Print X.shape, w.shape and y.shape inside each function; a (m,) minus (m, 1) silently becomes (m, m)."},
+    "NotConverging": {"hint": "Descent is diverging or stalling. Check the sign of the update (w - lr * dw) and that the gradient is divided by m."}
+  },
+  "hints": {
+    "test_predict_shape": "ŷ = X @ w + b should have one entry per row of X.",
+    "test_gradient_shapes_and_types": "dw needs one entry per feature (shape (n,)); db is a single scalar. Xᵀ @ residual gives you the right shape.",
+    "test_cost_known_value": "Use 1/(2m) in front of the sum of squared residuals, and return a plain Python float.",
+    "test_cost_with_l2_penalty": "The penalty is (λ / 2m)·‖w‖². It uses the same 2m denominator as the data term.",
+    "test_gradients_match_finite_differences": "Differentiate J term by term. The data term gives (1/m)·Xᵀ(ŷ − y) and the penalty gives (λ/m)·w.",
+    "test_bias_is_not_regularized": "λ should only appear in the weight gradient. The bias gradient is just the mean residual.",
+    "test_converges_to_closed_form": "If the weights are close but not exact, check that w and b are updated simultaneously from gradients computed at the same point.",
+    "test_cost_history_length_and_monotonic": "Record the cost after every update (exactly n_iters entries). A rising cost usually means a flipped sign.",
+    "test_ridge_shrinks_weights": "Make sure lam is actually forwarded from gradient_descent to compute_gradients.",
+    "test_inputs_not_mutated": "Avoid in-place operators like X -= ... or y /= ... on the arguments you receive.",
+    "test_no_forbidden_solvers": "The goal is to reach the solution iteratively, so closed-form solvers are off-limits."
   }
 }
