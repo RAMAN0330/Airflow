@@ -1,0 +1,14 @@
+{
+  "id": "self_attention_head",
+  "title": "Scaled Dot-Product Self-Attention Head",
+  "phase": 3,
+  "track": "transformers",
+  "prerequisites": ["softmax_from_scratch", "matrix_multiplication", "linear_regression_gd"],
+  "unlocks": ["multi_head_attention", "rope_embeddings"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "allowed_imports": ["numpy", "math"],
+  "remediation": {
+    "ShapeMismatch": "linear_transform_sandbox",
+    "NaNInSoftmax": "softmax_from_scratch"
+  }
+}

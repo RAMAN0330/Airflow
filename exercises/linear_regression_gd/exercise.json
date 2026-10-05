@@ -1,0 +1,14 @@
+{
+  "id": "linear_regression_gd",
+  "title": "Linear & Ridge Regression with Batch Gradient Descent",
+  "phase": 1,
+  "track": "classical-ml",
+  "prerequisites": ["numpy_vectorization", "matrix_multiplication", "partial_derivatives"],
+  "unlocks": ["logistic_regression", "mlp_backprop"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "allowed_imports": ["numpy", "math"],
+  "remediation": {
+    "ShapeMismatch": "numpy_broadcasting_sandbox",
+    "NotConverging": "learning_rate_intuition_sandbox"
+  }
+}
