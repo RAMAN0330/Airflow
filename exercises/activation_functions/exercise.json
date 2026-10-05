@@ -5,12 +5,23 @@
   "phase": 2,
   "difficulty": "beginner",
   "estimated_minutes": 20,
-  "tags": ["numpy", "backprop", "numerics"],
-  "prerequisites": ["linear_regression_gd"],
-  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "tags": [
+    "numpy",
+    "backprop",
+    "numerics"
+  ],
+  "limits": {
+    "cpu_seconds": 10,
+    "wall_seconds": 15,
+    "memory_mb": 2048
+  },
   "remediation": {
-    "ShapeMismatch": {"hint": "Activations are element-wise (softmax normalizes along one axis), so the output shape must equal the input shape."},
-    "NaNInSoftmax": {"hint": "exp() overflows above ~709. Shift the logits by their max along the softmax axis before exponentiating."}
+    "ShapeMismatch": {
+      "hint": "Activations are element-wise (softmax normalizes along one axis), so the output shape must equal the input shape."
+    },
+    "NaNInSoftmax": {
+      "hint": "exp() overflows above ~709. Shift the logits by their max along the softmax axis before exponentiating."
+    }
   },
   "hints": {
     "test_relu_values": "ReLU(x) = max(0, x), element-wise. np.maximum broadcasts the scalar 0.",

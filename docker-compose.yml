@@ -6,6 +6,8 @@ services:
       dockerfile: api/Dockerfile
     environment:
       MAX_CONCURRENT_RUNS: "4"
+      # "demo" upgrades plans without taking payment; set "disabled" until a payment provider is wired in.
+      BILLING_MODE: demo
     volumes:
       - gradient-data:/data
     # Learner code runs inside this container. Keep it off the network and

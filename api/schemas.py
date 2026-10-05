@@ -1,55 +1,130 @@
-"""Pydantic response/request models (the API contract mirrored in web/src/lib/types.ts)."""
+"""Pydantic request/response models (mirrored in web/src/lib/types.ts)."""
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Status = Literal["locked", "available", "in_progress", "completed"]
+StepStatus = Literal["locked", "available", "in_progress", "completed"]
+CourseStatus = Literal["locked", "upgrade_required", "available", "in_progress", "completed"]
 RunStatus = Literal["passed", "failed", "error", "timeout"]
+Plan = Literal["free", "pro"]
 
 
-class ExerciseSummary(BaseModel):
+class LockReason(BaseModel):
+    kind: Literal["previous_step", "previous_course", "plan"]
+    message: str
+    target: dict | None = None
+
+
+class StepRef(BaseModel):
+    kind: Literal["lesson", "exercise"]
     id: str
     title: str
-    summary: str
-    phase: int
-    difficulty: str
+    status: StepStatus
+    course_id: str
+
+
+class StepSummary(StepRef):
+    xp: int
     estimated_minutes: int
-    tags: list[str]
-    prerequisites: list[str]
-    status: Status
+    lock_reason: LockReason | None = None
+    difficulty: str | None = None
     attempts: int = 0
     best_score: float | None = None
 
 
-class Module(BaseModel):
+class ModuleSummary(BaseModel):
     id: str
     title: str
     concepts: list[str]
-    exercise: ExerciseSummary | None
+    coming_soon: bool
+    lesson: StepSummary | None
+    exercise: StepSummary | None
 
 
-class Phase(BaseModel):
-    id: int
-    title: str
-    description: str
-    modules: list[Module]
-
-
-class Curriculum(BaseModel):
-    phases: list[Phase]
-
-
-class ExerciseRef(BaseModel):
+class CourseRef(BaseModel):
     id: str
     title: str
-    status: Status
+    tier: Plan
 
 
-class ExerciseDetail(ExerciseSummary):
+class Course(BaseModel):
+    id: str
+    title: str
+    tagline: str
+    description: str
+    level: str
+    tier: Plan
+    position: int
+    status: CourseStatus
+    lock_reason: LockReason | None
+    completed_steps: int
+    total_steps: int
+    estimated_minutes: int
+    total_xp: int
+    modules: list[ModuleSummary]
+
+
+# ------------------------------------------------------------------ lessons
+
+class QuizQuestion(BaseModel):
+    id: str
+    prompt: str
+    options: list[str]
+
+
+class LessonDetail(BaseModel):
+    id: str
+    title: str
+    markdown: str
+    estimated_minutes: int
+    xp: int
+    status: StepStatus
+    lock_reason: LockReason | None
+    completed_at: str | None
+    course: CourseRef
+    module_title: str
+    questions: list[QuizQuestion]
+    next: StepRef | None
+
+
+class QuizAttemptIn(BaseModel):
+    answers: dict[str, int]
+
+
+class QuestionResult(BaseModel):
+    id: str
+    correct: bool
+    explanation: str | None
+
+
+class QuizAttemptOut(BaseModel):
+    passed: bool
+    results: list[QuestionResult]
+    newly_completed: bool
+    xp_earned: int
+    unlocked: list[StepRef]
+
+
+# ------------------------------------------------------------------ exercises
+
+class ExerciseDetail(BaseModel):
+    id: str
+    title: str
+    summary: str
+    difficulty: str
+    estimated_minutes: int
+    tags: list[str]
+    xp: int
+    status: StepStatus
+    lock_reason: LockReason | None
+    attempts: int
+    best_score: float | None
+    course: CourseRef
+    module_title: str
+    lesson: StepRef | None
+    next: StepRef | None
     task_markdown: str
     starter_code: str
-    prerequisite_details: list[ExerciseRef]
-    unlocks: list[ExerciseRef]
     time_limit_seconds: int
 
 
@@ -100,7 +175,29 @@ class Submission(BaseModel):
 
 class SubmissionOut(Submission):
     newly_completed: bool
-    unlocked: list[ExerciseRef]
+    xp_earned: int
+    unlocked: list[StepRef]
+
+
+# ------------------------------------------------------------------ learner
+
+class Me(BaseModel):
+    display_name: str
+    plan: Plan
+    xp: int
+    rank: int | None
+    exercises_completed: int
+    lessons_completed: int
+    billing_mode: str
+
+
+class MeUpdate(BaseModel):
+    display_name: str = Field(min_length=2, max_length=24)
+
+
+class CheckoutIn(BaseModel):
+    plan: Literal["pro"] = "pro"
+    interval: Literal["month", "year"] = "month"
 
 
 class ActivityDay(BaseModel):
@@ -110,19 +207,47 @@ class ActivityDay(BaseModel):
 
 
 class ExerciseProgress(BaseModel):
-    exercise: ExerciseSummary
+    exercise: StepSummary
+    course_title: str
     completed_at: str | None
     last_attempt_at: str | None
 
 
+class CourseProgress(BaseModel):
+    id: str
+    title: str
+    status: CourseStatus
+    completed_steps: int
+    total_steps: int
+
+
 class Progress(BaseModel):
+    xp: int
+    rank: int | None
     total_exercises: int
-    completed: int
-    in_progress: int
-    available: int
+    exercises_completed: int
+    total_lessons: int
+    lessons_completed: int
     total_submissions: int
     pass_rate: float
+    courses: list[CourseProgress]
     exercises: list[ExerciseProgress]
     recent: list[Submission]
     activity: list[ActivityDay]
-    next_up: ExerciseSummary | None
+    next_up: StepRef | None
+
+
+class LeaderboardEntry(BaseModel):
+    rank: int
+    display_name: str
+    xp: int
+    exercises_completed: int
+    lessons_completed: int
+    is_me: bool
+
+
+class Leaderboard(BaseModel):
+    period: Literal["all", "week"]
+    total_learners: int
+    entries: list[LeaderboardEntry]
+    me: LeaderboardEntry | None

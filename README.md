@@ -2,37 +2,38 @@
 
 Gradient is an interactive platform where learners implement machine-learning
 algorithms from scratch. Each exercise has hidden tests that run in a sandbox,
-and a prerequisite graph unlocks exercises as the learner progresses.
+and lessons, exercises and courses unlock one after another as the learner progresses. Learners earn XP
+for a leaderboard, and a Pro plan opens the advanced course.
 
 | Layer | Stack |
 |---|---|
 | Frontend (`web/`) | Next.js 16 (App Router), React 19, Tailwind CSS v4, **shadcn/ui** (Radix), **Zustand**, Monaco editor |
 | Control plane (`api/`) | FastAPI, SQLite (WAL), Pydantic |
 | Execution plane (`grader/`) | pytest in a resource-limited subprocess (CPU / memory / file-size rlimits, wall-clock kill) |
-| Content (`exercises/`) | Task Markdown, starter, reference solution, hidden tests, metadata and hints |
+| Content (`exercises/`, `lessons/`) | Course order (`curriculum.json`); lessons with quizzes; exercises with starter, reference solution, hidden tests and hints |
 
 ```
 Browser ──► Next.js (web) ──/api/* rewrite──► FastAPI (api) ──► grader ──► sandboxed pytest subprocess
-               │ Zustand stores                     │ SQLite: submissions → progress, DAG unlocks
-               │ Monaco (self-hosted)               └ catalog: exercises + curriculum.json (validated DAG)
+               │ Zustand stores                     │ SQLite: users, submissions, lesson completions
+               │ Monaco (self-hosted)               └ catalog + progression: ordered courses → unlocks
 ```
 
 ## Screenshots
 
-All screenshots are taken from the running app. The full set of 18 is in [`docs/screenshots/`](docs/screenshots).
+All screenshots are taken from the running app during an end-to-end run. The full set of 23 is in [`docs/screenshots/`](docs/screenshots).
 
 | | |
 |---|---|
-| ![Roadmap](docs/screenshots/01-roadmap.png) **Roadmap**: three phases, status-aware module cards | ![Progress](docs/screenshots/09-progress.png) **Progress**: stats, activity heatmap, per-exercise table |
-| ![Failing run](docs/screenshots/03-failing-run-with-hints.png) **Failing run**: per-test errors, hints and a mentor tip | ![Passed](docs/screenshots/04-passed-unlock-toast.png) **Passed**: all green, toast offers the unlocked exercise |
-| ![Mentor tip](docs/screenshots/06-mentor-tip-shape-mismatch.png) **Remediation**: shape mismatch links back to a foundational exercise | ![Locked](docs/screenshots/13-locked-exercise.png) **Locked**: prerequisites named, Run disabled |
-| ![Dark workspace](docs/screenshots/11-workspace-dark.png) **Dark mode** | ![Dark roadmap](docs/screenshots/10-roadmap-dark.png) **Dark roadmap** |
+| ![Landing](docs/screenshots/17-landing-dark.png) **Landing** | ![Courses](docs/screenshots/02-learn-fresh.png) **Courses**: course 2 locked, course 3 needs Pro |
+| ![Lesson quiz](docs/screenshots/06-quiz-feedback.png) **Lesson quiz**: explanations appear only for correct answers | ![Exercise locked](docs/screenshots/04-exercise-locked.png) **Exercise locked** until its lesson is passed |
+| ![Course complete](docs/screenshots/08-course-complete-toast.png) **Course complete**: the next course unlocks | ![Pricing](docs/screenshots/12-pricing.png) **Pricing**: monthly/yearly, comparison, FAQ |
+| ![Checkout](docs/screenshots/13-checkout-dialog.png) **Demo checkout**: clearly labelled, no payment | ![Leaderboard](docs/screenshots/15-leaderboard.png) **Leaderboard**: podium, all-time/weekly, "You" row |
 
 <p>
-  <img src="docs/screenshots/14-mobile-roadmap.png" width="200" alt="Mobile roadmap">
-  <img src="docs/screenshots/15-mobile-task.png" width="200" alt="Mobile task">
-  <img src="docs/screenshots/16-mobile-code.png" width="200" alt="Mobile code">
-  <img src="docs/screenshots/17-mobile-results.png" width="200" alt="Mobile results">
+  <img src="docs/screenshots/20-mobile-landing.png" width="190" alt="Mobile landing">
+  <img src="docs/screenshots/21-mobile-learn.png" width="190" alt="Mobile courses">
+  <img src="docs/screenshots/22-mobile-quiz.png" width="190" alt="Mobile quiz">
+  <img src="docs/screenshots/23-mobile-pricing.png" width="190" alt="Mobile pricing">
 </p>
 
 ## Quick start
@@ -55,44 +56,62 @@ make check   # pytest + typecheck + lint
 
 ## Product tour
 
-- **Roadmap (`/`):** a three-phase curriculum (Classical ML → Deep Learning →
-  GenAI/LLMs). Each module card shows its status (available, in progress,
-  completed, locked), best score, difficulty and time estimate. Locked cards
-  name their missing prerequisites. Modules not built yet are shown as
-  *coming soon*. The progress card shows a "Continue" button for the next
-  exercise.
-- **Workspace (`/exercises/[id]`):** resizable three-pane IDE. It has the task
-  description (GFM Markdown) next to the Monaco editor, and a results panel
-  below it.
-  - Run with **Ctrl/Cmd+Enter**.
-  - Results show a per-test pass/fail matrix with the exception type, a hint
-    for each failing test, and *mentor tips* that can link back to a
-    foundational exercise.
-  - Output and Errors tabs show the learner's stdout and stderr.
-  - Drafts autosave per exercise. Every attempt is kept in Submissions and can
-    be restored in one click. Reset to starter asks for confirmation first.
-  - Passing an exercise shows a toast that offers to open the newly unlocked
-    exercise.
-  - Below 1024px the workspace switches to a tabbed Task / Code / Results layout.
-- **Progress (`/progress`):** stat cards (completed, submissions, pass rate,
-  day streak), a 12-week activity heatmap, a per-exercise table and recent
-  submissions.
-- Light, dark and system themes. Loading skeletons, empty states and error
-  states with retry.
+| Route | Page |
+|---|---|
+| `/` | **Landing**: hero with a product preview, how it works, the three-course path (live from the API), features, pricing teaser, FAQ, CTA, footer |
+| `/learn` | **Courses**: the ordered path. Each course card shows status, progress, XP, and why it's locked, with the one action that unlocks it |
+| `/learn/[courseId]` | **Course syllabus**: modules as a step timeline (lesson → exercise), a Continue button, coming-soon modules, and a link to the next course when this one is done |
+| `/lessons/[id]` | **Lesson reader**: Markdown lesson plus a quiz. Wrong answers are flagged without revealing the right one; passing awards XP and unlocks the exercise |
+| `/exercises/[id]` | **IDE workspace**: Monaco editor, hidden-test results, hints, mentor tips, history. Completion toasts link to the newly unlocked step |
+| `/pricing` | **Pricing**: Free / Pro / Teams (coming soon), monthly or yearly toggle, comparison table, billing FAQ, checkout and downgrade dialogs |
+| `/leaderboard` | **Leaderboard**: top-3 podium, ranked table, all-time and weekly views, your row pinned, and editing your display name |
+| `/progress` | **My progress**: XP and rank, steps completed, pass rate, streak, per-course progress, activity heatmap, recent submissions |
+
+The header shows your XP and an account menu with your name, plan, rank, progress, name editing and plan
+management. Pages have light, dark and system themes, and every page works at phone width.
+
+## Sequential unlocking
+
+`exercises/curriculum.json` is the single source of truth. Each course lists modules, and each module pairs a
+`lesson` with an `exercise`. The rules live in one pure function, `api/progression.py`:
+
+1. Within a course, steps unlock **one at a time** in order: lesson → exercise → next module's lesson → …
+2. A course unlocks only when **every step of the previous course** is complete. Modules marked "coming soon"
+   have no steps, so they never block.
+3. A `"tier": "pro"` course also requires the **Pro plan**.
+
+The API enforces these rules: submitting code or a quiz for a locked step returns `403` with the reason.
+Paywalled lesson and exercise content is withheld. Content locked only by sequence can still be previewed.
+Every lock carries a reason (`previous_step`, `previous_course` or `plan`) and the step or course to complete,
+so the UI always offers the one action that unlocks it.
+
+## XP, leaderboard and plans
+
+- **XP:** lessons +25. Exercises +100 / +200 / +300 by difficulty (beginner / intermediate / advanced),
+  awarded once, on the first pass. Rankings are by XP; on a tie, whoever got there first ranks higher. The
+  weekly board counts the last 7 days.
+- **Display names:** each learner gets a stable default name (e.g. "Curious Otter 42") and can rename it
+  (2–24 characters, validated server-side). Learner IDs are never exposed on the board.
+- **Plans:** Free covers Courses 1–2, and Pro adds Course 3 plus future Pro courses. Prices live in
+  `web/src/lib/plans.ts` and are placeholders. With `BILLING_MODE=demo` (the default), checkout switches
+  the plan immediately, takes no payment, and says so in the dialog. Set `BILLING_MODE=disabled` to turn
+  checkout off until a payment provider (a checkout session plus a webhook that calls the same plan update)
+  is wired in.
 
 ## Frontend state (Zustand)
 
 | Store | Persisted | Holds |
 |---|---|---|
 | `user-store` | localStorage | Anonymous learner ID, sent as `X-User-Id` |
-| `editor-store` | localStorage | Per-exercise drafts, font size, minimap |
-| `catalog-store` | no | Curriculum and progress, with load states; invalidated after each run |
+| `session-store` | no | Profile (`/api/me`): name, plan, XP, rank. Also rename, upgrade and cancel |
+| `catalog-store` | no | Courses, progress and leaderboards (per period), with load states; `invalidate()` after any learner change |
+| `lesson-store` | no | Open lesson, selected answers, quiz attempt result |
 | `workspace-store` | no | Open exercise, submission history, the run in flight, latest result, active tabs |
+| `editor-store` | localStorage | Per-exercise drafts, font size, minimap |
 
-shadcn/ui components live in `web/src/components/ui/` (`components.json` is
-configured, so `npx shadcn add <component>` works). Monaco is copied from
-`node_modules` into `public/monaco` at install/build time, so the editor needs
-no CDN.
+shadcn/ui components live in `web/src/components/ui/` (`components.json` is configured, so
+`npx shadcn add <component>` works). Monaco and the Geist fonts are bundled locally, so builds and the
+editor need no CDN.
 
 ## API
 
@@ -100,34 +119,39 @@ All routes take an `X-User-Id` header (8–64 characters of `[A-Za-z0-9_-]`).
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/health` | Liveness |
-| GET | `/api/curriculum` | Phases → modules → exercise summaries with per-user status |
-| GET | `/api/exercises/{id}` | Task Markdown, starter code, prerequisites and unlocks with status |
-| GET | `/api/exercises/{id}/submissions` | This user's attempts, newest first, with code and results |
-| POST | `/api/exercises/{id}/submissions` | Grade `{code}`; returns the result plus `newly_completed` and `unlocked`. Returns `403` if locked, `429` if a run is already in flight, `422` if the code is over 100 KB |
-| GET | `/api/progress` | Counts, pass rate, per-exercise rows, recent submissions, daily activity, next up |
+| GET | `/api/me` | Display name, plan, XP, rank, completion counts, billing mode |
+| PATCH | `/api/me` | Rename `{display_name}` |
+| POST | `/api/billing/checkout` · `/api/billing/cancel` | Switch to Pro or back to Free (`501` unless `BILLING_MODE=demo`) |
+| GET | `/api/courses` · `/api/courses/{id}` | Ordered courses → modules → lesson and exercise steps, with per-learner status and lock reasons |
+| GET | `/api/lessons/{id}` | Lesson Markdown and quiz questions (answers never sent), status, next step |
+| POST | `/api/lessons/{id}/attempts` | Grade `{answers}`. Returns per-question results, `newly_completed`, `xp_earned` and `unlocked` steps |
+| GET | `/api/exercises/{id}` | Task, starter code, status and lock reason, course, lesson and next step |
+| GET / POST | `/api/exercises/{id}/submissions` | History / grade `{code}`. Returns the result plus `newly_completed`, `xp_earned` and `unlocked`. `403` if locked, `429` if a run is in flight |
+| GET | `/api/progress` | XP, rank, counts, pass rate, per-course progress, per-exercise rows, recent runs, activity, next step |
+| GET | `/api/leaderboard?period=all\|week` | Ranked entries plus your own row |
 
-The catalog checks at startup that every prerequisite and remediation link
-points to a real exercise and that the prerequisite graph has no cycles.
-Concurrent grading is capped by `MAX_CONCURRENT_RUNS` (default 4).
+At startup the catalog checks that every lesson and exercise is referenced exactly once, that every reference
+exists, that quiz answer indexes are valid, and that course tiers are known.
 
 ## Exercises
 
-| Phase | Exercise | Prerequisite | Hidden tests |
+| Course | Lesson (quiz) | Exercise | Hidden tests |
 |---|---|---|---|
-| 1 | `linear_regression_gd`: Linear & Ridge regression via gradient descent | none | 12 |
-| 2 | `activation_functions`: ReLU (+ backward), GELU, stable softmax | `linear_regression_gd` | 9 |
-| 3 | `self_attention_head`: scaled dot-product attention, causal masking | `activation_functions` | 14 |
+| 1 · Classical ML (free) | `gradient_descent_intuition` (3 Qs) | `linear_regression_gd`: Linear & Ridge regression via gradient descent | 12 |
+| 2 · Deep Learning (free) | `activations_and_backprop` (3 Qs) | `activation_functions`: ReLU (+ backward), GELU, stable softmax | 9 |
+| 3 · GenAI & LLMs (Pro) | `attention_intuition` (3 Qs) | `self_attention_head`: scaled dot-product attention, causal masking | 14 |
+
+Lessons live in `lessons/<id>/` as `lesson.json` (title, minutes), `lesson.md` and `quiz.json` (questions, answer index, explanation).
 
 Each exercise directory contains:
 
-- `exercise.json`: metadata, limits, prerequisites, remediation map and per-test hints
+- `exercise.json`: metadata, limits, remediation map and per-test hints
 - `task.md`
 - `starter.py`
 - `solution.py`: never served
 - `tests_hidden.py`: never served
 
-**Adding an exercise:** create the directory and reference it from
+**Adding a module:** create the lesson and exercise directories and reference both from a module in
 `exercises/curriculum.json`. `tests/test_grader.py::test_every_hidden_test_has_a_hint`
 checks that every hidden test has a hint.
 
@@ -163,13 +187,14 @@ common mistakes each fail a specific, explainable test:
 
 ## Tests
 
-`python -m pytest` runs 28 tests:
+`python -m pytest` runs 35 tests:
 
 - **Grader:** reference solutions pass; starters fail; injected bugs are
   caught and tagged; syntax errors, CPU- and wall-clock timeouts and memory
   bombs are classified correctly.
-- **API:** DAG locking and unlocking, newly-completed detection, history,
-  progress, per-user isolation, input validation and cycle detection.
+- **API:** sequential unlocking (lesson → exercise → next course), quiz grading without leaking answers,
+  the Pro paywall (including withheld content), demo checkout and downgrade, XP and leaderboard ranking,
+  display-name validation, progress, and catalog validation.
 
 CI (`.github/workflows/ci.yml`) runs these plus the frontend typecheck, lint
 and production build.

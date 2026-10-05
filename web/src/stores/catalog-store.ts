@@ -1,43 +1,49 @@
 import { create } from "zustand"
 
 import { api } from "@/lib/api"
-import type { Curriculum, Progress } from "@/lib/types"
+import type { Course, Leaderboard, LeaderboardPeriod, Progress } from "@/lib/types"
+import { useSessionStore } from "@/stores/session-store"
 
 type LoadState = "idle" | "loading" | "ready" | "error"
 
 interface CatalogState {
-  curriculum: Curriculum | null
+  courses: Course[] | null
+  coursesState: LoadState
   progress: Progress | null
-  curriculumState: LoadState
   progressState: LoadState
+  leaderboards: Partial<Record<LeaderboardPeriod, Leaderboard>>
+  leaderboardState: LoadState
   error: string | null
-  loadCurriculum: (opts?: { force?: boolean }) => Promise<void>
+  loadCourses: (opts?: { force?: boolean }) => Promise<void>
   loadProgress: (opts?: { force?: boolean }) => Promise<void>
-  /** Mark cached data stale after a submission so the next view refetches. */
+  loadLeaderboard: (period: LeaderboardPeriod) => Promise<void>
+  /** Call after anything that changes learner state (submission, quiz, plan). */
   invalidate: () => void
 }
 
 export const useCatalogStore = create<CatalogState>()((set, get) => ({
-  curriculum: null,
+  courses: null,
+  coursesState: "idle",
   progress: null,
-  curriculumState: "idle",
   progressState: "idle",
+  leaderboards: {},
+  leaderboardState: "idle",
   error: null,
 
-  loadCurriculum: async ({ force } = {}) => {
-    const { curriculumState } = get()
-    if (curriculumState === "loading" || (curriculumState === "ready" && !force)) return
-    set({ curriculumState: "loading", error: null })
+  loadCourses: async ({ force } = {}) => {
+    const s = get().coursesState
+    if (s === "loading" || (s === "ready" && !force)) return
+    set({ coursesState: "loading", error: null })
     try {
-      set({ curriculum: await api.curriculum(), curriculumState: "ready" })
+      set({ courses: await api.courses(), coursesState: "ready" })
     } catch (e) {
-      set({ curriculumState: "error", error: (e as Error).message })
+      set({ coursesState: "error", error: (e as Error).message })
     }
   },
 
   loadProgress: async ({ force } = {}) => {
-    const { progressState } = get()
-    if (progressState === "loading" || (progressState === "ready" && !force)) return
+    const s = get().progressState
+    if (s === "loading" || (s === "ready" && !force)) return
     set({ progressState: "loading", error: null })
     try {
       set({ progress: await api.progress(), progressState: "ready" })
@@ -46,5 +52,18 @@ export const useCatalogStore = create<CatalogState>()((set, get) => ({
     }
   },
 
-  invalidate: () => set({ curriculumState: "idle", progressState: "idle" }),
+  loadLeaderboard: async (period) => {
+    set({ leaderboardState: "loading", error: null })
+    try {
+      const board = await api.leaderboard(period)
+      set((s) => ({ leaderboards: { ...s.leaderboards, [period]: board }, leaderboardState: "ready" }))
+    } catch (e) {
+      set({ leaderboardState: "error", error: (e as Error).message })
+    }
+  },
+
+  invalidate: () => {
+    set({ coursesState: "idle", progressState: "idle", leaderboards: {} })
+    useSessionStore.getState().load({ force: true })
+  },
 }))

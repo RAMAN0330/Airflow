@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "Q has shape (2, 5, 8) and K has shape (2, 7, 8). What shape are the attention scores?",
+      "options": ["(2, 5, 7)", "(2, 8, 8)", "(5, 7)", "(2, 7, 5)"],
+      "answer": 0,
+      "explanation": "Q @ K.swapaxes(-1, -2) is (2, 5, 8) @ (2, 8, 7) = (2, 5, 7): one score per (query, key) pair in each batch."
+    },
+    {
+      "id": "q2",
+      "prompt": "What happens if you forget to divide the scores by √d_k when d_k is large?",
+      "options": ["Nothing: softmax normalizes anyway", "Softmax saturates towards one-hot and gradients vanish", "The output shape changes", "Masked positions leak information"],
+      "answer": 1,
+      "explanation": "Dot products have variance about d_k, so large scores push softmax towards one-hot, where its gradients are close to zero."
+    },
+    {
+      "id": "q3",
+      "prompt": "With a causal mask, query position 2 may attend to which key positions?",
+      "options": ["Only 2", "0, 1 and 2", "2, 3, 4, …", "All positions"],
+      "answer": 1,
+      "explanation": "Causal attention allows j ≤ i: the token itself and everything before it, which is the lower triangle including the diagonal."
+    }
+  ]
+}

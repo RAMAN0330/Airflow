@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY grader grader
 COPY api api
 COPY exercises exercises
+COPY lessons lessons
 
 USER app
 EXPOSE 8000

@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner"
 
 import { CodeEditor } from "@/components/code-editor"
+import { LockNotice } from "@/components/lock-notice"
 import { DifficultyBadge, StatusBadge } from "@/components/status-badge"
 import {
   AlertDialog,
@@ -49,6 +50,8 @@ import { ResultsPanel } from "@/components/workspace/results-panel"
 import { TaskPane } from "@/components/workspace/task-pane"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { ApiError } from "@/lib/api"
+import { celebrate } from "@/lib/celebrate"
+import { courseHref } from "@/lib/links"
 import type { ExerciseDetail } from "@/lib/types"
 import { useEditorStore, type EditorFontSize } from "@/stores/editor-store"
 import { useWorkspaceStore } from "@/stores/workspace-store"
@@ -79,12 +82,9 @@ export function Workspace({ exerciseId }: { exerciseId: string }) {
       const sub = await runSubmission(code)
       if (!sub) return
       if (sub.newly_completed) {
-        const next = sub.unlocked[0]
-        toast.success("Exercise complete!", {
-          description: next ? `You unlocked “${next.title}”.` : "Every hidden test passed.",
-          action: next ? { label: "Start next", onClick: () => router.push(`/exercises/${next.id}`) } : undefined,
-          duration: 8000,
-        })
+        // The last step of a course completes the course.
+        const courseDone = !exercise.next || exercise.next.course_id !== exercise.course.id
+        celebrate("Exercise complete!", sub.xp_earned, sub.unlocked, (h) => router.push(h), courseDone)
       } else if (sub.status === "passed") {
         toast.success("All tests passing")
       }
@@ -122,7 +122,7 @@ export function Workspace({ exerciseId }: { exerciseId: string }) {
 
   const editor = (
     <div className="flex h-full flex-col">
-      {locked && <LockedBanner exercise={exercise} />}
+      {exercise.lock_reason && <LockNotice reason={exercise.lock_reason} compact className="border-b bg-muted/50 px-4 py-2" />}
       <div className="min-h-0 flex-1">
         <CodeEditor value={code} onChange={onChange} onRun={run} readOnly={locked} />
       </div>
@@ -227,13 +227,13 @@ function Toolbar({
 
   return (
     <div className="flex h-12 shrink-0 items-center gap-2 border-b px-2 sm:px-3">
-      <Button asChild variant="ghost" size="icon-sm" aria-label="Back to roadmap">
-        <Link href="/">
+      <Button asChild variant="ghost" size="icon-sm" aria-label="Back to course">
+        <Link href={courseHref(exercise.course.id)}>
           <ChevronLeftIcon />
         </Link>
       </Button>
       <div className="flex min-w-0 items-center gap-2">
-        <span className="hidden text-xs text-muted-foreground md:inline">Phase {exercise.phase}</span>
+        <span className="hidden max-w-48 truncate text-xs text-muted-foreground md:inline">{exercise.course.title}</span>
         <span className="hidden text-muted-foreground/50 md:inline">/</span>
         <h1 className="truncate text-sm font-semibold">{exercise.title}</h1>
         <div className="hidden items-center gap-1.5 lg:flex">
@@ -299,7 +299,7 @@ function Toolbar({
           </TooltipTrigger>
           <TooltipContent>
             {locked ? (
-              "Complete the prerequisites first"
+              (exercise.lock_reason?.message ?? "Locked")
             ) : (
               <span className="flex items-center gap-1">
                 Run hidden tests <Kbd>Ctrl</Kbd>
@@ -309,24 +309,6 @@ function Toolbar({
           </TooltipContent>
         </Tooltip>
       </div>
-    </div>
-  )
-}
-
-function LockedBanner({ exercise }: { exercise: ExerciseDetail }) {
-  const missing = exercise.prerequisite_details.filter((p) => p.status !== "completed")
-  return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b bg-muted/50 px-4 py-2 text-sm">
-      <LockIcon className="size-4 text-muted-foreground" />
-      <span className="text-muted-foreground">This exercise unlocks after you complete</span>
-      {missing.map((p, i) => (
-        <span key={p.id}>
-          <Link href={`/exercises/${p.id}`} className="font-medium underline underline-offset-4 hover:text-brand">
-            {p.title}
-          </Link>
-          {i < missing.length - 1 && ","}
-        </span>
-      ))}
     </div>
   )
 }
@@ -362,7 +344,7 @@ function LoadError({ status, message }: { status: number; message: string }) {
         {status === 404 ? "That exercise doesn't exist." : message}
       </p>
       <Button asChild variant="outline">
-        <Link href="/">Back to the roadmap</Link>
+        <Link href="/learn">Back to courses</Link>
       </Button>
     </div>
   )

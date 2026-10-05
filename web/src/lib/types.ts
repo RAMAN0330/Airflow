@@ -1,52 +1,114 @@
 // Mirrors api/schemas.py.
 
-export type ExerciseStatus = "locked" | "available" | "in_progress" | "completed"
+export type StepStatus = "locked" | "available" | "in_progress" | "completed"
+export type CourseStatus = "locked" | "upgrade_required" | "available" | "in_progress" | "completed"
 export type RunStatus = "passed" | "failed" | "error" | "timeout"
 export type Difficulty = "beginner" | "intermediate" | "advanced"
+export type Plan = "free" | "pro"
+export type StepKind = "lesson" | "exercise"
 
-export interface ExerciseSummary {
+export interface LockReason {
+  kind: "previous_step" | "previous_course" | "plan"
+  message: string
+  target: { kind?: StepKind; id: string; title: string } | null
+}
+
+export interface StepRef {
+  kind: StepKind
   id: string
   title: string
-  summary: string
-  phase: number
-  difficulty: Difficulty
+  status: StepStatus
+  course_id: string
+}
+
+export interface StepSummary extends StepRef {
+  xp: number
   estimated_minutes: number
-  tags: string[]
-  prerequisites: string[]
-  status: ExerciseStatus
+  lock_reason: LockReason | null
+  difficulty: Difficulty | null
   attempts: number
   best_score: number | null
 }
 
-export interface Module {
+export interface ModuleSummary {
   id: string
   title: string
   concepts: string[]
-  exercise: ExerciseSummary | null
+  coming_soon: boolean
+  lesson: StepSummary | null
+  exercise: StepSummary | null
 }
 
-export interface Phase {
-  id: number
-  title: string
-  description: string
-  modules: Module[]
-}
-
-export interface Curriculum {
-  phases: Phase[]
-}
-
-export interface ExerciseRef {
+export interface CourseRef {
   id: string
   title: string
-  status: ExerciseStatus
+  tier: Plan
 }
 
-export interface ExerciseDetail extends ExerciseSummary {
+export interface Course {
+  id: string
+  title: string
+  tagline: string
+  description: string
+  level: string
+  tier: Plan
+  position: number
+  status: CourseStatus
+  lock_reason: LockReason | null
+  completed_steps: number
+  total_steps: number
+  estimated_minutes: number
+  total_xp: number
+  modules: ModuleSummary[]
+}
+
+export interface QuizQuestion {
+  id: string
+  prompt: string
+  options: string[]
+}
+
+export interface LessonDetail {
+  id: string
+  title: string
+  markdown: string
+  estimated_minutes: number
+  xp: number
+  status: StepStatus
+  lock_reason: LockReason | null
+  completed_at: string | null
+  course: CourseRef
+  module_title: string
+  questions: QuizQuestion[]
+  next: StepRef | null
+}
+
+export interface QuizAttemptResult {
+  passed: boolean
+  results: { id: string; correct: boolean; explanation: string | null }[]
+  newly_completed: boolean
+  xp_earned: number
+  unlocked: StepRef[]
+}
+
+export interface ExerciseDetail {
+  id: string
+  title: string
+  summary: string
+  difficulty: Difficulty
+  estimated_minutes: number
+  tags: string[]
+  xp: number
+  status: StepStatus
+  lock_reason: LockReason | null
+  attempts: number
+  best_score: number | null
+  course: CourseRef
+  module_title: string
+  lesson: StepRef | null
+  next: StepRef | null
   task_markdown: string
   starter_code: string
-  prerequisite_details: ExerciseRef[]
-  unlocks: ExerciseRef[]
   time_limit_seconds: number
 }
 
@@ -93,7 +155,18 @@ export interface Submission {
 
 export interface SubmissionOut extends Submission {
   newly_completed: boolean
-  unlocked: ExerciseRef[]
+  xp_earned: number
+  unlocked: StepRef[]
+}
+
+export interface Me {
+  display_name: string
+  plan: Plan
+  xp: number
+  rank: number | null
+  exercises_completed: number
+  lessons_completed: number
+  billing_mode: "demo" | "disabled" | string
 }
 
 export interface ActivityDay {
@@ -103,20 +176,50 @@ export interface ActivityDay {
 }
 
 export interface ExerciseProgress {
-  exercise: ExerciseSummary
+  exercise: StepSummary
+  course_title: string
   completed_at: string | null
   last_attempt_at: string | null
 }
 
+export interface CourseProgress {
+  id: string
+  title: string
+  status: CourseStatus
+  completed_steps: number
+  total_steps: number
+}
+
 export interface Progress {
+  xp: number
+  rank: number | null
   total_exercises: number
-  completed: number
-  in_progress: number
-  available: number
+  exercises_completed: number
+  total_lessons: number
+  lessons_completed: number
   total_submissions: number
   pass_rate: number
+  courses: CourseProgress[]
   exercises: ExerciseProgress[]
   recent: Submission[]
   activity: ActivityDay[]
-  next_up: ExerciseSummary | null
+  next_up: StepRef | null
+}
+
+export type LeaderboardPeriod = "all" | "week"
+
+export interface LeaderboardEntry {
+  rank: number
+  display_name: string
+  xp: number
+  exercises_completed: number
+  lessons_completed: number
+  is_me: boolean
+}
+
+export interface Leaderboard {
+  period: LeaderboardPeriod
+  total_learners: number
+  entries: LeaderboardEntry[]
+  me: LeaderboardEntry | null
 }

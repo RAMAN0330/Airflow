@@ -81,6 +81,7 @@ export const useWorkspaceStore = create<WorkspaceState>()((set, get) => ({
           attempts: s.exercise.attempts + 1,
           best_score: Math.max(s.exercise.best_score ?? 0, sub.score),
           status: sub.status === "passed" ? "completed" : s.exercise.status === "completed" ? "completed" : "in_progress",
+          next: s.exercise.next && (sub.unlocked.find((u) => u.id === s.exercise!.next!.id) ?? s.exercise.next),
         },
       }))
       useCatalogStore.getState().invalidate()

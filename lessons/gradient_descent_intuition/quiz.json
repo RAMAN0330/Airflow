@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "X has shape (200, 3). What shape must ∂J/∂w have?",
+      "options": ["(200,)", "(3,)", "(200, 3)", "A scalar"],
+      "answer": 1,
+      "explanation": "There's one gradient entry per weight, and there are n = 3 weights. Xᵀ r has shape (3, 200) @ (200,) = (3,)."
+    },
+    {
+      "id": "q2",
+      "prompt": "During training the cost goes 4.1 → 9.8 → 37.2 → inf. What is the most likely cause?",
+      "options": ["The learning rate is too small", "The bias is not regularized", "The learning rate is too large, or the update sign is flipped", "There are too many features"],
+      "answer": 2,
+      "explanation": "A growing cost means each step overshoots, or moves uphill. Check that the update is w − α·∇J and reduce α."
+    },
+    {
+      "id": "q3",
+      "prompt": "In ridge regression, which parameters does the L2 penalty apply to?",
+      "options": ["Only the weights w", "Only the bias b", "Both w and b", "Neither: it applies to the predictions"],
+      "answer": 0,
+      "explanation": "The penalty is (λ/2m)·‖w‖². The bias only shifts predictions, so penalizing it would bias the model without reducing overfitting."
+    }
+  ]
+}

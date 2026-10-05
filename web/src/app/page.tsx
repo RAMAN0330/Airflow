@@ -1,5 +1,5 @@
-import { RoadmapView } from "@/components/roadmap/roadmap-view"
+import { LandingPage } from "@/components/landing/landing-page"
 
 export default function HomePage() {
-  return <RoadmapView />
+  return <LandingPage />
 }

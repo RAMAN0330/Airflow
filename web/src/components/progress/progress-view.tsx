@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect } from "react"
-import { ActivityIcon, CheckCircle2Icon, FlameIcon, RefreshCwIcon, SendIcon, TargetIcon, UserRoundXIcon } from "lucide-react"
+import { ActivityIcon, CheckCircle2Icon, FlameIcon, RefreshCwIcon, SparklesIcon, TargetIcon, UserRoundXIcon } from "lucide-react"
 
 import { ActivityHeatmap, currentStreak } from "@/components/progress/activity-heatmap"
 import { RunStatusBadge, StatusBadge } from "@/components/status-badge"
@@ -23,9 +23,11 @@ import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { timeAgo } from "@/lib/format"
+import { stepHref } from "@/lib/links"
 import type { Progress as ProgressData } from "@/lib/types"
 import { useCatalogStore } from "@/stores/catalog-store"
 import { useEditorStore } from "@/stores/editor-store"
+import { useSessionStore } from "@/stores/session-store"
 import { useUserStore } from "@/stores/user-store"
 
 export function ProgressView() {
@@ -69,20 +71,33 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
   const streak = currentStreak(progress.activity)
   const stats = [
     {
-      label: "Exercises completed",
-      value: `${progress.completed}/${progress.total_exercises}`,
+      label: "Total XP",
+      value: progress.xp,
+      sub: progress.rank ? `Rank #${progress.rank}` : "Not ranked yet",
+      icon: SparklesIcon,
+      tone: "text-brand",
+    },
+    {
+      label: "Steps completed",
+      value: progress.lessons_completed + progress.exercises_completed,
+      sub: `${progress.lessons_completed}/${progress.total_lessons} lessons · ${progress.exercises_completed}/${progress.total_exercises} exercises`,
       icon: CheckCircle2Icon,
       tone: "text-success",
     },
-    { label: "Submissions", value: progress.total_submissions, icon: SendIcon, tone: "text-brand" },
-    { label: "Pass rate", value: `${Math.round(progress.pass_rate * 100)}%`, icon: TargetIcon, tone: "text-warning" },
-    { label: "Day streak", value: streak, icon: FlameIcon, tone: "text-orange-500" },
+    {
+      label: "Pass rate",
+      value: `${Math.round(progress.pass_rate * 100)}%`,
+      sub: `${progress.total_submissions} submissions`,
+      icon: TargetIcon,
+      tone: "text-warning",
+    },
+    { label: "Day streak", value: streak, sub: streak ? "Keep it going" : "Run code today to start one", icon: FlameIcon, tone: "text-orange-500" },
   ]
 
   return (
     <>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {stats.map(({ label, value, icon: Icon, tone }) => (
+        {stats.map(({ label, value, sub, icon: Icon, tone }) => (
           <Card key={label} className="gap-2 py-5">
             <CardHeader className="px-5">
               <CardDescription className="flex items-center justify-between">
@@ -92,16 +107,50 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
             </CardHeader>
             <CardContent className="px-5">
               <p className="text-2xl font-semibold tabular-nums">{value}</p>
+              <p className="mt-1 truncate text-xs text-muted-foreground">{sub}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Courses</CardTitle>
+          <CardDescription>Courses unlock in order. Finish one to open the next.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          {progress.courses.map((c, i) => {
+            const pct = c.total_steps ? (c.completed_steps / c.total_steps) * 100 : 0
+            return (
+              <Link key={c.id} href={`/learn/${c.id}`} className="space-y-3 rounded-lg border p-4 transition-colors hover:bg-muted/40">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Course {i + 1}</p>
+                    <p className="font-medium">{c.title}</p>
+                  </div>
+                  <StatusBadge status={c.status} />
+                </div>
+                <div className="space-y-1.5">
+                  <Progress
+                    value={pct}
+                    className="h-1.5 bg-muted"
+                    indicatorClassName={c.status === "completed" ? "bg-success" : "bg-brand"}
+                  />
+                  <p className="text-xs text-muted-foreground tabular-nums">
+                    {c.completed_steps}/{c.total_steps} steps
+                  </p>
+                </div>
+              </Link>
+            )
+          })}
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
         <Card>
           <CardHeader>
             <CardTitle>Exercises</CardTitle>
-            <CardDescription>Best score and status for every exercise, in curriculum order.</CardDescription>
+            <CardDescription>Best score and status for every exercise, in course order.</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
@@ -114,14 +163,14 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {progress.exercises.map(({ exercise: ex, completed_at }) => (
+                {progress.exercises.map(({ exercise: ex, course_title, completed_at }) => (
                   <TableRow key={ex.id}>
                     <TableCell className="max-w-64">
                       <Link href={`/exercises/${ex.id}`} className="block truncate font-medium hover:underline">
                         {ex.title}
                       </Link>
                       <span className="text-xs text-muted-foreground">
-                        Phase {ex.phase}
+                        {course_title}
                         {completed_at && ` · completed ${timeAgo(completed_at)}`}
                       </span>
                     </TableCell>
@@ -171,7 +220,7 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
               <p className="text-sm text-muted-foreground">No submissions yet. Your first run will show up here.</p>
               {progress.next_up && (
                 <Button asChild size="sm">
-                  <Link href={`/exercises/${progress.next_up.id}`}>Start {progress.next_up.title}</Link>
+                  <Link href={stepHref(progress.next_up)}>Start {progress.next_up.title}</Link>
                 </Button>
               )}
             </div>
@@ -223,6 +272,7 @@ function ResetIdentityButton() {
             onClick={() => {
               resetIdentity()
               useEditorStore.setState({ drafts: {} })
+              useSessionStore.setState({ me: null })
               invalidate()
               load({ force: true })
             }}

@@ -1,5 +1,16 @@
 import { useUserStore } from "@/stores/user-store"
-import type { Curriculum, ExerciseDetail, Progress, Submission, SubmissionOut } from "@/lib/types"
+import type {
+  Course,
+  ExerciseDetail,
+  Leaderboard,
+  LeaderboardPeriod,
+  LessonDetail,
+  Me,
+  Progress,
+  QuizAttemptResult,
+  Submission,
+  SubmissionOut,
+} from "@/lib/types"
 
 export class ApiError extends Error {
   constructor(
@@ -32,14 +43,25 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>
 }
 
+const enc = encodeURIComponent
+const post = (body: unknown): RequestInit => ({ method: "POST", body: JSON.stringify(body) })
+
 export const api = {
-  curriculum: () => request<Curriculum>("/curriculum"),
-  exercise: (id: string) => request<ExerciseDetail>(`/exercises/${encodeURIComponent(id)}`),
-  submissions: (id: string) => request<Submission[]>(`/exercises/${encodeURIComponent(id)}/submissions`),
-  submit: (id: string, code: string) =>
-    request<SubmissionOut>(`/exercises/${encodeURIComponent(id)}/submissions`, {
-      method: "POST",
-      body: JSON.stringify({ code }),
-    }),
+  me: () => request<Me>("/me"),
+  rename: (display_name: string) => request<Me>("/me", { method: "PATCH", body: JSON.stringify({ display_name }) }),
+  checkout: (interval: "month" | "year") => request<Me>("/billing/checkout", post({ plan: "pro", interval })),
+  cancel: () => request<Me>("/billing/cancel", post({})),
+
+  courses: () => request<Course[]>("/courses"),
+  course: (id: string) => request<Course>(`/courses/${enc(id)}`),
+  lesson: (id: string) => request<LessonDetail>(`/lessons/${enc(id)}`),
+  attemptQuiz: (id: string, answers: Record<string, number>) =>
+    request<QuizAttemptResult>(`/lessons/${enc(id)}/attempts`, post({ answers })),
+
+  exercise: (id: string) => request<ExerciseDetail>(`/exercises/${enc(id)}`),
+  submissions: (id: string) => request<Submission[]>(`/exercises/${enc(id)}/submissions`),
+  submit: (id: string, code: string) => request<SubmissionOut>(`/exercises/${enc(id)}/submissions`, post({ code })),
+
   progress: () => request<Progress>("/progress"),
+  leaderboard: (period: LeaderboardPeriod) => request<Leaderboard>(`/leaderboard?period=${period}`),
 }

@@ -22,7 +22,25 @@ CREATE TABLE IF NOT EXISTS submissions (
 );
 CREATE INDEX IF NOT EXISTS ix_submissions_user_ex ON submissions (user_id, exercise_id, created_at);
 CREATE INDEX IF NOT EXISTS ix_submissions_user_time ON submissions (user_id, created_at);
+
+CREATE TABLE IF NOT EXISTS users (
+    id           TEXT PRIMARY KEY,
+    display_name TEXT NOT NULL,
+    plan         TEXT NOT NULL DEFAULT 'free',
+    created_at   TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS lesson_completions (
+    user_id      TEXT NOT NULL,
+    lesson_id    TEXT NOT NULL,
+    completed_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, lesson_id)
+);
 """
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
 class Database:
@@ -55,7 +73,7 @@ class Database:
             "score": result["score"],
             "duration_ms": result["duration_ms"],
             "result_json": json.dumps(result),
-            "created_at": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+            "created_at": now_iso(),
         }
         with self.connect() as conn:
             conn.execute(
@@ -97,3 +115,58 @@ class Database:
         """
         with self.connect() as conn:
             return [dict(r) for r in conn.execute(sql, [user_id, f"-{days} days"])]
+
+    # ------------------------------------------------------------- users
+
+    def ensure_user(self, user_id: str, default_name: str) -> dict:
+        with self.connect() as conn:
+            conn.execute(
+                "INSERT OR IGNORE INTO users (id, display_name, plan, created_at) VALUES (?, ?, 'free', ?)",
+                [user_id, default_name, now_iso()],
+            )
+            return dict(conn.execute("SELECT * FROM users WHERE id = ?", [user_id]).fetchone())
+
+    def update_user(self, user_id: str, **fields) -> dict:
+        assert set(fields) <= {"display_name", "plan"}
+        with self.connect() as conn:
+            conn.execute(
+                f"UPDATE users SET {', '.join(f'{k} = ?' for k in fields)} WHERE id = ?",
+                [*fields.values(), user_id],
+            )
+            return dict(conn.execute("SELECT * FROM users WHERE id = ?", [user_id]).fetchone())
+
+    # ------------------------------------------------------------- lessons
+
+    def completed_lessons(self, user_id: str) -> dict[str, str]:
+        with self.connect() as conn:
+            rows = conn.execute("SELECT lesson_id, completed_at FROM lesson_completions WHERE user_id = ?", [user_id])
+            return {r["lesson_id"]: r["completed_at"] for r in rows}
+
+    def complete_lesson(self, user_id: str, lesson_id: str) -> bool:
+        """Record a completion; returns True only the first time."""
+        with self.connect() as conn:
+            cur = conn.execute(
+                "INSERT OR IGNORE INTO lesson_completions (user_id, lesson_id, completed_at) VALUES (?, ?, ?)",
+                [user_id, lesson_id, now_iso()],
+            )
+            return cur.rowcount == 1
+
+    # ------------------------------------------------------------- leaderboard
+
+    def xp_events(self) -> list[dict]:
+        """Every XP-earning event: first pass of each exercise and each lesson completion, per user."""
+        sql = """
+            SELECT user_id, 'exercise' AS kind, exercise_id AS ref, MIN(created_at) AS at
+            FROM submissions WHERE status = 'passed' GROUP BY user_id, exercise_id
+            UNION ALL
+            SELECT user_id, 'lesson' AS kind, lesson_id AS ref, completed_at AS at FROM lesson_completions
+        """
+        with self.connect() as conn:
+            return [dict(r) for r in conn.execute(sql)]
+
+    def users_by_id(self, ids: list[str]) -> dict[str, dict]:
+        if not ids:
+            return {}
+        with self.connect() as conn:
+            rows = conn.execute(f"SELECT * FROM users WHERE id IN ({', '.join('?' * len(ids))})", ids)
+            return {r["id"]: dict(r) for r in rows}

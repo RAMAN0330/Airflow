@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "x = [-2, 0.5, 3] and dout = [1, 1, 1]. What does relu_backward(dout, x) return?",
+      "options": ["[1, 1, 1]", "[0, 0.5, 3]", "[0, 1, 1]", "[-2, 0.5, 3]"],
+      "answer": 2,
+      "explanation": "ReLU gates the upstream gradient: it passes where x > 0 and is zeroed elsewhere, giving [0, 1, 1]."
+    },
+    {
+      "id": "q2",
+      "prompt": "Why subtract max(x) before exponentiating in softmax?",
+      "options": ["It makes the output sum to 1", "It prevents overflow without changing the result", "It makes the gradient sparse", "It's required for the axis argument to work"],
+      "answer": 1,
+      "explanation": "Softmax is invariant to shifting all logits, so subtracting the max keeps every exponent ≤ 0 and nothing overflows."
+    },
+    {
+      "id": "q3",
+      "prompt": "Why do networks need non-linear activations at all?",
+      "options": ["To normalize the outputs", "Without them, stacked layers collapse to a single linear map", "To make training faster", "To keep weights small"],
+      "answer": 1,
+      "explanation": "W₂(W₁x) = (W₂W₁)x. Without a non-linearity between layers, depth adds no expressive power."
+    }
+  ]
+}

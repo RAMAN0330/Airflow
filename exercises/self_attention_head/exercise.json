@@ -5,12 +5,25 @@
   "phase": 3,
   "difficulty": "intermediate",
   "estimated_minutes": 40,
-  "tags": ["transformers", "numpy", "masking"],
-  "prerequisites": ["activation_functions"],
-  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "tags": [
+    "transformers",
+    "numpy",
+    "masking"
+  ],
+  "limits": {
+    "cpu_seconds": 10,
+    "wall_seconds": 15,
+    "memory_mb": 2048
+  },
   "remediation": {
-    "ShapeMismatch": {"hint": "Matrix shapes don't line up. Write down (…, T, d) for Q, K and V and check which axes each matmul contracts.", "exercise": "linear_regression_gd"},
-    "NaNInSoftmax": {"hint": "Your softmax is overflowing. Revisit the max-subtraction trick.", "exercise": "activation_functions"}
+    "ShapeMismatch": {
+      "hint": "Matrix shapes don't line up. Write down (…, T, d) for Q, K and V and check which axes each matmul contracts.",
+      "exercise": "linear_regression_gd"
+    },
+    "NaNInSoftmax": {
+      "hint": "Your softmax is overflowing. Revisit the max-subtraction trick.",
+      "exercise": "activation_functions"
+    }
   },
   "hints": {
     "test_softmax_sums_to_one": "Normalize by the sum along the same axis you exponentiate over, with keepdims=True.",

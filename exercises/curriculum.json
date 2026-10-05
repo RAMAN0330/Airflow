@@ -1,37 +1,46 @@
 {
-  "phases": [
+  "courses": [
     {
-      "id": 1,
+      "id": "classical-ml",
       "title": "Classical Machine Learning",
-      "description": "Build the geometric and probabilistic foundations: losses, gradients and the classic estimators.",
+      "tagline": "Losses, gradients and the estimators everything else is built on.",
+      "description": "Derive the core estimators by hand: optimize a loss with gradient descent, regularize it, and learn to tell when training is actually converging.",
+      "level": "Beginner",
+      "tier": "free",
       "modules": [
-        {"id": "regression", "title": "Linear & Ridge Regression", "concepts": ["MSE", "Gradient descent", "L2 regularization"], "exercise": "linear_regression_gd"},
-        {"id": "classification", "title": "Logistic Regression & SVM", "concepts": ["Sigmoid", "Binary cross-entropy", "Max margin", "Kernels"], "exercise": null},
-        {"id": "trees", "title": "Decision Trees & Random Forests", "concepts": ["Entropy", "Gini impurity", "Bagging"], "exercise": null},
-        {"id": "clustering", "title": "K-Means & GMMs", "concepts": ["Distance matrices", "EM loop", "Centroid updates"], "exercise": null},
-        {"id": "pca", "title": "Principal Component Analysis", "concepts": ["Covariance", "Eigendecomposition", "SVD"], "exercise": null}
+        {"id": "regression", "title": "Linear & Ridge Regression", "concepts": ["MSE", "Gradient descent", "L2 regularization"], "lesson": "gradient_descent_intuition", "exercise": "linear_regression_gd"},
+        {"id": "classification", "title": "Logistic Regression & SVM", "concepts": ["Sigmoid", "Binary cross-entropy", "Max margin", "Kernels"], "lesson": null, "exercise": null},
+        {"id": "trees", "title": "Decision Trees & Random Forests", "concepts": ["Entropy", "Gini impurity", "Bagging"], "lesson": null, "exercise": null},
+        {"id": "clustering", "title": "K-Means & GMMs", "concepts": ["Distance matrices", "EM loop", "Centroid updates"], "lesson": null, "exercise": null},
+        {"id": "pca", "title": "Principal Component Analysis", "concepts": ["Covariance", "Eigendecomposition", "SVD"], "lesson": null, "exercise": null}
       ]
     },
     {
-      "id": 2,
+      "id": "deep-learning",
       "title": "Deep Learning Foundations",
-      "description": "Move from array manipulation to forward passes and hand-written backpropagation.",
+      "tagline": "From array manipulation to forward passes and hand-written backprop.",
+      "description": "Build the pieces of a neural network yourself, from non-linearities and their local gradients to full backpropagation, convolutions and recurrent state.",
+      "level": "Intermediate",
+      "tier": "free",
       "modules": [
-        {"id": "activations", "title": "Activation Functions", "concepts": ["ReLU", "GELU", "Stable softmax", "Local gradients"], "exercise": "activation_functions"},
-        {"id": "mlp", "title": "Multilayer Perceptron Backprop", "concepts": ["Forward pass", "Jacobians", "Chain rule"], "exercise": null},
-        {"id": "cnn", "title": "Convolutional Networks", "concepts": ["Multi-channel conv", "Stride & padding", "Max-pooling"], "exercise": null},
-        {"id": "rnn", "title": "RNNs & LSTMs", "concepts": ["Hidden state", "BPTT", "Gradient clipping"], "exercise": null}
+        {"id": "activations", "title": "Activation Functions", "concepts": ["ReLU", "GELU", "Stable softmax", "Local gradients"], "lesson": "activations_and_backprop", "exercise": "activation_functions"},
+        {"id": "mlp", "title": "Multilayer Perceptron Backprop", "concepts": ["Forward pass", "Jacobians", "Chain rule"], "lesson": null, "exercise": null},
+        {"id": "cnn", "title": "Convolutional Networks", "concepts": ["Multi-channel conv", "Stride & padding", "Max-pooling"], "lesson": null, "exercise": null},
+        {"id": "rnn", "title": "RNNs & LSTMs", "concepts": ["Hidden state", "BPTT", "Gradient clipping"], "lesson": null, "exercise": null}
       ]
     },
     {
-      "id": 3,
+      "id": "genai-llms",
       "title": "Generative AI & LLMs",
-      "description": "Implement the internals of transformers and the techniques used to adapt and ground them.",
+      "tagline": "The internals of transformers, and how to adapt and ground them.",
+      "description": "Implement attention from its equation, then the techniques used on modern LLMs: multi-head attention, rotary embeddings, LoRA fine-tuning and retrieval-augmented generation.",
+      "level": "Advanced",
+      "tier": "pro",
       "modules": [
-        {"id": "attention", "title": "Self-Attention Head", "concepts": ["Scaled dot-product", "Causal masking"], "exercise": "self_attention_head"},
-        {"id": "mha", "title": "Multi-Head Attention & RoPE", "concepts": ["Head slicing", "Rotary embeddings"], "exercise": null},
-        {"id": "lora", "title": "LoRA Fine-Tuning", "concepts": ["Frozen base weights", "Low-rank ΔW = BA"], "exercise": null},
-        {"id": "rag", "title": "Retrieval-Augmented Generation", "concepts": ["Chunking", "Cosine similarity", "Context injection"], "exercise": null}
+        {"id": "attention", "title": "Self-Attention Head", "concepts": ["Scaled dot-product", "Causal masking"], "lesson": "attention_intuition", "exercise": "self_attention_head"},
+        {"id": "mha", "title": "Multi-Head Attention & RoPE", "concepts": ["Head slicing", "Rotary embeddings"], "lesson": null, "exercise": null},
+        {"id": "lora", "title": "LoRA Fine-Tuning", "concepts": ["Frozen base weights", "Low-rank ΔW = BA"], "lesson": null, "exercise": null},
+        {"id": "rag", "title": "Retrieval-Augmented Generation", "concepts": ["Chunking", "Cosine similarity", "Context injection"], "lesson": null, "exercise": null}
       ]
     }
   ]

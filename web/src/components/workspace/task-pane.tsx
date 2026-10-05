@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRightIcon, CheckCircle2Icon, ClockIcon, FileTextIcon, HistoryIcon, LockIcon } from "lucide-react"
+import { ArrowRightIcon, BookMarkedIcon, CheckCircle2Icon, ClockIcon, FileTextIcon, HistoryIcon, LockIcon } from "lucide-react"
 
 import { Markdown } from "@/components/markdown"
 import { Badge } from "@/components/ui/badge"
@@ -9,7 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SubmissionHistory } from "@/components/workspace/submission-history"
-import type { ExerciseDetail, ExerciseRef } from "@/lib/types"
+import { courseHref, stepHref } from "@/lib/links"
+import type { ExerciseDetail, StepRef } from "@/lib/types"
 import { useWorkspaceStore, type TaskTab } from "@/stores/workspace-store"
 
 export function TaskPane({ exercise, onRestore }: { exercise: ExerciseDetail; onRestore: (code: string) => void }) {
@@ -55,46 +56,49 @@ function MetaSection({ exercise }: { exercise: ExerciseDetail }) {
         <Badge variant="secondary" className="gap-1">
           <ClockIcon /> ~{exercise.estimated_minutes} min
         </Badge>
+        <Badge variant="secondary" className="text-brand">
+          +{exercise.xp} XP
+        </Badge>
         {exercise.tags.map((t) => (
           <Badge key={t} variant="outline" className="text-muted-foreground">
             {t}
           </Badge>
         ))}
       </div>
-      {exercise.prerequisite_details.length > 0 && (
-        <RefList title="Builds on" items={exercise.prerequisite_details} />
-      )}
-      {exercise.unlocks.length > 0 && <RefList title="Unlocks" items={exercise.unlocks} />}
+      <div className="space-y-2">
+        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">In this course</p>
+        <ul className="space-y-1">
+          <RefLink href={courseHref(exercise.course.id)} label={exercise.course.title} hint="Course" />
+          {exercise.lesson && <RefLink step={exercise.lesson} hint="Lesson for this exercise" />}
+          {exercise.next && <RefLink step={exercise.next} hint="Up next" />}
+        </ul>
+      </div>
     </div>
   )
 }
 
-function RefList({ title, items }: { title: string; items: ExerciseRef[] }) {
+function RefLink({ step, href, label, hint }: { step?: StepRef; href?: string; label?: string; hint: string }) {
+  const target = step ? stepHref(step) : href!
   return (
-    <div className="space-y-2">
-      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{title}</p>
-      <ul className="space-y-1">
-        {items.map((r) => (
-          <li key={r.id}>
-            <Link
-              href={`/exercises/${r.id}`}
-              className="group flex items-center gap-2 rounded-md px-2 py-1.5 -mx-2 hover:bg-muted"
-            >
-              {r.status === "completed" ? (
-                <CheckCircle2Icon className="size-4 text-success" />
-              ) : r.status === "locked" ? (
-                <LockIcon className="size-4 text-muted-foreground" />
-              ) : (
-                <span className="grid size-4 place-items-center">
-                  <span className="size-2 rounded-full bg-brand" />
-                </span>
-              )}
-              <span className="flex-1">{r.title}</span>
-              <ArrowRightIcon className="size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <li>
+      <Link href={target} className="group -mx-2 flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted">
+        {!step ? (
+          <BookMarkedIcon className="size-4 text-muted-foreground" />
+        ) : step.status === "completed" ? (
+          <CheckCircle2Icon className="size-4 text-success" />
+        ) : step.status === "locked" ? (
+          <LockIcon className="size-4 text-muted-foreground" />
+        ) : (
+          <span className="grid size-4 place-items-center">
+            <span className="size-2 rounded-full bg-brand" />
+          </span>
+        )}
+        <span className="flex-1">
+          {step?.title ?? label}
+          <span className="block text-xs text-muted-foreground">{hint}</span>
+        </span>
+        <ArrowRightIcon className="size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+      </Link>
+    </li>
   )
 }
