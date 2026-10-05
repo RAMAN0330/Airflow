@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { motion } from "motion/react"
 import { GraduationCapIcon, SparklesIcon, TrophyIcon } from "lucide-react"
 
 import { Logo } from "@/components/logo"
@@ -29,20 +30,31 @@ export function SiteHeader() {
       <div className="flex h-14 items-center gap-4 px-4 sm:gap-6 sm:px-6">
         <Logo />
         <nav className="flex items-center gap-1 text-sm">
-          {NAV.map(({ href, label, icon: Icon, match }) => (
-            <Link
-              key={href}
-              href={href}
-              aria-label={label}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3",
-                match(pathname) && "bg-accent text-foreground"
-              )}
-            >
-              <Icon className="size-4 md:hidden" />
-              <span className="hidden md:inline">{label}</span>
-            </Link>
-          ))}
+          {NAV.map(({ href, label, icon: Icon, match }) => {
+            const active = match(pathname)
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-label={label}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "relative flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-muted-foreground transition-colors hover:text-foreground sm:px-3",
+                  active && "text-foreground"
+                )}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="nav-active"
+                    className="absolute inset-0 -z-10 rounded-md bg-accent"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <Icon className="size-4 md:hidden" />
+                <span className="hidden md:inline">{label}</span>
+              </Link>
+            )
+          })}
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />

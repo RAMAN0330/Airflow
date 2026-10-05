@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useEffect } from "react"
 import { ArrowRightIcon, BookOpenIcon, CodeIcon } from "lucide-react"
 
+import { Stagger, StaggerItem } from "@/components/motion/primitives"
 import { ProBadge } from "@/components/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -29,11 +30,11 @@ export function CoursePreview() {
   }
 
   return (
-    <ol className="grid gap-4 md:grid-cols-3">
+    <Stagger as="ol" inView step={0.12} className="grid gap-4 md:grid-cols-3">
       {courses.map((c) => {
         const released = c.modules.filter((m) => !m.coming_soon)
         return (
-          <li key={c.id}>
+          <StaggerItem as="li" key={c.id}>
             <Link
               href={courseHref(c.id)}
               className="group flex h-full flex-col gap-4 rounded-xl border bg-card p-6 shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md"
@@ -74,9 +75,9 @@ export function CoursePreview() {
                 <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
               </div>
             </Link>
-          </li>
+          </StaggerItem>
         )
       })}
-    </ol>
+    </Stagger>
   )
 }

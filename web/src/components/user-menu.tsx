@@ -3,6 +3,9 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { BarChart3Icon, CrownIcon, PencilIcon, TrophyIcon } from "lucide-react"
+import { AnimatePresence, motion } from "motion/react"
+
+import { AnimatedNumber, EASE } from "@/components/motion/primitives"
 
 import { RenameDialog } from "@/components/rename-dialog"
 import { ProBadge } from "@/components/status-badge"
@@ -41,13 +44,7 @@ export function UserMenu() {
 
   return (
     <>
-      <Link
-        href="/leaderboard"
-        className="hidden items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium tabular-nums transition-colors hover:bg-accent sm:flex"
-        title="Your XP"
-      >
-        <span className="text-brand">✦</span> {me.xp} XP
-      </Link>
+      <XpPill xp={me.xp} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon-sm" className="rounded-full" aria-label="Account menu">
@@ -92,5 +89,55 @@ export function UserMenu() {
       </DropdownMenu>
       <RenameDialog open={renaming} onOpenChange={setRenaming} />
     </>
+  )
+}
+
+/** XP counter that counts up and floats a "+N" when XP increases. */
+function XpPill({ xp }: { xp: number }) {
+  const [prev, setPrev] = useState(xp)
+  const [gain, setGain] = useState<{ amount: number; key: number } | null>(null)
+
+  // Derive the gain during render when XP changes (no effect needed).
+  if (xp !== prev) {
+    if (xp > prev) setGain({ amount: xp - prev, key: xp })
+    setPrev(xp)
+  }
+
+  useEffect(() => {
+    if (!gain) return
+    const t = setTimeout(() => setGain(null), 1800)
+    return () => clearTimeout(t)
+  }, [gain])
+
+  return (
+    <Link
+      href="/leaderboard"
+      className="relative hidden items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-accent sm:flex"
+      title="Your XP"
+    >
+      <motion.span
+        key={gain?.key ?? "idle"}
+        className="text-brand"
+        animate={gain ? { rotate: [0, 180, 360], scale: [1, 1.5, 1] } : undefined}
+        transition={{ duration: 0.7 }}
+      >
+        ✦
+      </motion.span>
+      <AnimatedNumber value={xp} /> XP
+      <AnimatePresence>
+        {gain && (
+          <motion.span
+            key={gain.key}
+            className="absolute -top-1 right-1 rounded-full bg-brand px-1.5 py-0.5 text-[10px] font-semibold text-brand-foreground"
+            initial={{ opacity: 0, y: 4, scale: 0.8 }}
+            animate={{ opacity: 1, y: -18, scale: 1 }}
+            exit={{ opacity: 0, y: -28 }}
+            transition={{ duration: 0.5, ease: EASE }}
+          >
+            +{gain.amount}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </Link>
   )
 }

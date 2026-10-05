@@ -3,7 +3,9 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { CrownIcon, MedalIcon, PencilIcon, RefreshCwIcon, TrophyIcon } from "lucide-react"
+import { motion } from "motion/react"
 
+import { AnimatedNumber, EASE } from "@/components/motion/primitives"
 import { RenameDialog } from "@/components/rename-dialog"
 import { initials } from "@/components/user-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -83,7 +85,7 @@ export function LeaderboardView() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6" key={period}>
           <div className="grid grid-cols-3 items-end gap-3 sm:gap-4">
             {[1, 0, 2].map((i) => {
               const e = podium[i]
@@ -104,8 +106,8 @@ export function LeaderboardView() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {board.entries.map((e) => (
-                  <Row key={e.rank} entry={e} />
+                {board.entries.map((e, i) => (
+                  <Row key={e.rank} entry={e} index={i} />
                 ))}
                 {meOutside && board.me && (
                   <>
@@ -114,7 +116,7 @@ export function LeaderboardView() {
                         ⋯
                       </TableCell>
                     </TableRow>
-                    <Row entry={board.me} />
+                    <Row entry={board.me} index={board.entries.length} />
                   </>
                 )}
               </TableBody>
@@ -132,16 +134,32 @@ export function LeaderboardView() {
   )
 }
 
+// Third place lands first, champion last.
+const PODIUM_DELAY = [0.45, 0.25, 0.05]
+
 function PodiumCard({ entry: e, place }: { entry: LeaderboardEntry; place: number }) {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 200, damping: 20, delay: PODIUM_DELAY[place] }}
       className={cn(
         "flex flex-col items-center gap-2 rounded-xl border bg-card px-2 text-center shadow-xs",
         place === 0 ? "border-amber-500/40 bg-gradient-to-b from-amber-500/10 to-card py-6" : "py-4",
         e.is_me && "ring-2 ring-brand"
       )}
     >
-      {place === 0 ? <CrownIcon className="size-6 text-amber-500" /> : <MedalIcon className={cn("size-5", MEDAL[place])} />}
+      {place === 0 ? (
+        <motion.span
+          initial={{ y: -14, rotate: -20, opacity: 0 }}
+          animate={{ y: 0, rotate: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 10, delay: 0.75 }}
+        >
+          <CrownIcon className="size-6 text-amber-500" />
+        </motion.span>
+      ) : (
+        <MedalIcon className={cn("size-5", MEDAL[place])} />
+      )}
       <Avatar className={place === 0 ? "size-14" : "size-11"}>
         <AvatarFallback className="bg-gradient-to-br from-brand/80 to-fuchsia-500/80 font-semibold text-white">
           {initials(e.display_name)}
@@ -149,15 +167,21 @@ function PodiumCard({ entry: e, place }: { entry: LeaderboardEntry; place: numbe
       </Avatar>
       <p className="w-full truncate px-1 text-sm font-medium">{e.display_name}</p>
       <p className="text-lg font-semibold tabular-nums">
-        {e.xp} <span className="text-xs font-normal text-muted-foreground">XP</span>
+        <AnimatedNumber value={e.xp} /> <span className="text-xs font-normal text-muted-foreground">XP</span>
       </p>
-    </div>
+    </motion.div>
   )
 }
 
-function Row({ entry: e }: { entry: LeaderboardEntry }) {
+function Row({ entry: e, index = 0 }: { entry: LeaderboardEntry; index?: number }) {
   return (
-    <TableRow className={cn(e.is_me && "bg-brand/5 hover:bg-brand/10")}>
+    <motion.tr
+      data-slot="table-row"
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.4, ease: EASE, delay: 0.5 + index * 0.05 }}
+      className={cn("border-b transition-colors hover:bg-muted/50", e.is_me && "bg-brand/5 hover:bg-brand/10")}
+    >
       <TableCell className="pl-4 font-medium tabular-nums">
         {e.rank <= 3 ? <MedalIcon className={cn("size-4", MEDAL[e.rank - 1])} aria-label={`Rank ${e.rank}`} /> : `#${e.rank}`}
       </TableCell>
@@ -173,6 +197,6 @@ function Row({ entry: e }: { entry: LeaderboardEntry }) {
       <TableCell className="hidden text-right text-muted-foreground tabular-nums sm:table-cell">{e.lessons_completed}</TableCell>
       <TableCell className="hidden text-right text-muted-foreground tabular-nums sm:table-cell">{e.exercises_completed}</TableCell>
       <TableCell className="pr-4 text-right font-semibold tabular-nums">{e.xp}</TableCell>
-    </TableRow>
+    </motion.tr>
   )
 }

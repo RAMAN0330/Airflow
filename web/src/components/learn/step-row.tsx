@@ -1,7 +1,13 @@
+"use client"
+
 import Link from "next/link"
 import { ArrowRightIcon, BookOpenIcon, CheckIcon, CodeIcon, LockIcon } from "lucide-react"
 
+import { motion } from "motion/react"
+
+import { EASE, StaggerItem } from "@/components/motion/primitives"
 import { Button } from "@/components/ui/button"
+import { useFreshUnlock } from "@/hooks/use-fresh-unlock"
 import { stepHref } from "@/lib/links"
 import type { StepSummary } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -29,17 +35,47 @@ export function StepIcon({ step, className }: { step: Pick<StepSummary, "kind" |
 export function StepRow({ step, last }: { step: StepSummary; last?: boolean }) {
   const locked = step.status === "locked"
   const active = step.status === "available" || step.status === "in_progress"
+  const fresh = useFreshUnlock(step.status === "locked" ? undefined : step.id, { consume: true })
   return (
-    <li className="relative flex gap-4">
-      {!last && <span className="absolute top-10 bottom-[-0.75rem] left-[17px] w-0.5 bg-border" aria-hidden />}
-      <StepIcon step={step} />
+    <StaggerItem as="li" className="relative flex gap-4">
+      {!last && (
+        <span className="absolute top-10 bottom-[-0.75rem] left-[17px] w-0.5 overflow-hidden bg-border" aria-hidden>
+          {step.status === "completed" && (
+            <motion.span
+              className="absolute inset-x-0 top-0 bg-success"
+              initial={{ height: 0 }}
+              animate={{ height: "100%" }}
+              transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
+            />
+          )}
+        </span>
+      )}
+      <motion.div
+        className="relative"
+        initial={fresh ? { scale: 0.6, rotate: -20 } : false}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 380, damping: 12, delay: 0.3 }}
+      >
+        {fresh && (
+          <motion.span
+            aria-hidden
+            className="absolute inset-0 rounded-full bg-brand/40"
+            initial={{ scale: 1, opacity: 0.7 }}
+            animate={{ scale: 1.9, opacity: 0 }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+          />
+        )}
+        <StepIcon step={step} />
+      </motion.div>
       <div
         className={cn(
-          "flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border px-4 py-3",
+          "relative flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2 overflow-hidden rounded-lg border px-4 py-3 transition-colors",
           active && "border-brand/40 bg-brand/5",
-          locked && "bg-muted/30"
+          locked && "bg-muted/30",
+          fresh && "ring-2 ring-brand/50"
         )}
       >
+        {fresh && <span aria-hidden className="animate-shimmer pointer-events-none absolute inset-0" />}
         <div className="min-w-0 flex-1 space-y-0.5">
           <p className="text-xs text-muted-foreground">
             {step.kind === "lesson" ? "Lesson" : "Exercise"}
@@ -49,7 +85,19 @@ export function StepRow({ step, last }: { step: StepSummary; last?: boolean }) {
               <> · best {Math.round(step.best_score * 100)}%</>
             )}
           </p>
-          <p className={cn("font-medium", locked && "text-muted-foreground")}>{step.title}</p>
+          <p className={cn("flex items-center gap-2 font-medium", locked && "text-muted-foreground")}>
+            {step.title}
+            {fresh && (
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 15, delay: 0.5 }}
+                className="rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold tracking-wide text-brand-foreground uppercase"
+              >
+                New
+              </motion.span>
+            )}
+          </p>
           {locked && step.lock_reason && <p className="text-xs text-muted-foreground">{step.lock_reason.message}</p>}
         </div>
         {locked ? (
@@ -64,6 +112,6 @@ export function StepRow({ step, last }: { step: StepSummary; last?: boolean }) {
           </Button>
         )}
       </div>
-    </li>
+    </StaggerItem>
   )
 }

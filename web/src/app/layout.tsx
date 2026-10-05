@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { GeistMono } from "geist/font/mono"
 import { GeistSans } from "geist/font/sans"
 
+import { MotionProviders } from "@/components/motion/providers"
 import { SiteHeader } from "@/components/site-header"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
@@ -21,9 +22,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <TooltipProvider delayDuration={200}>
-            <SiteHeader />
-            <main className="flex flex-1 flex-col">{children}</main>
-            <Toaster position="bottom-right" richColors closeButton />
+            <MotionProviders>
+              <SiteHeader />
+              <main className="flex flex-1 flex-col">{children}</main>
+              <Toaster position="bottom-right" richColors closeButton />
+            </MotionProviders>
           </TooltipProvider>
         </ThemeProvider>
       </body>

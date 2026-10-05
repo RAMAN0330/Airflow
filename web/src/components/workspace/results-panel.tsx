@@ -15,6 +15,7 @@ import {
   XIcon,
 } from "lucide-react"
 
+import { AnimatedNumber, Reveal, Stagger, StaggerItem } from "@/components/motion/primitives"
 import { RunStatusBadge } from "@/components/status-badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -149,9 +150,9 @@ function TestsView({ result }: { result: RunResult }) {
       <div className="space-y-2">
         <div className="flex items-baseline justify-between text-sm">
           <span className="font-medium">
-            {result.passed_tests} of {result.total_tests} tests passing
+            <AnimatedNumber value={result.passed_tests} /> of {result.total_tests} tests passing
           </span>
-          <span className="text-muted-foreground tabular-nums">{Math.round(result.score * 100)}%</span>
+          <AnimatedNumber value={result.score * 100} format={(n) => `${Math.round(n)}%`} className="text-muted-foreground tabular-nums" />
         </div>
         <Progress
           value={result.score * 100}
@@ -161,7 +162,8 @@ function TestsView({ result }: { result: RunResult }) {
       </div>
 
       {result.remediation.map((r) => (
-        <Alert key={r.tag} className="border-brand/30 bg-brand/5">
+        <Reveal key={r.tag} y={8}>
+        <Alert className="border-brand/30 bg-brand/5">
           <LightbulbIcon className="text-brand" />
           <AlertTitle>Mentor tip</AlertTitle>
           <AlertDescription>
@@ -175,20 +177,21 @@ function TestsView({ result }: { result: RunResult }) {
             )}
           </AlertDescription>
         </Alert>
+        </Reveal>
       ))}
 
-      <ul className="divide-y overflow-hidden rounded-lg border">
+      <Stagger as="ul" step={0.035} key={`${result.status}-${result.duration_ms}-${result.passed_tests}`} className="divide-y overflow-hidden rounded-lg border">
         {failed.map((t, i) => (
           <FailedTestRow key={t.name} test={t} defaultOpen={i === 0} />
         ))}
         {passed.map((t) => (
-          <li key={t.name} className="flex items-center gap-2.5 px-3 py-2 text-sm">
+          <StaggerItem as="li" key={t.name} className="flex items-center gap-2.5 px-3 py-2 text-sm">
             <CheckIcon className="size-4 shrink-0 text-success" />
             <span className="truncate">{prettyTestName(t.name)}</span>
             <span className="ml-auto text-xs text-muted-foreground tabular-nums">{t.duration_ms.toFixed(0)} ms</span>
-          </li>
+          </StaggerItem>
         ))}
-      </ul>
+      </Stagger>
     </div>
   )
 }
@@ -196,7 +199,7 @@ function TestsView({ result }: { result: RunResult }) {
 function FailedTestRow({ test, defaultOpen }: { test: TestResult; defaultOpen: boolean }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <li>
+    <StaggerItem as="li">
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-muted/50">
           <XIcon className="size-4 shrink-0 text-destructive" />
@@ -224,7 +227,7 @@ function FailedTestRow({ test, defaultOpen }: { test: TestResult; defaultOpen: b
           )}
         </CollapsibleContent>
       </Collapsible>
-    </li>
+    </StaggerItem>
   )
 }
 

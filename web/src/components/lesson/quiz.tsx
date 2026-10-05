@@ -3,7 +3,10 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowRightIcon, CheckCircle2Icon, CircleHelpIcon, Loader2Icon, PartyPopperIcon, XCircleIcon } from "lucide-react"
+import { AnimatePresence, motion } from "motion/react"
 import { toast } from "sonner"
+
+import { EASE, Stagger, StaggerItem } from "@/components/motion/primitives"
 
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -32,7 +35,7 @@ export function Quiz({ lesson }: { lesson: LessonDetail }) {
       const res = await submit()
       if (!res) return
       if (res.newly_completed) {
-        celebrate("Lesson complete!", res.xp_earned, res.unlocked, (h) => router.push(h))
+        celebrate({ title: "Lesson complete!", xp: res.xp_earned, unlocked: res.unlocked, navigate: (h) => router.push(h) })
       } else if (!res.passed) {
         const wrong = res.results.filter((r) => !r.correct).length
         toast(`${wrong} answer${wrong > 1 ? "s" : ""} to revisit`, {
@@ -62,11 +65,11 @@ export function Quiz({ lesson }: { lesson: LessonDetail }) {
         </div>
       </div>
 
-      <ol className="space-y-6">
+      <Stagger as="ol" inView step={0.1} className="space-y-6">
         {lesson.questions.map((q, qi) => {
           const v = verdict(q.id)
           return (
-            <li key={q.id} className="space-y-3">
+            <StaggerItem as="li" key={q.id} className="space-y-3">
               <p className="font-medium">
                 <span className="mr-2 text-muted-foreground tabular-nums">{qi + 1}.</span>
                 {q.prompt}
@@ -85,7 +88,7 @@ export function Quiz({ lesson }: { lesson: LessonDetail }) {
                       key={oi}
                       htmlFor={id}
                       className={cn(
-                        "flex cursor-pointer items-center gap-3 rounded-lg border px-3.5 py-2.5 text-sm transition-colors hover:bg-muted/50",
+                        "flex cursor-pointer items-center gap-3 rounded-lg border px-3.5 py-2.5 text-sm transition-all duration-200 hover:translate-x-0.5 hover:bg-muted/50 active:scale-[0.99]",
                         selected && "border-brand bg-brand/5",
                         selected && v?.correct && "border-success bg-success/5",
                         selected && v && !v.correct && "border-destructive bg-destructive/5",
@@ -98,27 +101,47 @@ export function Quiz({ lesson }: { lesson: LessonDetail }) {
                   )
                 })}
               </RadioGroup>
-              {v && (
-                <p
-                  className={cn(
-                    "flex gap-2 rounded-md px-3 py-2 text-sm",
-                    v.correct ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-                  )}
-                >
-                  {v.correct ? <CheckCircle2Icon className="mt-0.5 size-4 shrink-0" /> : <XCircleIcon className="mt-0.5 size-4 shrink-0" />}
-                  <span className={v.correct ? "text-foreground/80" : undefined}>
-                    {v.correct ? v.explanation : "Not quite. Review the lesson and pick another answer."}
-                  </span>
-                </p>
-              )}
-            </li>
+              <AnimatePresence initial={false}>
+                {v && (
+                  <motion.p
+                    key={`${q.id}-${v.correct}`}
+                    initial={{ opacity: 0, height: 0, y: -4 }}
+                    animate={v.correct ? { opacity: 1, height: "auto", y: 0 } : { opacity: 1, height: "auto", y: 0, x: [0, -6, 6, -4, 4, 0] }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.4, ease: EASE }}
+                    className={cn(
+                      "flex gap-2 overflow-hidden rounded-md px-3 py-2 text-sm",
+                      v.correct ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                    )}
+                  >
+                    {v.correct ? <CheckCircle2Icon className="mt-0.5 size-4 shrink-0" /> : <XCircleIcon className="mt-0.5 size-4 shrink-0" />}
+                    <span className={v.correct ? "text-foreground/80" : undefined}>
+                      {v.correct ? v.explanation : "Not quite. Review the lesson and pick another answer."}
+                    </span>
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </StaggerItem>
           )
         })}
-      </ol>
+      </Stagger>
 
+      <AnimatePresence>
       {passedNow || completed ? (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-success/30 bg-success/5 p-4">
-          <PartyPopperIcon className="size-5 text-success" />
+        <motion.div
+          key="passed"
+          initial={{ opacity: 0, scale: 0.92, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 22 }}
+          className="flex flex-wrap items-center gap-3 rounded-xl border border-success/30 bg-success/5 p-4"
+        >
+          <motion.span
+            initial={{ rotate: -30, scale: 0 }}
+            animate={{ rotate: 0, scale: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10, delay: 0.15 }}
+          >
+            <PartyPopperIcon className="size-5 text-success" />
+          </motion.span>
           <p className="flex-1 text-sm">
             <span className="font-medium">{attempt?.newly_completed ? `Lesson complete: +${attempt.xp_earned} XP.` : "Lesson complete."}</span>{" "}
             {lesson.next && <span className="text-muted-foreground">Next: {lesson.next.title}</span>}
@@ -134,8 +157,9 @@ export function Quiz({ lesson }: { lesson: LessonDetail }) {
               <Link href={`/learn/${lesson.course.id}`}>Back to course</Link>
             </Button>
           )}
-        </div>
+        </motion.div>
       ) : null}
+      </AnimatePresence>
 
       {!passedNow && (
         <div className="flex flex-wrap items-center justify-end gap-3">

@@ -48,6 +48,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { ResultsPanel } from "@/components/workspace/results-panel"
 import { TaskPane } from "@/components/workspace/task-pane"
+import { useFreshUnlock } from "@/hooks/use-fresh-unlock"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { ApiError } from "@/lib/api"
 import { celebrate } from "@/lib/celebrate"
@@ -75,6 +76,7 @@ export function Workspace({ exerciseId }: { exerciseId: string }) {
   useEffect(() => {
     open(exerciseId)
   }, [exerciseId, open])
+  useFreshUnlock(exerciseId, { consume: true, after: 300 })
 
   const run = useCallback(async () => {
     if (!exercise || locked || running) return
@@ -84,7 +86,13 @@ export function Workspace({ exerciseId }: { exerciseId: string }) {
       if (sub.newly_completed) {
         // The last step of a course completes the course.
         const courseDone = !exercise.next || exercise.next.course_id !== exercise.course.id
-        celebrate("Exercise complete!", sub.xp_earned, sub.unlocked, (h) => router.push(h), courseDone)
+        celebrate({
+          title: "Exercise complete!",
+          xp: sub.xp_earned,
+          unlocked: sub.unlocked,
+          navigate: (h) => router.push(h),
+          courseComplete: courseDone ? { courseTitle: exercise.course.title, next: exercise.next } : undefined,
+        })
       } else if (sub.status === "passed") {
         toast.success("All tests passing")
       }

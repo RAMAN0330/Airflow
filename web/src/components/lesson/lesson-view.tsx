@@ -7,10 +7,12 @@ import { BookOpenIcon, ChevronRightIcon, ClockIcon, CrownIcon } from "lucide-rea
 import { LockNotice } from "@/components/lock-notice"
 import { Markdown } from "@/components/markdown"
 import { Quiz } from "@/components/lesson/quiz"
+import { Reveal } from "@/components/motion/primitives"
 import { ProBadge, StatusBadge } from "@/components/status-badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { courseHref } from "@/lib/links"
+import { useFreshUnlock } from "@/hooks/use-fresh-unlock"
 import { useLessonStore } from "@/stores/lesson-store"
 
 export function LessonView({ lessonId }: { lessonId: string }) {
@@ -21,6 +23,7 @@ export function LessonView({ lessonId }: { lessonId: string }) {
   useEffect(() => {
     open(lessonId)
   }, [lessonId, open])
+  useFreshUnlock(lessonId, { consume: true, after: 300 })
 
   if (loadError) {
     return (
@@ -92,12 +95,12 @@ export function LessonView({ lessonId }: { lessonId: string }) {
           </Button>
         </div>
       ) : (
-        <div className="space-y-12">
+        <Reveal className="space-y-12" y={12}>
           <div className="text-[15px] [&_.prose-task]:text-[15px] [&_h1]:text-3xl [&_h1]:font-semibold [&_h2]:mt-10 [&_h2]:text-xl [&_p]:leading-7">
             <Markdown>{lesson.markdown}</Markdown>
           </div>
           <Quiz lesson={lesson} />
-        </div>
+        </Reveal>
       )}
     </article>
   )

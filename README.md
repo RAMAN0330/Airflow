@@ -20,13 +20,15 @@ Browser ──► Next.js (web) ──/api/* rewrite──► FastAPI (api) ─�
 
 ## Screenshots
 
-All screenshots are taken from the running app during an end-to-end run. The full set of 23 is in [`docs/screenshots/`](docs/screenshots).
+All screenshots are taken from the running app during an end-to-end run. The full set is in [`docs/screenshots/`](docs/screenshots).
+**Watch the animated journey:** [`docs/journey.mp4`](docs/journey.mp4) (52 s), from the landing page through a lesson, the quiz,
+the first exercise, the course-complete celebration, the leaderboard and pricing.
 
 | | |
 |---|---|
-| ![Landing](docs/screenshots/17-landing-dark.png) **Landing** | ![Courses](docs/screenshots/02-learn-fresh.png) **Courses**: course 2 locked, course 3 needs Pro |
+| ![Landing](docs/screenshots/17-landing-dark.png) **Landing** | ![Courses](docs/screenshots/02-learn-onboarding.png) **Courses**: first-visit guide; course 2 locked, course 3 needs Pro |
 | ![Lesson quiz](docs/screenshots/06-quiz-feedback.png) **Lesson quiz**: explanations appear only for correct answers | ![Exercise locked](docs/screenshots/04-exercise-locked.png) **Exercise locked** until its lesson is passed |
-| ![Course complete](docs/screenshots/08-course-complete-toast.png) **Course complete**: the next course unlocks | ![Pricing](docs/screenshots/12-pricing.png) **Pricing**: monthly/yearly, comparison, FAQ |
+| ![Course complete](docs/screenshots/08-course-complete-celebration.png) **Course complete**: celebration, then straight into the next course | ![Pricing](docs/screenshots/12-pricing.png) **Pricing**: monthly/yearly, comparison, FAQ |
 | ![Checkout](docs/screenshots/13-checkout-dialog.png) **Demo checkout**: clearly labelled, no payment | ![Leaderboard](docs/screenshots/15-leaderboard.png) **Leaderboard**: podium, all-time/weekly, "You" row |
 
 <p>
@@ -69,6 +71,28 @@ make check   # pytest + typecheck + lint
 
 The header shows your XP and an account menu with your name, plan, rank, progress, name editing and plan
 management. Pages have light, dark and system themes, and every page works at phone width.
+
+## Motion and the learner journey
+
+Animation is used to explain state changes, not as decoration. It's built with [`motion`](https://motion.dev)
+(the Framer Motion successor) plus a few CSS keyframes.
+
+| Moment | What happens |
+|---|---|
+| Any navigation | The page eases in (CSS, so server-rendered content is never hidden waiting for JavaScript) |
+| Landing | Hero copy enters in sequence. The workspace preview "types" its code, then tests tick in one by one and a hint slides open. Sections reveal on scroll |
+| First visit to `/learn` | An onboarding guide draws the path: lesson → quiz → code → unlock. Dismissible, and remembered |
+| Lists everywhere | Courses, modules, steps, test results, plans and leaderboard rows stagger in. Progress bars fill, and numbers count up |
+| Quiz | Feedback slides open under each question. A wrong answer gives a small shake. A pass gets a spring-in success card, confetti, and the header XP counting up with a "+25" floater |
+| Unlocks | Newly unlocked steps and courses glow, with a "New" / "Course unlocked" badge, until you open them |
+| Course complete | A celebration dialog (trophy, XP earned, total) leads straight into the next course's first lesson, or to Pro if that course is paywalled |
+| Leaderboard | The podium rises third-place first, the crown drops in, and rows cascade. Switching period re-animates |
+| Navigation and buttons | The active nav pill slides between links, and buttons give subtle press feedback |
+
+**Accessibility:** `MotionConfig reducedMotion="user"` plus `prefers-reduced-motion` CSS overrides mean
+that learners who ask for reduced motion get no movement: no slides, springs, shakes, confetti or ambient
+loops. Content is visible immediately. The end-to-end check verifies this, and also that entrance animations
+leave no lingering `transform` behind, which would break `position: fixed` descendants.
 
 ## Sequential unlocking
 

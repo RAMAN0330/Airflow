@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion } from "motion/react"
 import { Progress as ProgressPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
@@ -15,12 +16,16 @@ function Progress({
     <ProgressPrimitive.Root
       data-slot="progress"
       className={cn("relative h-2 w-full overflow-hidden rounded-full bg-primary/20", className)}
+      value={value}
       {...props}
     >
-      <ProgressPrimitive.Indicator
+      {/* Fills from empty on mount and glides between values. */}
+      <motion.div
         data-slot="progress-indicator"
-        className={cn("h-full w-full flex-1 bg-primary transition-all", indicatorClassName)}
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+        className={cn("h-full w-full flex-1 rounded-full bg-primary", indicatorClassName)}
+        initial={{ x: "-100%" }}
+        animate={{ x: `-${100 - (value || 0)}%` }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
       />
     </ProgressPrimitive.Root>
   )

@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { AnimatedNumber, Stagger, StaggerItem } from "@/components/motion/primitives"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,7 +34,7 @@ import { cn } from "@/lib/utils"
 import { useCatalogStore } from "@/stores/catalog-store"
 import { useSessionStore } from "@/stores/session-store"
 
-const fmt = (n: number) => (Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`)
+const fmt = (n: number) => (Math.abs(n - Math.round(n)) < 0.005 ? `$${Math.round(n)}` : `$${n.toFixed(2)}`)
 
 export function PlanCards() {
   const [interval, setInterval] = useState<Interval>("year")
@@ -66,10 +67,10 @@ export function PlanCards() {
         </Badge>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <Stagger inView step={0.1} className="grid gap-6 lg:grid-cols-3">
         {PLANS.map((plan) => (
+          <StaggerItem key={plan.id} className="flex">
           <PlanCard
-            key={plan.id}
             plan={plan}
             interval={interval}
             currentPlan={me?.plan ?? null}
@@ -77,8 +78,9 @@ export function PlanCards() {
             onUpgrade={() => setCheckoutOpen(true)}
             onCancel={() => setCancelOpen(true)}
           />
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
       <CheckoutDialog open={checkoutOpen} onOpenChange={setCheckoutOpen} interval={interval} />
       <CancelDialog open={cancelOpen} onOpenChange={setCancelOpen} />
@@ -139,7 +141,7 @@ function PlanCard({
   return (
     <div
       className={cn(
-        "relative flex flex-col gap-6 rounded-2xl border bg-card p-6 shadow-xs",
+        "relative flex w-full flex-col gap-6 rounded-2xl border bg-card p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
         plan.highlighted && "border-brand shadow-lg ring-1 ring-brand/30 lg:-my-2 lg:py-8",
         plan.comingSoon && "bg-muted/30"
       )}
@@ -162,7 +164,7 @@ function PlanCard({
         ) : (
           <>
             <p className="flex items-baseline gap-1">
-              <span className="text-4xl font-semibold tracking-tight tabular-nums">{fmt(price)}</span>
+              <AnimatedNumber value={price} format={fmt} duration={0.5} className="text-4xl font-semibold tracking-tight tabular-nums" />
               <span className="text-sm text-muted-foreground">/ month</span>
             </p>
             <p className="mt-1 text-xs text-muted-foreground">

@@ -6,6 +6,7 @@ import { ArrowRightIcon, ChevronLeftIcon, ClockIcon, PartyPopperIcon, SparklesIc
 
 import { StepRow } from "@/components/learn/step-row"
 import { LockNotice } from "@/components/lock-notice"
+import { Reveal, Stagger, StaggerItem } from "@/components/motion/primitives"
 import { ProBadge, StatusBadge } from "@/components/status-badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -61,7 +62,7 @@ export function CourseView({ courseId }: { courseId: string }) {
         <ChevronLeftIcon className="size-4" /> All courses
       </Link>
 
-      <header className="mb-8 space-y-5">
+      <Reveal as="div" y={10} className="mb-8 space-y-5">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -108,10 +109,10 @@ export function CourseView({ courseId }: { courseId: string }) {
             )}
           </div>
         )}
-      </header>
+      </Reveal>
 
       {course.status === "completed" && nextCourse && (
-        <div className="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-success/30 bg-success/5 p-4">
+        <Reveal className="mb-8 flex flex-wrap items-center gap-3 rounded-xl border border-success/30 bg-success/5 p-4">
           <PartyPopperIcon className="size-5 text-success" />
           <p className="flex-1 text-sm">
             <span className="font-medium">Course complete.</span>{" "}
@@ -122,14 +123,14 @@ export function CourseView({ courseId }: { courseId: string }) {
               Go to course {nextCourse.position} <ArrowRightIcon />
             </Link>
           </Button>
-        </div>
+        </Reveal>
       )}
 
-      <div className="space-y-8">
+      <Stagger className="space-y-8" step={0.1} delay={0.1}>
         {released.map((m, i) => {
           const items = [m.lesson, m.exercise].filter(Boolean) as StepSummary[]
           return (
-            <section key={m.id} className="space-y-3">
+            <StaggerItem as="section" key={m.id} className="space-y-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-semibold">
                   <span className="mr-2 text-muted-foreground tabular-nums">Module {i + 1}</span>
@@ -143,15 +144,15 @@ export function CourseView({ courseId }: { courseId: string }) {
                   ))}
                 </div>
               </div>
-              <ol className="space-y-3">
+              <Stagger as="ol" className="space-y-3" step={0.12}>
                 {items.map((s, j) => (
                   <StepRow key={s.id} step={s} last={j === items.length - 1} />
                 ))}
-              </ol>
-            </section>
+              </Stagger>
+            </StaggerItem>
           )
         })}
-      </div>
+      </Stagger>
 
       {upcoming.length > 0 && (
         <section className="mt-12 space-y-3">

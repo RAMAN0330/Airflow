@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useEffect } from "react"
 import { ActivityIcon, CheckCircle2Icon, FlameIcon, RefreshCwIcon, SparklesIcon, TargetIcon, UserRoundXIcon } from "lucide-react"
 
+import { AnimatedNumber, Reveal, Stagger, StaggerItem } from "@/components/motion/primitives"
 import { ActivityHeatmap, currentStreak } from "@/components/progress/activity-heatmap"
 import { RunStatusBadge, StatusBadge } from "@/components/status-badge"
 import {
@@ -86,7 +87,7 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
     },
     {
       label: "Pass rate",
-      value: `${Math.round(progress.pass_rate * 100)}%`,
+      value: <AnimatedNumber value={progress.pass_rate * 100} format={(n) => `${Math.round(n)}%`} />,
       sub: `${progress.total_submissions} submissions`,
       icon: TargetIcon,
       tone: "text-warning",
@@ -96,9 +97,10 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <Stagger className="grid grid-cols-2 gap-4 lg:grid-cols-4" step={0.08}>
         {stats.map(({ label, value, sub, icon: Icon, tone }) => (
-          <Card key={label} className="gap-2 py-5">
+          <StaggerItem key={label}>
+          <Card className="h-full gap-2 py-5">
             <CardHeader className="px-5">
               <CardDescription className="flex items-center justify-between">
                 {label}
@@ -106,13 +108,17 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-5">
-              <p className="text-2xl font-semibold tabular-nums">{value}</p>
+              <p className="text-2xl font-semibold tabular-nums">
+                {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
+              </p>
               <p className="mt-1 truncate text-xs text-muted-foreground">{sub}</p>
             </CardContent>
           </Card>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
+      <Reveal>
       <Card>
         <CardHeader>
           <CardTitle>Courses</CardTitle>
@@ -145,8 +151,9 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
           })}
         </CardContent>
       </Card>
+      </Reveal>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
+      <Reveal className="grid gap-4 lg:grid-cols-[1fr_340px]" delay={0.1}>
         <Card>
           <CardHeader>
             <CardTitle>Exercises</CardTitle>
@@ -208,7 +215,7 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
             <ActivityHeatmap activity={progress.activity} />
           </CardContent>
         </Card>
-      </div>
+      </Reveal>
 
       <Card>
         <CardHeader>

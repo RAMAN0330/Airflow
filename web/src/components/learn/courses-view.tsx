@@ -12,9 +12,13 @@ import {
   LockIcon,
   RefreshCwIcon,
   TrophyIcon,
+  UnlockIcon,
 } from "lucide-react"
+import { motion } from "motion/react"
 
+import { Onboarding } from "@/components/learn/onboarding"
 import { LockNotice } from "@/components/lock-notice"
+import { AnimatedNumber, EASE, Stagger, StaggerItem } from "@/components/motion/primitives"
 import { ProBadge, StatusBadge } from "@/components/status-badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -23,6 +27,7 @@ import { plural } from "@/lib/format"
 import { courseHref, stepHref } from "@/lib/links"
 import type { Course } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { useFreshUnlock } from "@/hooks/use-fresh-unlock"
 import { useCatalogStore } from "@/stores/catalog-store"
 import { useSessionStore } from "@/stores/session-store"
 
@@ -32,6 +37,7 @@ export function CoursesView() {
   const error = useCatalogStore((s) => s.error)
   const loadCourses = useCatalogStore((s) => s.loadCourses)
   const loadProgress = useCatalogStore((s) => s.loadProgress)
+  const progress = useCatalogStore((s) => s.progress)
 
   useEffect(() => {
     loadCourses()
@@ -52,6 +58,8 @@ export function CoursesView() {
         <SummaryCard />
       </section>
 
+      <Onboarding show={progress?.xp === 0} next={progress?.next_up ?? null} />
+
       {state === "error" && !courses ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-10 text-center">
           <p className="font-medium">Couldn&apos;t load courses</p>
@@ -67,11 +75,11 @@ export function CoursesView() {
           ))}
         </div>
       ) : (
-        <ol className="space-y-6">
+        <Stagger as="ol" step={0.12} className="space-y-6">
           {courses.map((c, i) => (
             <CourseCard key={c.id} course={c} last={i === courses.length - 1} />
           ))}
-        </ol>
+        </Stagger>
       )}
     </div>
   )
@@ -85,7 +93,7 @@ function SummaryCard() {
   return (
     <div className="space-y-4 rounded-xl border bg-card p-5 shadow-xs">
       <div className="grid grid-cols-3 gap-3 text-center">
-        <Stat label="XP" value={progress.xp} />
+        <Stat label="XP" value={<AnimatedNumber value={progress.xp} />} />
         <Stat label="Lessons" value={`${progress.lessons_completed}/${progress.total_lessons}`} />
         <Stat label="Exercises" value={`${progress.exercises_completed}/${progress.total_exercises}`} />
       </div>
@@ -131,9 +139,11 @@ function CourseCard({ course: c, last }: { course: Course; last: boolean }) {
   const firstOpen = c.modules
     .flatMap((m) => [m.lesson, m.exercise])
     .find((s) => s && (s.status === "in_progress" || s.status === "available"))
+  // A course whose first open step was just unlocked has itself just opened.
+  const justOpened = useFreshUnlock(c.completed_steps === 0 ? firstOpen?.id : undefined)
 
   return (
-    <li className="relative grid gap-4 sm:grid-cols-[2.75rem_1fr]">
+    <StaggerItem as="li" className="relative grid gap-4 sm:grid-cols-[2.75rem_1fr]">
       <div className="hidden flex-col items-center sm:flex">
         <span
           className={cn(
@@ -153,16 +163,29 @@ function CourseCard({ course: c, last }: { course: Course; last: boolean }) {
             c.position
           )}
         </span>
-        {!last && <span className="mt-2 w-0.5 flex-1 bg-border" />}
+        {!last && (
+          <span className="relative mt-2 w-0.5 flex-1 overflow-hidden bg-border">
+            {c.status === "completed" && (
+              <motion.span
+                className="absolute inset-x-0 top-0 bg-success"
+                initial={{ height: 0 }}
+                animate={{ height: "100%" }}
+                transition={{ duration: 1.1, ease: EASE, delay: 0.3 }}
+              />
+            )}
+          </span>
+        )}
       </div>
 
       <div
         className={cn(
           "space-y-5 rounded-xl border bg-card p-5 shadow-xs sm:p-6",
           (c.status === "available" || c.status === "in_progress") && "border-brand/40 ring-1 ring-brand/10",
-          locked && "bg-muted/20"
+          locked && "bg-muted/20",
+          justOpened && "relative overflow-hidden ring-2 ring-brand/50"
         )}
       >
+        {justOpened && <JustUnlocked label="Course unlocked" />}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-1.5">
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -233,6 +256,22 @@ function CourseCard({ course: c, last }: { course: Course; last: boolean }) {
           </Button>
         </div>
       </div>
-    </li>
+    </StaggerItem>
+  )
+}
+
+export function JustUnlocked({ label = "Just unlocked" }: { label?: string }) {
+  return (
+    <>
+      <span aria-hidden className="animate-shimmer pointer-events-none absolute inset-0 rounded-[inherit]" />
+      <motion.span
+        initial={{ scale: 0, rotate: -12 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: "spring", stiffness: 420, damping: 14, delay: 0.4 }}
+        className="relative inline-flex w-fit items-center gap-1.5 rounded-full bg-brand px-2.5 py-1 text-xs font-semibold text-brand-foreground shadow-sm shadow-brand/30"
+      >
+        <UnlockIcon className="size-3.5" /> {label}
+      </motion.span>
+    </>
   )
 }
