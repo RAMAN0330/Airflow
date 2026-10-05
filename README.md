@@ -17,6 +17,24 @@ Browser ──► Next.js (web) ──/api/* rewrite──► FastAPI (api) ─�
                │ Monaco (self-hosted)               └ catalog: exercises + curriculum.json (validated DAG)
 ```
 
+## Screenshots
+
+All screenshots are taken from the running app. The full set of 18 is in [`docs/screenshots/`](docs/screenshots).
+
+| | |
+|---|---|
+| ![Roadmap](docs/screenshots/01-roadmap.png) **Roadmap**: three phases, status-aware module cards | ![Progress](docs/screenshots/09-progress.png) **Progress**: stats, activity heatmap, per-exercise table |
+| ![Failing run](docs/screenshots/03-failing-run-with-hints.png) **Failing run**: per-test errors, hints and a mentor tip | ![Passed](docs/screenshots/04-passed-unlock-toast.png) **Passed**: all green, toast offers the unlocked exercise |
+| ![Mentor tip](docs/screenshots/06-mentor-tip-shape-mismatch.png) **Remediation**: shape mismatch links back to a foundational exercise | ![Locked](docs/screenshots/13-locked-exercise.png) **Locked**: prerequisites named, Run disabled |
+| ![Dark workspace](docs/screenshots/11-workspace-dark.png) **Dark mode** | ![Dark roadmap](docs/screenshots/10-roadmap-dark.png) **Dark roadmap** |
+
+<p>
+  <img src="docs/screenshots/14-mobile-roadmap.png" width="200" alt="Mobile roadmap">
+  <img src="docs/screenshots/15-mobile-task.png" width="200" alt="Mobile task">
+  <img src="docs/screenshots/16-mobile-code.png" width="200" alt="Mobile code">
+  <img src="docs/screenshots/17-mobile-results.png" width="200" alt="Mobile results">
+</p>
+
 ## Quick start
 
 **Docker:**
