@@ -1,0 +1,21 @@
+{
+  "id": "sql_analytics_queries",
+  "title": "Analytics Queries in SQL",
+  "summary": "Answer real business questions against an e-commerce database: aggregates, joins, anti-joins and window functions.",
+  "difficulty": "beginner",
+  "estimated_minutes": 30,
+  "tags": ["sql", "sqlite", "window-functions"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "Your result has the wrong columns. Alias every output column exactly as the task specifies, e.g. SUM(...) AS revenue."}
+  },
+  "hints": {
+    "test_revenue_by_category": "Join order_items → orders → products, keep only status = 'completed', then GROUP BY category and ORDER BY revenue DESC. Wrap the sum in ROUND(..., 2).",
+    "test_top_customers": "Aggregate completed orders per customer: SUM(quantity * unit_price) and COUNT(DISTINCT order_id). ORDER BY total_spent DESC, customer_id, then LIMIT 5.",
+    "test_monthly_revenue": "substr(order_date, 1, 7) gives 'YYYY-MM'. Count DISTINCT orders, because joining to order_items repeats each order once per line.",
+    "test_customers_without_orders": "This is an anti-join: LEFT JOIN orders and keep rows where the order side IS NULL, or use NOT EXISTS.",
+    "test_running_revenue": "Compute monthly revenue in a CTE first, then SUM(revenue) OVER (ORDER BY month) adds the running total.",
+    "test_top_product_per_category": "Rank products inside each category with ROW_NUMBER() OVER (PARTITION BY category ORDER BY units DESC, product), then keep rank 1.",
+    "test_queries_are_read_only": "Each answer must be a single SELECT (or WITH … SELECT) statement, with no INSERT/UPDATE/DELETE/DROP and no extra statements after a semicolon."
+  }
+}

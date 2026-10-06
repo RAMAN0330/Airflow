@@ -12,7 +12,7 @@ const LINKS = [
 export function SiteFooter() {
   return (
     <footer className="border-t">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="space-y-2">
           <Logo />
           <p className="max-w-xs text-sm text-muted-foreground">Learn machine learning by implementing it, one graded step at a time.</p>

@@ -1,0 +1,21 @@
+{
+  "id": "point_in_time_join",
+  "title": "Point-in-Time Correct Feature Joins",
+  "summary": "Build training data the way a feature store does: join each label to the latest feature values known at that moment, respect a TTL, detect leakage, and do it fast enough for millions of rows.",
+  "difficulty": "advanced",
+  "estimated_minutes": 40,
+  "tags": ["mlops", "feature-store", "leakage", "algorithms"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_joins_latest_feature_at_or_before_event": "For each label, take the feature row with the largest feature_ts that is <= event_ts. Rows with equal timestamps count, because they were already known.",
+    "test_never_uses_future_features": "Anything with feature_ts > event_ts didn't exist yet at prediction time. Using it is target leakage.",
+    "test_missing_entity_or_no_history_gives_none": "No feature row at or before the event means features=None and feature_ts=None. Don't fall back to a future row.",
+    "test_ttl_expires_stale_features": "With a ttl, treat a match where event_ts − feature_ts > ttl as missing (features=None).",
+    "test_ties_prefer_last_written": "When two feature rows share an entity and feature_ts, the one that appears later in the input wins, like a later write.",
+    "test_output_order_and_shape": "Return one row per label, in the original label order: {**label, 'feature_ts': ts or None, 'features': {...} or None}.",
+    "test_inputs_not_mutated": "Build new dicts. Don't add keys to the caller's label dicts or sort their lists in place.",
+    "test_detect_leakage": "Return the indices of rows where feature_ts is not None and feature_ts > event_ts.",
+    "test_scales_to_large_inputs": "Comparing every label with every feature is O(n·m). Group features by entity, sort each group by timestamp once, then use bisect_right to find the match in O(log m)."
+  }
+}

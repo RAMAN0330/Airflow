@@ -1,1 +1,84 @@
-{"id": "activations_and_backprop", "title": "Non-Linearities and Their Local Gradients", "estimated_minutes": 10}
+{
+  "id": "activations_and_backprop",
+  "title": "Non-Linearities and Their Local Gradients",
+  "estimated_minutes": 10,
+  "summary": "Why networks need non-linearities, how ReLU, GELU and softmax work, how each passes gradients backward, and the max-subtraction trick that keeps softmax from overflowing.",
+  "takeaways": [
+    "Without non-linearities, stacked layers collapse into one linear map.",
+    "Backprop multiplies the upstream gradient by each function's local derivative.",
+    "ReLU gates gradients: they pass where x > 0 and are zeroed elsewhere.",
+    "Always compute softmax as softmax(x − max(x)). It's mathematically identical and never overflows."
+  ],
+  "flow": {
+    "title": "Gradient flow through an activation",
+    "steps": [
+      {
+        "label": "Forward",
+        "detail": "Compute a = f(x) and keep x (or a) for the backward pass."
+      },
+      {
+        "label": "Upstream gradient",
+        "detail": "Receive dout = ∂L/∂a from the next layer."
+      },
+      {
+        "label": "Local derivative",
+        "detail": "Evaluate f′(x), e.g. 1[x > 0] for ReLU."
+      },
+      {
+        "label": "Chain rule",
+        "detail": "dx = dout · f′(x), element-wise."
+      },
+      {
+        "label": "Pass it on",
+        "detail": "Send dx to the previous layer and repeat."
+      }
+    ]
+  },
+  "terms": [
+    {
+      "term": "Activation function",
+      "definition": "A non-linear function applied element-wise after a linear layer."
+    },
+    {
+      "term": "ReLU",
+      "definition": "max(0, x): passes positive inputs, zeroes negatives."
+    },
+    {
+      "term": "GELU",
+      "definition": "x·Φ(x), a smooth ReLU-like activation used in most transformers."
+    },
+    {
+      "term": "Softmax",
+      "definition": "Turns a vector of logits into a probability distribution: exp(xᵢ)/Σexp(xⱼ)."
+    },
+    {
+      "term": "Backpropagation",
+      "definition": "Computing gradients of a loss through a computational graph by repeated application of the chain rule."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Gaussian Error Linear Units (GELUs)",
+      "author": "D. Hendrycks, K. Gimpel",
+      "publisher": "arXiv",
+      "year": 2016,
+      "url": "https://arxiv.org/abs/1606.08415",
+      "kind": "paper"
+    },
+    {
+      "title": "CS231n: Backpropagation, Intuitions",
+      "author": "Stanford CS231n",
+      "publisher": "Stanford University",
+      "url": "https://cs231n.github.io/optimization-2/",
+      "kind": "course"
+    },
+    {
+      "title": "Deep Learning (Ch. 6: Deep Feedforward Networks)",
+      "author": "I. Goodfellow, Y. Bengio, A. Courville",
+      "publisher": "MIT Press",
+      "year": 2016,
+      "url": "https://www.deeplearningbook.org/",
+      "kind": "book"
+    }
+  ]
+}

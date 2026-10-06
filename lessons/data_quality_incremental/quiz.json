@@ -1,0 +1,7 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "order_id has values [1, 2, 2, 3]. How many rows fail a unique test?", "options": ["0", "1", "2", "3"], "answer": 2, "explanation": "Both rows with order_id 2 fail. You can't tell which duplicate is correct, so every copy is flagged."},
+    {"id": "q2", "prompt": "A new, unexpected status value appears in the source. Which severity usually fits an accepted_values test on it?", "options": ["error: always block the load", "warn: load and alert so a human can decide", "none: ignore it", "drop the column"], "answer": 1, "explanation": "A new category may be legitimate, so it's usually a warning that alerts someone. Primary-key uniqueness, on the other hand, should be an error."},
+    {"id": "q3", "prompt": "When should an incremental pipeline advance its watermark?", "options": ["Before reading the source", "After the batch loads successfully", "Before running data tests", "Never; recompute it from scratch each time"], "answer": 1, "explanation": "Advance it only after a successful load. If the run fails, the next run re-reads the same rows and the idempotent upsert makes that safe."}
+  ]
+}

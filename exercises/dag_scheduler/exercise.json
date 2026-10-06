@@ -1,0 +1,21 @@
+{
+  "id": "dag_scheduler",
+  "title": "Orchestrate a Pipeline DAG",
+  "summary": "Build the core of an orchestrator like Airflow: order tasks by their dependencies, detect cycles, group tasks that can run in parallel, and run a DAG with retries and upstream-failure propagation.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 35,
+  "tags": ["orchestration", "dag", "airflow", "graphs"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_topological_order_respects_dependencies": "Kahn's algorithm: count each task's unmet upstreams, start from tasks with zero, and as each finishes decrement its downstream tasks.",
+    "test_topological_order_is_deterministic": "When several tasks are ready, take the alphabetically smallest first. A heap (heapq) of ready tasks does this.",
+    "test_cycle_is_detected": "If Kahn's algorithm finishes before visiting every task, the leftovers are on a cycle. Raise ValueError.",
+    "test_unknown_dependency_is_rejected": "Validate up front that every upstream name is itself a task in the DAG.",
+    "test_execution_layers": "Each layer is every task whose upstreams all finished in earlier layers. Sort tasks within a layer.",
+    "test_run_dag_success_order": "Run tasks in topological order and record each one as 'success'.",
+    "test_retries_recover_flaky_task": "Call a failing task again, up to max_retries extra times. Attempts = 1 + retries used.",
+    "test_failure_propagates_downstream": "If a task fails for good, every task downstream of it becomes 'upstream_failed' and is never called.",
+    "test_independent_branch_still_runs": "A failure only blocks its own descendants. Tasks on other branches still run."
+  }
+}

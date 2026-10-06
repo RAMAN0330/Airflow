@@ -1,0 +1,24 @@
+{
+  "id": "drift_detection",
+  "title": "Detect Data Drift in Production",
+  "summary": "Implement the two workhorse drift statistics, Population Stability Index and the two-sample Kolmogorov–Smirnov distance, then build a per-feature drift report that tells you which inputs moved.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 30,
+  "tags": ["mlops", "monitoring", "statistics", "numpy"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "NaNInSoftmax": {"hint": "A NaN or inf in PSI comes from log(0) or dividing by an empty bin. Clip both proportions to at least eps before taking the log."}
+  },
+  "hints": {
+    "test_psi_matches_definition": "Edges are [-inf, *unique(quantile(reference, interior probabilities)), +inf]. Count with np.histogram, divide by n, clip to eps, then sum (c − r)·ln(c / r).",
+    "test_psi_identical_distributions_is_zero": "Identical inputs give identical bin proportions, so every (c − r) term is 0.",
+    "test_psi_detects_shift": "A mean shift of one standard deviation moves a lot of mass between quantile bins, so PSI rises well above 0.25.",
+    "test_psi_constant_reference_is_finite": "Duplicate quantiles collapse under np.unique. With the outer ±inf edges there are still at least two bins, and eps clipping keeps the log finite.",
+    "test_ks_known_values": "D = max over all observed x of |F_a(x) − F_b(x)|. Identical samples give 0, and samples that don't overlap give 1.",
+    "test_ks_matches_brute_force": "Sort each sample. np.searchsorted(sorted, x, side='right') / n is the empirical CDF at x. Evaluate it at every value in both samples.",
+    "test_psi_level": "Common rule of thumb: below 0.1 is 'none', 0.1 up to 0.25 is 'moderate', and 0.25 or more is 'major'.",
+    "test_drift_report_flags_shifted_features": "Compute PSI and KS per feature from the reference dict. A feature is drifted when psi >= psi_threshold. List drifted names alphabetically.",
+    "test_drift_report_missing_feature": "If a reference feature is missing from current, that's a broken data contract. Raise ValueError.",
+    "test_inputs_not_mutated": "Copy arrays with np.asarray(..., dtype=float) before sorting. Never sort the caller's data in place."
+  }
+}

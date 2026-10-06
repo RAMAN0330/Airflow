@@ -48,7 +48,7 @@ export function Quiz({ lesson }: { lesson: LessonDetail }) {
   }
 
   return (
-    <section className="space-y-6 rounded-2xl border bg-card p-5 shadow-xs sm:p-7" aria-labelledby="quiz-title">
+    <section className="scroll-mt-24 space-y-6 rounded-2xl border bg-card p-5 shadow-xs sm:p-7" aria-labelledby="quiz-title">
       <div className="flex items-start gap-3">
         <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand/10">
           <CircleHelpIcon className="size-5 text-brand" />

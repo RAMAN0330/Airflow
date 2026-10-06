@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 @dataclass(frozen=True)
 class Settings:
     exercises_dir: Path = field(default_factory=lambda: Path(os.environ.get("EXERCISES_DIR", ROOT / "exercises")))
+    datasets_dir: Path = field(default_factory=lambda: Path(os.environ.get("DATASETS_DIR", ROOT / "datasets")))
     lessons_dir: Path = field(default_factory=lambda: Path(os.environ.get("LESSONS_DIR", ROOT / "lessons")))
     database_path: Path = field(default_factory=lambda: Path(os.environ.get("DATABASE_PATH", ROOT / "data" / "platform.db")))
     max_concurrent_runs: int = field(default_factory=lambda: int(os.environ.get("MAX_CONCURRENT_RUNS", "4")))

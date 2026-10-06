@@ -1,0 +1,7 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "You have an index on (customer_id, order_date). Which query can NOT use it efficiently?", "options": ["WHERE customer_id = 7", "WHERE customer_id = 7 AND order_date >= '2025-01-01'", "WHERE order_date >= '2025-01-01'", "WHERE customer_id = 7 ORDER BY order_date"], "answer": 2, "explanation": "The index is sorted by customer_id first. Dates are only ordered within each customer, so a filter on order_date alone can't use the leading column."},
+    {"id": "q2", "prompt": "EXPLAIN QUERY PLAN shows 'SCAN orders'. What does that mean?", "options": ["The query used a covering index", "Every row of orders is read", "The query is cached", "The table is being vacuumed"], "answer": 1, "explanation": "SCAN is a full table scan. With a usable index you'd see SEARCH … USING INDEX instead."},
+    {"id": "q3", "prompt": "In a two-step stock transfer, the second write fails. With a correct transaction, what is the state afterwards?", "options": ["Only the first write is saved", "Both writes are saved", "Neither write is saved", "It depends on the isolation level"], "answer": 2, "explanation": "Atomicity: either every statement in the transaction commits or none do. The failure rolls back the first write as well."}
+  ]
+}

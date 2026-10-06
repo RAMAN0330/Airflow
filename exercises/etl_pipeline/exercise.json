@@ -1,0 +1,21 @@
+{
+  "id": "etl_pipeline",
+  "title": "Build an Idempotent ETL Pipeline",
+  "summary": "Extract a messy CSV export, clean and validate it, deduplicate to the latest version of each record, and upsert it into a warehouse table so re-runs never duplicate data.",
+  "difficulty": "beginner",
+  "estimated_minutes": 35,
+  "tags": ["etl", "data-cleaning", "sqlite", "idempotency"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_extract_handles_quotes_and_whitespace": "Use csv.DictReader over io.StringIO(text). It understands quoted fields that contain commas. Strip whitespace from keys and values.",
+    "test_transform_normalizes_fields": "Lower-case and strip emails, upper-case country codes, convert amount to float and dates to ISO 'YYYY-MM-DD'.",
+    "test_transform_parses_both_date_formats": "Try datetime.strptime with '%Y-%m-%d' and then '%d/%m/%Y', and format the result with .date().isoformat().",
+    "test_transform_rejects_bad_rows_with_reason": "Never drop rows silently. Put them in rejects as {**row, 'reason': '...'} and keep going.",
+    "test_transform_keeps_latest_version_per_order": "Group by order_id and keep the row with the greatest updated_at. ISO timestamps compare correctly as strings.",
+    "test_load_creates_table_and_upserts": "CREATE TABLE IF NOT EXISTS with order_id as PRIMARY KEY, then INSERT … ON CONFLICT(order_id) DO UPDATE SET … = excluded.….",
+    "test_pipeline_is_idempotent": "Running the same file twice must leave exactly the same table. Upserts, not plain INSERTs, make that true.",
+    "test_rerun_applies_corrections": "When a newer extract changes an order's amount, the upsert must overwrite the old value.",
+    "test_pipeline_metrics": "Return counts for each stage, so a run can be audited: extracted = rows read, loaded = rows upserted, rejected = rows rejected."
+  }
+}

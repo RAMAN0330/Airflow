@@ -1,0 +1,36 @@
+{
+  "id": "relational_sql_basics",
+  "title": "Relational Thinking & Analytical SQL",
+  "estimated_minutes": 14,
+  "summary": "How relational databases store facts as rows in related tables, and how SELECT, JOIN, GROUP BY and window functions turn them into answers.",
+  "takeaways": [
+    "A table holds one kind of fact. Keys link tables, so every fact is stored once.",
+    "SQL is declarative: you describe the result and the database plans how to compute it.",
+    "Logical order: FROM/JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT.",
+    "Window functions compute across related rows (running totals, rankings) without collapsing them."
+  ],
+  "flow": {
+    "title": "How a SELECT is evaluated",
+    "steps": [
+      {"label": "FROM / JOIN", "detail": "Build the working set of rows by combining tables on matching keys."},
+      {"label": "WHERE", "detail": "Drop individual rows that fail the condition, before any grouping."},
+      {"label": "GROUP BY", "detail": "Collapse rows that share the grouping columns into one group each."},
+      {"label": "HAVING", "detail": "Filter whole groups, using aggregates such as SUM or COUNT."},
+      {"label": "SELECT + windows", "detail": "Compute output columns. Window functions see the grouped rows without merging them."},
+      {"label": "ORDER BY / LIMIT", "detail": "Sort the final rows and keep the first N."}
+    ]
+  },
+  "terms": [
+    {"term": "Primary key", "definition": "A column (or set of columns) whose value uniquely identifies each row of a table."},
+    {"term": "Foreign key", "definition": "A column that refers to a primary key in another table, linking related facts."},
+    {"term": "Anti-join", "definition": "A query returning rows of one table that have no match in another, via NOT EXISTS or LEFT JOIN … IS NULL."},
+    {"term": "Window function", "definition": "A function with an OVER (…) clause that computes over a set of rows related to the current row without collapsing them."},
+    {"term": "Grain", "definition": "What one row of a table or result represents (e.g. one order line, or one customer per month)."}
+  ],
+  "sources": [
+    {"title": "A Relational Model of Data for Large Shared Data Banks", "author": "E. F. Codd", "publisher": "Communications of the ACM", "year": 1970, "url": "https://doi.org/10.1145/362384.362685", "kind": "paper"},
+    {"title": "SQL As Understood By SQLite: SELECT", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/lang_select.html", "kind": "docs"},
+    {"title": "Window Functions", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/windowfunctions.html", "kind": "docs"},
+    {"title": "PostgreSQL Tutorial (Part I)", "author": "The PostgreSQL Global Development Group", "publisher": "postgresql.org", "url": "https://www.postgresql.org/docs/current/tutorial.html", "kind": "docs"}
+  ]
+}

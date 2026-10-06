@@ -1,0 +1,7 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "According to 'Hidden Technical Debt in ML Systems', where does most of a real ML system's complexity live?", "options": ["In the model's training code", "In the surrounding infrastructure: data, features, configuration, serving, monitoring", "In the GPU drivers", "In the evaluation metric"], "answer": 1, "explanation": "The paper's well-known figure shows ML code as a small box surrounded by much larger supporting infrastructure, which is where debt builds up."},
+    {"id": "q2", "prompt": "Why sort keys before hashing params for a run fingerprint?", "options": ["Sorting makes hashing faster", "So the same config gives the same hash regardless of key order", "SHA-256 requires sorted input", "To compress the params"], "answer": 1, "explanation": "Dicts with the same contents can serialize in different key orders. A canonical form (sorted keys, fixed separators) makes the fingerprint depend only on the content."},
+    {"id": "q3", "prompt": "You promote churn v3 to Production while v2 is in Production. What should the registry do?", "options": ["Keep both in Production", "Reject the promotion", "Archive v2, so exactly one version is in Production", "Delete v2"], "answer": 2, "explanation": "The registry keeps the invariant of exactly one production version. The previous one is archived (not deleted), which also makes rollback possible."}
+  ]
+}

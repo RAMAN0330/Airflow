@@ -1,46 +1,369 @@
 {
-  "courses": [
+  "tracks": [
     {
-      "id": "classical-ml",
-      "title": "Classical Machine Learning",
-      "tagline": "Losses, gradients and the estimators everything else is built on.",
-      "description": "Derive the core estimators by hand: optimize a loss with gradient descent, regularize it, and learn to tell when training is actually converging.",
-      "level": "Beginner",
-      "tier": "free",
-      "modules": [
-        {"id": "regression", "title": "Linear & Ridge Regression", "concepts": ["MSE", "Gradient descent", "L2 regularization"], "lesson": "gradient_descent_intuition", "exercise": "linear_regression_gd"},
-        {"id": "classification", "title": "Logistic Regression & SVM", "concepts": ["Sigmoid", "Binary cross-entropy", "Max margin", "Kernels"], "lesson": null, "exercise": null},
-        {"id": "trees", "title": "Decision Trees & Random Forests", "concepts": ["Entropy", "Gini impurity", "Bagging"], "lesson": null, "exercise": null},
-        {"id": "clustering", "title": "K-Means & GMMs", "concepts": ["Distance matrices", "EM loop", "Centroid updates"], "lesson": null, "exercise": null},
-        {"id": "pca", "title": "Principal Component Analysis", "concepts": ["Covariance", "Eigendecomposition", "SVD"], "lesson": null, "exercise": null}
+      "id": "machine-learning",
+      "title": "Machine Learning",
+      "icon": "brain",
+      "tagline": "From loss functions to transformers.",
+      "description": "Implement the core algorithms of machine learning yourself: classical estimators, neural-network building blocks and the attention mechanism behind modern LLMs.",
+      "courses": [
+        {
+          "id": "classical-ml",
+          "title": "Classical Machine Learning",
+          "tagline": "Losses, gradients and the estimators everything else is built on.",
+          "description": "Derive the core estimators by hand: optimize a loss with gradient descent, regularize it, and learn to tell when training is actually converging.",
+          "level": "Beginner",
+          "tier": "free",
+          "modules": [
+            {
+              "id": "regression",
+              "title": "Linear & Ridge Regression",
+              "concepts": [
+                "MSE",
+                "Gradient descent",
+                "L2 regularization"
+              ],
+              "lesson": "gradient_descent_intuition",
+              "exercise": "linear_regression_gd"
+            },
+            {
+              "id": "classification",
+              "title": "Logistic Regression & SVM",
+              "concepts": [
+                "Sigmoid",
+                "Binary cross-entropy",
+                "Max margin",
+                "Kernels"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "trees",
+              "title": "Decision Trees & Random Forests",
+              "concepts": [
+                "Entropy",
+                "Gini impurity",
+                "Bagging"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "clustering",
+              "title": "K-Means & GMMs",
+              "concepts": [
+                "Distance matrices",
+                "EM loop",
+                "Centroid updates"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "pca",
+              "title": "Principal Component Analysis",
+              "concepts": [
+                "Covariance",
+                "Eigendecomposition",
+                "SVD"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        },
+        {
+          "id": "deep-learning",
+          "title": "Deep Learning Foundations",
+          "tagline": "From array manipulation to forward passes and hand-written backprop.",
+          "description": "Build the pieces of a neural network yourself, from non-linearities and their local gradients to full backpropagation, convolutions and recurrent state.",
+          "level": "Intermediate",
+          "tier": "free",
+          "modules": [
+            {
+              "id": "activations",
+              "title": "Activation Functions",
+              "concepts": [
+                "ReLU",
+                "GELU",
+                "Stable softmax",
+                "Local gradients"
+              ],
+              "lesson": "activations_and_backprop",
+              "exercise": "activation_functions"
+            },
+            {
+              "id": "mlp",
+              "title": "Multilayer Perceptron Backprop",
+              "concepts": [
+                "Forward pass",
+                "Jacobians",
+                "Chain rule"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "cnn",
+              "title": "Convolutional Networks",
+              "concepts": [
+                "Multi-channel conv",
+                "Stride & padding",
+                "Max-pooling"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "rnn",
+              "title": "RNNs & LSTMs",
+              "concepts": [
+                "Hidden state",
+                "BPTT",
+                "Gradient clipping"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        },
+        {
+          "id": "genai-llms",
+          "title": "Generative AI & LLMs",
+          "tagline": "The internals of transformers, and how to adapt and ground them.",
+          "description": "Implement attention from its equation, then the techniques used on modern LLMs: multi-head attention, rotary embeddings, LoRA fine-tuning and retrieval-augmented generation.",
+          "level": "Advanced",
+          "tier": "pro",
+          "modules": [
+            {
+              "id": "attention",
+              "title": "Self-Attention Head",
+              "concepts": [
+                "Scaled dot-product",
+                "Causal masking"
+              ],
+              "lesson": "attention_intuition",
+              "exercise": "self_attention_head"
+            },
+            {
+              "id": "mha",
+              "title": "Multi-Head Attention & RoPE",
+              "concepts": [
+                "Head slicing",
+                "Rotary embeddings"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "lora",
+              "title": "LoRA Fine-Tuning",
+              "concepts": [
+                "Frozen base weights",
+                "Low-rank ΔW = BA"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "rag",
+              "title": "Retrieval-Augmented Generation",
+              "concepts": [
+                "Chunking",
+                "Cosine similarity",
+                "Context injection"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        }
       ]
     },
     {
-      "id": "deep-learning",
-      "title": "Deep Learning Foundations",
-      "tagline": "From array manipulation to forward passes and hand-written backprop.",
-      "description": "Build the pieces of a neural network yourself, from non-linearities and their local gradients to full backpropagation, convolutions and recurrent state.",
-      "level": "Intermediate",
-      "tier": "free",
-      "modules": [
-        {"id": "activations", "title": "Activation Functions", "concepts": ["ReLU", "GELU", "Stable softmax", "Local gradients"], "lesson": "activations_and_backprop", "exercise": "activation_functions"},
-        {"id": "mlp", "title": "Multilayer Perceptron Backprop", "concepts": ["Forward pass", "Jacobians", "Chain rule"], "lesson": null, "exercise": null},
-        {"id": "cnn", "title": "Convolutional Networks", "concepts": ["Multi-channel conv", "Stride & padding", "Max-pooling"], "lesson": null, "exercise": null},
-        {"id": "rnn", "title": "RNNs & LSTMs", "concepts": ["Hidden state", "BPTT", "Gradient clipping"], "lesson": null, "exercise": null}
+      "id": "data-engineering",
+      "title": "Data Engineering",
+      "icon": "database",
+      "tagline": "Databases, pipelines and data you can trust.",
+      "description": "Query and model relational data, make it fast and safe, then build the pipelines that move it: idempotent ETL/ELT, data quality tests, incremental loads and DAG orchestration.",
+      "courses": [
+        {
+          "id": "databases-sql",
+          "title": "Databases & SQL",
+          "tagline": "Ask questions of relational data, and make the answers fast and safe.",
+          "description": "Think in tables, keys and grain; answer business questions with joins, aggregates and window functions; then make queries fast with indexes and changes safe with transactions.",
+          "level": "Beginner",
+          "tier": "free",
+          "modules": [
+            {
+              "id": "sql-analytics",
+              "title": "Relational Model & Analytical SQL",
+              "concepts": [
+                "Keys & grain",
+                "Joins",
+                "GROUP BY",
+                "Window functions"
+              ],
+              "lesson": "relational_sql_basics",
+              "exercise": "sql_analytics_queries"
+            },
+            {
+              "id": "sql-performance",
+              "title": "Indexes, Query Plans & Transactions",
+              "concepts": [
+                "B-tree indexes",
+                "EXPLAIN",
+                "Keyset pagination",
+                "ACID"
+              ],
+              "lesson": "indexes_and_transactions",
+              "exercise": "sql_indexes_transactions"
+            },
+            {
+              "id": "data-modeling",
+              "title": "Dimensional Modeling",
+              "concepts": [
+                "Star schema",
+                "Facts & dimensions",
+                "Slowly changing dimensions"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "nosql",
+              "title": "Beyond Relational: NoSQL & Columnar",
+              "concepts": [
+                "Document stores",
+                "Column stores",
+                "Partitioning"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        },
+        {
+          "id": "etl-pipelines",
+          "title": "ETL/ELT Pipelines",
+          "tagline": "Move data reliably, and prove it's correct.",
+          "description": "Build idempotent pipelines that clean, deduplicate and upsert messy source data; guard them with data tests and incremental loads; and orchestrate them as DAGs with retries.",
+          "level": "Intermediate",
+          "tier": "free",
+          "modules": [
+            {
+              "id": "etl-basics",
+              "title": "Extract, Transform, Load",
+              "concepts": [
+                "ETL vs ELT",
+                "Idempotency",
+                "Upserts",
+                "Rejects"
+              ],
+              "lesson": "etl_vs_elt",
+              "exercise": "etl_pipeline"
+            },
+            {
+              "id": "data-quality",
+              "title": "Data Quality & Incremental Loads",
+              "concepts": [
+                "Data tests",
+                "Severity",
+                "Watermarks"
+              ],
+              "lesson": "data_quality_incremental",
+              "exercise": "data_quality_checks"
+            },
+            {
+              "id": "orchestration",
+              "title": "Orchestration with DAGs",
+              "concepts": [
+                "Topological sort",
+                "Parallelism",
+                "Retries",
+                "upstream_failed"
+              ],
+              "lesson": "orchestration_dags",
+              "exercise": "dag_scheduler"
+            },
+            {
+              "id": "streaming",
+              "title": "Streaming & Change Data Capture",
+              "concepts": [
+                "Event streams",
+                "CDC",
+                "Exactly-once"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        }
       ]
     },
     {
-      "id": "genai-llms",
-      "title": "Generative AI & LLMs",
-      "tagline": "The internals of transformers, and how to adapt and ground them.",
-      "description": "Implement attention from its equation, then the techniques used on modern LLMs: multi-head attention, rotary embeddings, LoRA fine-tuning and retrieval-augmented generation.",
-      "level": "Advanced",
-      "tier": "pro",
-      "modules": [
-        {"id": "attention", "title": "Self-Attention Head", "concepts": ["Scaled dot-product", "Causal masking"], "lesson": "attention_intuition", "exercise": "self_attention_head"},
-        {"id": "mha", "title": "Multi-Head Attention & RoPE", "concepts": ["Head slicing", "Rotary embeddings"], "lesson": null, "exercise": null},
-        {"id": "lora", "title": "LoRA Fine-Tuning", "concepts": ["Frozen base weights", "Low-rank ΔW = BA"], "lesson": null, "exercise": null},
-        {"id": "rag", "title": "Retrieval-Augmented Generation", "concepts": ["Chunking", "Cosine similarity", "Context injection"], "lesson": null, "exercise": null}
+      "id": "mlops",
+      "title": "MLOps",
+      "icon": "workflow",
+      "tagline": "Ship models, keep them healthy.",
+      "description": "Operate ML in production: track experiments reproducibly, manage model versions and promotion, detect data drift, and build leak-free training data with point-in-time joins.",
+      "courses": [
+        {
+          "id": "mlops-foundations",
+          "title": "MLOps Foundations",
+          "tagline": "Tracking, registries, monitoring and feature stores.",
+          "description": "The practices that keep production ML maintainable: tracked and reproducible experiments, a model registry with safe promotion and rollback, drift monitoring, and point-in-time correct features.",
+          "level": "Advanced",
+          "tier": "pro",
+          "modules": [
+            {
+              "id": "registry",
+              "title": "Experiment Tracking & Model Registry",
+              "concepts": [
+                "Runs & lineage",
+                "Fingerprints",
+                "Stages",
+                "Rollback"
+              ],
+              "lesson": "mlops_lifecycle",
+              "exercise": "model_registry"
+            },
+            {
+              "id": "monitoring",
+              "title": "Drift Monitoring",
+              "concepts": [
+                "Dataset shift",
+                "PSI",
+                "KS distance"
+              ],
+              "lesson": "drift_monitoring",
+              "exercise": "drift_detection"
+            },
+            {
+              "id": "feature-store",
+              "title": "Feature Stores & Point-in-Time Joins",
+              "concepts": [
+                "Leakage",
+                "As-of joins",
+                "TTL"
+              ],
+              "lesson": "feature_store_pit",
+              "exercise": "point_in_time_join"
+            },
+            {
+              "id": "ml-cicd",
+              "title": "CI/CD & Serving for ML",
+              "concepts": [
+                "Validation gates",
+                "Canary releases",
+                "Model serving"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        }
       ]
     }
   ]

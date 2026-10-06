@@ -45,10 +45,13 @@ class CourseRef(BaseModel):
     id: str
     title: str
     tier: Plan
+    track_id: str
+    track_title: str
 
 
 class Course(BaseModel):
     id: str
+    track_id: str
     title: str
     tagline: str
     description: str
@@ -64,7 +67,48 @@ class Course(BaseModel):
     modules: list[ModuleSummary]
 
 
+class Track(BaseModel):
+    id: str
+    title: str
+    tagline: str
+    description: str
+    icon: str
+    status: CourseStatus
+    completed_steps: int
+    total_steps: int
+    courses: list[Course]
+
+
 # ------------------------------------------------------------------ lessons
+
+class FlowStep(BaseModel):
+    label: str
+    detail: str
+
+
+class Flow(BaseModel):
+    title: str
+    steps: list[FlowStep]
+
+
+class Term(BaseModel):
+    term: str
+    definition: str
+
+
+class Source(BaseModel):
+    title: str
+    author: str | None = None
+    publisher: str | None = None
+    year: int | None = None
+    url: str
+    kind: Literal["paper", "docs", "book", "course", "article"]
+
+
+class OutlineModule(BaseModel):
+    id: str
+    title: str
+    steps: list[StepRef]
 
 class QuizQuestion(BaseModel):
     id: str
@@ -85,6 +129,12 @@ class LessonDetail(BaseModel):
     module_title: str
     questions: list[QuizQuestion]
     next: StepRef | None
+    summary: str
+    takeaways: list[str]
+    flow: Flow | None
+    terms: list[Term]
+    sources: list[Source]
+    outline: list[OutlineModule]
 
 
 class QuizAttemptIn(BaseModel):
@@ -126,6 +176,7 @@ class ExerciseDetail(BaseModel):
     task_markdown: str
     starter_code: str
     time_limit_seconds: int
+    outline: list[OutlineModule]
 
 
 class TestResult(BaseModel):
@@ -215,6 +266,7 @@ class ExerciseProgress(BaseModel):
 
 class CourseProgress(BaseModel):
     id: str
+    track_id: str
     title: str
     status: CourseStatus
     completed_steps: int
@@ -251,3 +303,73 @@ class Leaderboard(BaseModel):
     total_learners: int
     entries: list[LeaderboardEntry]
     me: LeaderboardEntry | None
+
+
+# ------------------------------------------------------------------ library
+
+class LessonLink(BaseModel):
+    id: str
+    title: str
+    course_id: str
+    track_id: str
+
+
+class LibrarySource(Source):
+    track_ids: list[str]
+    lessons: list[LessonLink]
+
+
+class LibraryTerm(Term):
+    lesson: LessonLink
+
+
+class Library(BaseModel):
+    sources: list[LibrarySource]
+    terms: list[LibraryTerm]
+
+
+# ------------------------------------------------------------------ playground
+
+class PlaygroundColumn(BaseModel):
+    name: str
+    type: str
+    pk: bool
+    references: str | None
+
+
+class PlaygroundTable(BaseModel):
+    name: str
+    row_count: int
+    columns: list[PlaygroundColumn]
+
+
+class PlaygroundSample(BaseModel):
+    title: str
+    sql: str
+
+
+class PlaygroundSchema(BaseModel):
+    dataset: str
+    description: str
+    tables: list[PlaygroundTable]
+    samples: list[PlaygroundSample]
+
+
+class PlaygroundIn(BaseModel):
+    sql: str = Field(min_length=1, max_length=20_000)
+
+
+class PlaygroundResultSet(BaseModel):
+    statement: int
+    sql: str
+    columns: list[str]
+    rows: list[list]
+    truncated: bool
+    rows_affected: int | None = None
+
+
+class PlaygroundOut(BaseModel):
+    results: list[PlaygroundResultSet]
+    statements: int
+    error: str | None
+    duration_ms: float

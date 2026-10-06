@@ -1,0 +1,34 @@
+{
+  "id": "data_quality_incremental",
+  "title": "Data Quality Tests & Incremental Loads",
+  "estimated_minutes": 12,
+  "summary": "Treat data like code: assert what must be true on every load (unique keys, no nulls, valid values, referential integrity), and process only what changed using a watermark.",
+  "takeaways": [
+    "Data tests are assertions that run on every load and stop bad data before it reaches dashboards or models.",
+    "The core four: not_null, unique, accepted_values and relationships (referential integrity).",
+    "Use severities: an error blocks the pipeline, a warning alerts a human and lets the load continue.",
+    "Incremental loads process rows newer than a stored watermark, then advance it."
+  ],
+  "flow": {
+    "title": "An incremental, tested load",
+    "steps": [
+      {"label": "Read watermark", "detail": "Look up the max updated_at from the last successful run (none on the first run)."},
+      {"label": "Select new rows", "detail": "Take only rows with updated_at greater than the watermark."},
+      {"label": "Run data tests", "detail": "not_null, unique, accepted_values, relationships, range: each with a severity."},
+      {"label": "Gate", "detail": "Any error-severity failure stops the load. Warnings are reported."},
+      {"label": "Load + advance", "detail": "Upsert the batch, then store the new watermark only after success."}
+    ]
+  },
+  "terms": [
+    {"term": "Data test", "definition": "An assertion about data (e.g. order_id is unique) that is evaluated automatically and fails when violated."},
+    {"term": "Referential integrity", "definition": "Every foreign-key value in a child table exists as a key in its parent table."},
+    {"term": "Data contract", "definition": "An explicit agreement on a dataset's schema and quality guarantees between producer and consumers."},
+    {"term": "Watermark", "definition": "The high-water mark (e.g. max updated_at) of data already processed, used to pick up only newer records."},
+    {"term": "Incremental model", "definition": "A table built by processing only new or changed source rows on each run instead of rebuilding everything."}
+  ],
+  "sources": [
+    {"title": "Add data tests to your DAG", "author": "dbt Labs", "publisher": "docs.getdbt.com", "url": "https://docs.getdbt.com/docs/build/data-tests", "kind": "docs"},
+    {"title": "Configure incremental models", "author": "dbt Labs", "publisher": "docs.getdbt.com", "url": "https://docs.getdbt.com/docs/build/incremental-models", "kind": "docs"},
+    {"title": "Data Validation for Machine Learning", "author": "E. Breck, N. Polyzotis, S. Roy, S. E. Whang, M. Zinkevich", "publisher": "SysML (MLSys) / Google Research", "year": 2019, "url": "https://research.google/pubs/data-validation-for-machine-learning/", "kind": "paper"}
+  ]
+}

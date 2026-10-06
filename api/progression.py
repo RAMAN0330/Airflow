@@ -1,6 +1,7 @@
 """Sequential unlocking rules, as a pure function of a learner's state.
 
-- Courses unlock in order: course N needs every step of course N-1 completed.
+- Courses unlock in order within their track: course N needs every step of course N-1 completed.
+  Tracks are independent, so each track's first course is open from the start.
 - Pro courses also need the Pro plan.
 - Inside a course, steps (lesson, then exercise, module by module) unlock one
   at a time: each needs the previous step completed.
@@ -54,9 +55,11 @@ def evaluate(
     attempted_exercises: set[str],
 ) -> Progression:
     prog = Progression()
-    previous_course_done, previous_course = True, None
+    previous_course_done, previous_course, track = True, None, None
 
     for course in catalog.courses:
+        if course.get("track_id") != track:  # a new track starts unlocked
+            previous_course_done, previous_course, track = True, None, course.get("track_id")
         steps = catalog.steps_by_course[course["id"]]
         done = [
             (s.kind == "lesson" and s.id in completed_lessons) or (s.kind == "exercise" and s.id in completed_exercises)

@@ -1,7 +1,7 @@
 # Gradient: ML/AI Practice Platform
 
-Gradient is an interactive platform where learners implement machine-learning
-algorithms from scratch. Each exercise has hidden tests that run in a sandbox,
+Gradient is an interactive platform where learners implement machine-learning algorithms, database
+queries, data pipelines and MLOps tooling from scratch, across three learning tracks. Each exercise has hidden tests that run in a sandbox,
 and lessons, exercises and courses unlock one after another as the learner progresses. Learners earn XP
 for a leaderboard, and a Pro plan opens the advanced course.
 
@@ -21,21 +21,18 @@ Browser ──► Next.js (web) ──/api/* rewrite──► FastAPI (api) ─�
 ## Screenshots
 
 All screenshots are taken from the running app during an end-to-end run. The full set is in [`docs/screenshots/`](docs/screenshots).
-**Watch the animated journey:** [`docs/journey.mp4`](docs/journey.mp4) (52 s), from the landing page through a lesson, the quiz,
-the first exercise, the course-complete celebration, the leaderboard and pricing.
+**Watch the animated journey:** [`docs/journey.mp4`](docs/journey.mp4).
 
 | | |
 |---|---|
-| ![Landing](docs/screenshots/17-landing-dark.png) **Landing** | ![Courses](docs/screenshots/02-learn-onboarding.png) **Courses**: first-visit guide; course 2 locked, course 3 needs Pro |
-| ![Lesson quiz](docs/screenshots/06-quiz-feedback.png) **Lesson quiz**: explanations appear only for correct answers | ![Exercise locked](docs/screenshots/04-exercise-locked.png) **Exercise locked** until its lesson is passed |
-| ![Course complete](docs/screenshots/08-course-complete-celebration.png) **Course complete**: celebration, then straight into the next course | ![Pricing](docs/screenshots/12-pricing.png) **Pricing**: monthly/yearly, comparison, FAQ |
-| ![Checkout](docs/screenshots/13-checkout-dialog.png) **Demo checkout**: clearly labelled, no payment | ![Leaderboard](docs/screenshots/15-leaderboard.png) **Leaderboard**: podium, all-time/weekly, "You" row |
+| ![Courses](docs/screenshots/03-learn-all-tracks.png) **Courses**: track navigator, three tracks, live progress rail | ![Lesson](docs/screenshots/06-lesson-three-column.png) **Lesson reader**: outline, takeaways, animated flow, on-this-page |
+| ![Playground](docs/screenshots/10-playground.png) **SQL Playground**: schema explorer, samples, per-statement results | ![Library](docs/screenshots/11-library-sources.png) **Library**: every cited paper, doc and book, filterable |
+| ![Sources](docs/screenshots/07-lesson-sources.png) **Cited sources** at the end of every lesson | ![Course complete](docs/screenshots/09-databases-course-complete.png) **Course complete** opens the next course in the track |
 
 <p>
-  <img src="docs/screenshots/20-mobile-landing.png" width="190" alt="Mobile landing">
-  <img src="docs/screenshots/21-mobile-learn.png" width="190" alt="Mobile courses">
-  <img src="docs/screenshots/22-mobile-quiz.png" width="190" alt="Mobile quiz">
-  <img src="docs/screenshots/23-mobile-pricing.png" width="190" alt="Mobile pricing">
+  <img src="docs/screenshots/18-mobile-learn.png" width="190" alt="Mobile courses">
+  <img src="docs/screenshots/19-mobile-flow.png" width="190" alt="Mobile flow diagram">
+  <img src="docs/screenshots/20-mobile-library.png" width="190" alt="Mobile library">
 </p>
 
 ## Quick start
@@ -60,17 +57,69 @@ make check   # pytest + typecheck + lint
 
 | Route | Page |
 |---|---|
-| `/` | **Landing**: hero with a product preview, how it works, the three-course path (live from the API), features, pricing teaser, FAQ, CTA, footer |
-| `/learn` | **Courses**: the ordered path. Each course card shows status, progress, XP, and why it's locked, with the one action that unlocks it |
-| `/learn/[courseId]` | **Course syllabus**: modules as a step timeline (lesson → exercise), a Continue button, coming-soon modules, and a link to the next course when this one is done |
-| `/lessons/[id]` | **Lesson reader**: Markdown lesson plus a quiz. Wrong answers are flagged without revealing the right one; passing awards XP and unlocks the exercise |
-| `/exercises/[id]` | **IDE workspace**: Monaco editor, hidden-test results, hints, mentor tips, history. Completion toasts link to the newly unlocked step |
-| `/pricing` | **Pricing**: Free / Pro / Teams (coming soon), monthly or yearly toggle, comparison table, billing FAQ, checkout and downgrade dialogs |
-| `/leaderboard` | **Leaderboard**: top-3 podium, ranked table, all-time and weekly views, your row pinned, and editing your display name |
-| `/progress` | **My progress**: XP and rank, steps completed, pass rate, streak, per-course progress, activity heatmap, recent submissions |
+| `/` | **Landing**: hero, how it works, the three tracks (live from the API), a SQL Playground showcase, features, pricing teaser, FAQ |
+| `/learn` | **Courses**: full-width explorer. Left: track navigator with per-track progress. Center: each track's courses in order, with lock reasons. Right: stats, up next, practice links, top learners |
+| `/learn/[courseId]` | **Syllabus**: modules as a step timeline, plus a rail with a progress ring, what you'll learn, the track path and sources |
+| `/lessons/[id]` | **Lesson reader**, three columns: course outline · article (summary, key takeaways, animated flow diagram, content, key terms, quiz, sources) · on-this-page with scroll-spy. Includes a reading progress bar |
+| `/exercises/[id]` | **IDE workspace**: Monaco editor, hidden-test results, hints, mentor tips, history |
+| `/playground` | **SQL Playground**: schema explorer (keys, relationships, row counts), sample queries, history, Monaco SQL editor, a result tab per statement |
+| `/library` | **Library**: all cited sources (filter by track and type, search) and an A–Z glossary linked to the lessons that teach each term |
+| `/pricing`, `/leaderboard`, `/progress` | Plans and demo checkout · XP standings (all-time and weekly) · personal stats, per-course progress by track |
 
-The header shows your XP and an account menu with your name, plan, rank, progress, name editing and plan
-management. Pages have light, dark and system themes, and every page works at phone width.
+## Tracks & curriculum
+
+Three independent tracks. Within a track, courses unlock in order. Every module is a **lesson (reading + quiz)
+followed by a graded exercise**.
+
+| Track | Course (tier) | Modules: lesson → exercise |
+|---|---|---|
+| Machine Learning | Classical ML (free) | Gradient descent → `linear_regression_gd` |
+| | Deep Learning Foundations (free) | Activations & backprop → `activation_functions` |
+| | Generative AI & LLMs (Pro) | Attention → `self_attention_head` |
+| **Data Engineering** | **Databases & SQL** (free) | Relational model & analytical SQL → `sql_analytics_queries` · Indexes, query plans & ACID → `sql_indexes_transactions` |
+| | **ETL/ELT Pipelines** (free) | ETL vs ELT → `etl_pipeline` · Data quality & incremental loads → `data_quality_checks` · Orchestration with DAGs → `dag_scheduler` |
+| **MLOps** | **MLOps Foundations** (Pro) | Tracking & registry → `model_registry` · Drift monitoring → `drift_detection` · Feature stores & point-in-time joins → `point_in_time_join` |
+
+Further modules (dimensional modeling, NoSQL, streaming/CDC, CI/CD for ML, MLPs, CNNs, RNNs, LoRA, RAG…) are
+listed as *coming soon* and never block progress.
+
+### What the data exercises practise
+
+| Exercise | You build | Hidden tests check |
+|---|---|---|
+| `sql_analytics_queries` | Six SQL queries on a sample shop DB | Exact columns and rows: joins, grain, anti-joins, window functions, read-only |
+| `sql_indexes_transactions` | Indexes, keyset pagination, an atomic transfer | `EXPLAIN QUERY PLAN` uses an index; rollback on a failure injected mid-transaction; injection-safe |
+| `etl_pipeline` | Extract → transform → upsert of a messy CSV | Quoted CSV, normalization, rejects with reasons, dedup to latest, idempotent re-runs |
+| `data_quality_checks` | dbt-style tests, a suite runner, watermark loads | not_null / unique / accepted_values / range / relationships, severities, watermark edge cases |
+| `dag_scheduler` | Topological order, parallel layers, a runner | Cycles, determinism, retries, `upstream_failed` propagation, independent branches |
+| `model_registry` | Experiment tracking + model registry | Immutable history, order-independent fingerprints, single Production version, rollback |
+| `drift_detection` | PSI, KS distance, drift report (NumPy) | Matches the definitions, constant features, thresholds, no input mutation |
+| `point_in_time_join` | Feature-store as-of join + leakage audit | No future features, TTL, ties, and 40k × 120k rows in seconds (an O(n·m) join times out) |
+
+## Learning aids & trusted sources
+
+Every lesson's `lesson.json` carries:
+
+- **Summary** and 3–4 **key takeaways**, shown first.
+- An animated **flow diagram** of the process: it auto-plays step by step and you can click any step.
+- **Key terms**, collected into the glossary.
+- **Sources**: primary references only, each typed as paper, official docs, book, course or guide.
+
+Examples: Codd (1970) for the relational model, the SQLite/PostgreSQL docs, Kimball, *Designing Data-Intensive
+Applications*, dbt's data-test and incremental-model docs, Breck et al. (MLSys 2019) on data validation, the Apache
+Airflow docs, Sculley et al. *Hidden Technical Debt in ML Systems* (NeurIPS 2015), Google's MLOps guide, the MLflow
+Tracking/Registry docs, *The ML Test Score*, Rabanser et al. *Failing Loudly* (NeurIPS 2019), Kaufman et al. on
+leakage, the Feast point-in-time-join docs, *Attention Is All You Need* and the GELU paper. The catalog rejects a
+source without an `https` URL, and the Library page deduplicates sources across lessons (37 sources and 57 terms
+today).
+
+## SQL Playground
+
+`POST /api/playground/sql` runs learner SQL in a separate, resource-limited process (`grader/sql_runner.py`)
+against a **fresh in-memory copy** of `datasets/shop.sql`, so writes never persist. Every statement returns its
+own result set (up to 10, with 500 rows each). A VM-step budget, CPU, memory and wall-clock limits stop runaway
+queries. The dataset is generated deterministically by `datasets/generate_shop.py`, and the SQL exercises use
+the same file as a grader fixture.
 
 ## Motion and the learner journey
 
@@ -146,6 +195,9 @@ All routes take an `X-User-Id` header (8–64 characters of `[A-Za-z0-9_-]`).
 | GET | `/api/me` | Display name, plan, XP, rank, completion counts, billing mode |
 | PATCH | `/api/me` | Rename `{display_name}` |
 | POST | `/api/billing/checkout` · `/api/billing/cancel` | Switch to Pro or back to Free (`501` unless `BILLING_MODE=demo`) |
+| GET | `/api/tracks` | Tracks with their courses, per-track progress and status |
+| GET | `/api/library` | Deduplicated sources (with citing lessons and tracks) and glossary terms |
+| GET / POST | `/api/playground/schema` · `/api/playground/sql` | Sample DB schema and samples · run SQL in the sandbox |
 | GET | `/api/courses` · `/api/courses/{id}` | Ordered courses → modules → lesson and exercise steps, with per-learner status and lock reasons |
 | GET | `/api/lessons/{id}` | Lesson Markdown and quiz questions (answers never sent), status, next step |
 | POST | `/api/lessons/{id}/attempts` | Grade `{answers}`. Returns per-question results, `newly_completed`, `xp_earned` and `unlocked` steps |
@@ -211,7 +263,7 @@ common mistakes each fail a specific, explainable test:
 
 ## Tests
 
-`python -m pytest` runs 35 tests:
+`python -m pytest` runs 66 tests:
 
 - **Grader:** reference solutions pass; starters fail; injected bugs are
   caught and tagged; syntax errors, CPU- and wall-clock timeouts and memory

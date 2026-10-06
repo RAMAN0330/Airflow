@@ -37,7 +37,7 @@ function Cell({ value }: { value: boolean | string }) {
 export function PricingPage() {
   return (
     <>
-      <section className="mx-auto w-full max-w-6xl px-4 pt-16 pb-12 sm:px-6">
+      <section className="mx-auto w-full max-w-7xl px-4 pt-16 pb-12 sm:px-6">
         <div className="mx-auto mb-10 max-w-2xl space-y-3 text-center">
           <p className="text-sm font-medium text-brand">Pricing</p>
           <h1 className="text-4xl font-semibold tracking-tight text-balance">Simple plans for a long path</h1>

@@ -4,6 +4,10 @@ import type {
   ExerciseDetail,
   Leaderboard,
   LeaderboardPeriod,
+  Library,
+  PlaygroundResult,
+  PlaygroundSchema,
+  Track,
   LessonDetail,
   Me,
   Progress,
@@ -52,7 +56,11 @@ export const api = {
   checkout: (interval: "month" | "year") => request<Me>("/billing/checkout", post({ plan: "pro", interval })),
   cancel: () => request<Me>("/billing/cancel", post({})),
 
+  tracks: () => request<Track[]>("/tracks"),
   courses: () => request<Course[]>("/courses"),
+  library: () => request<Library>("/library"),
+  playgroundSchema: () => request<PlaygroundSchema>("/playground/schema"),
+  runSql: (sql: string) => request<PlaygroundResult>("/playground/sql", post({ sql })),
   course: (id: string) => request<Course>(`/courses/${enc(id)}`),
   lesson: (id: string) => request<LessonDetail>(`/lessons/${enc(id)}`),
   attemptQuiz: (id: string, answers: Record<string, number>) =>

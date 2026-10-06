@@ -1,12 +1,16 @@
 import { create } from "zustand"
 
 import { api } from "@/lib/api"
-import type { Course, Leaderboard, LeaderboardPeriod, Progress } from "@/lib/types"
+import type { Course, Leaderboard, LeaderboardPeriod, Library, Progress, Track } from "@/lib/types"
 import { useSessionStore } from "@/stores/session-store"
 
 type LoadState = "idle" | "loading" | "ready" | "error"
 
 interface CatalogState {
+  tracks: Track[] | null
+  tracksState: LoadState
+  library: Library | null
+  libraryState: LoadState
   courses: Course[] | null
   coursesState: LoadState
   progress: Progress | null
@@ -14,6 +18,8 @@ interface CatalogState {
   leaderboards: Partial<Record<LeaderboardPeriod, Leaderboard>>
   leaderboardState: LoadState
   error: string | null
+  loadTracks: (opts?: { force?: boolean }) => Promise<void>
+  loadLibrary: () => Promise<void>
   loadCourses: (opts?: { force?: boolean }) => Promise<void>
   loadProgress: (opts?: { force?: boolean }) => Promise<void>
   loadLeaderboard: (period: LeaderboardPeriod) => Promise<void>
@@ -22,6 +28,10 @@ interface CatalogState {
 }
 
 export const useCatalogStore = create<CatalogState>()((set, get) => ({
+  tracks: null,
+  tracksState: "idle",
+  library: null,
+  libraryState: "idle",
   courses: null,
   coursesState: "idle",
   progress: null,
@@ -29,6 +39,29 @@ export const useCatalogStore = create<CatalogState>()((set, get) => ({
   leaderboards: {},
   leaderboardState: "idle",
   error: null,
+
+  loadTracks: async ({ force } = {}) => {
+    const s = get().tracksState
+    if (s === "loading" || (s === "ready" && !force)) return
+    set({ tracksState: "loading", error: null })
+    try {
+      const tracks = await api.tracks()
+      set({ tracks, tracksState: "ready", courses: tracks.flatMap((t) => t.courses), coursesState: "ready" })
+    } catch (e) {
+      set({ tracksState: "error", error: (e as Error).message })
+    }
+  },
+
+  loadLibrary: async () => {
+    const s = get().libraryState
+    if (s === "loading" || s === "ready") return
+    set({ libraryState: "loading" })
+    try {
+      set({ library: await api.library(), libraryState: "ready" })
+    } catch (e) {
+      set({ libraryState: "error", error: (e as Error).message })
+    }
+  },
 
   loadCourses: async ({ force } = {}) => {
     const s = get().coursesState
@@ -63,7 +96,7 @@ export const useCatalogStore = create<CatalogState>()((set, get) => ({
   },
 
   invalidate: () => {
-    set({ coursesState: "idle", progressState: "idle", leaderboards: {} })
+    set({ tracksState: "idle", coursesState: "idle", progressState: "idle", leaderboards: {} })
     useSessionStore.getState().load({ force: true })
   },
 }))

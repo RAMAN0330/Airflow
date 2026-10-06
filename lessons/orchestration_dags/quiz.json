@@ -1,0 +1,7 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "Kahn's algorithm runs out of ready tasks while 3 tasks remain unvisited. What does that mean?", "options": ["Those tasks have no upstreams", "Those tasks are on a cycle (or depend on one)", "The DAG is fully parallel", "Retries are needed"], "answer": 1, "explanation": "Tasks only become ready when all their upstreams are emitted. Tasks that never become ready are blocked by a cycle."},
+    {"id": "q2", "prompt": "Task 'join' fails permanently. What happens to 'train', which depends on it, and to 'refresh_marketing', which doesn't?", "options": ["Both are skipped", "train is upstream_failed; refresh_marketing still runs", "Both run anyway", "train runs; refresh_marketing is skipped"], "answer": 1, "explanation": "A failure only blocks its descendants, which become upstream_failed. Independent branches keep running."},
+    {"id": "q3", "prompt": "Why should tasks be idempotent if the orchestrator retries them?", "options": ["So they run faster", "So a retry after a partial run doesn't duplicate or corrupt data", "Because DAGs require it to be acyclic", "To enable parallelism"], "answer": 1, "explanation": "A task might fail after writing part of its output. If it's idempotent, re-running it converges to the same correct result."}
+  ]
+}

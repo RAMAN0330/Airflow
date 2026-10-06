@@ -37,6 +37,7 @@ class Lesson:
     estimated_minutes: int
     markdown: str
     questions: tuple
+    meta: dict  # summary, takeaways, flow, terms, sources
 
     xp = LESSON_XP
 
@@ -93,12 +94,25 @@ class Catalog:
             for q in questions:
                 if not 0 <= q["answer"] < len(q["options"]):
                     raise ValueError(f"{d.name}/{q['id']}: answer index out of range")
+            for src in meta.get("sources", []):
+                if not src.get("url", "").startswith("https://"):
+                    raise ValueError(f"{d.name}: every source needs an https url ({src.get('title')!r})")
             self.lessons[meta["id"]] = Lesson(
                 id=meta["id"], title=meta["title"], estimated_minutes=meta.get("estimated_minutes", 10),
-                markdown=(d / "lesson.md").read_text(), questions=tuple(questions),
+                markdown=(d / "lesson.md").read_text(), questions=tuple(questions), meta=meta,
             )
 
-        self.courses: list[dict] = json.loads((exercises_dir / "curriculum.json").read_text())["courses"]
+        # Tracks are independent learning paths; courses unlock in order *within* a track.
+        self.tracks: list[dict] = json.loads((exercises_dir / "curriculum.json").read_text())["tracks"]
+        self.courses: list[dict] = []
+        for track in self.tracks:
+            for position, course in enumerate(track["courses"], start=1):
+                course["track_id"] = track["id"]
+                course["position"] = position
+                self.courses.append(course)
+        self.track_by_id = {t["id"]: t for t in self.tracks}
+        if len(self.track_by_id) != len(self.tracks):
+            raise ValueError("duplicate track id in curriculum.json")
         self.course_by_id = {c["id"]: c for c in self.courses}
         self.steps: list[Step] = []
         self.steps_by_course: dict[str, list[Step]] = {}

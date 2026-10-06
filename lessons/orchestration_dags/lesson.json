@@ -1,0 +1,34 @@
+{
+  "id": "orchestration_dags",
+  "title": "Orchestration: Pipelines as DAGs",
+  "estimated_minutes": 12,
+  "summary": "Why pipelines are modeled as directed acyclic graphs, how an orchestrator decides run order and parallelism, and how retries and upstream-failure states keep partial failures contained.",
+  "takeaways": [
+    "A DAG encodes 'B needs A' as an edge. No cycles means there's always a valid run order.",
+    "A topological sort gives a run order. Grouping by depth shows what can run in parallel.",
+    "Retries absorb transient failures. Tasks should be idempotent so retrying is safe.",
+    "A failed task marks its descendants upstream_failed, and independent branches keep going."
+  ],
+  "flow": {
+    "title": "One DAG run",
+    "steps": [
+      {"label": "Parse DAG", "detail": "Validate that every upstream exists and that there are no cycles."},
+      {"label": "Find ready tasks", "detail": "Tasks whose upstreams all succeeded. Initially, those with no upstreams."},
+      {"label": "Run + retry", "detail": "Execute. On an exception, retry up to max_retries times."},
+      {"label": "Propagate state", "detail": "Success unblocks downstream tasks. Failure marks descendants upstream_failed."},
+      {"label": "Finish", "detail": "Repeat until no runnable tasks remain, then report every task's state."}
+    ]
+  },
+  "terms": [
+    {"term": "DAG", "definition": "Directed acyclic graph: tasks as nodes and dependencies as edges, with no cycles."},
+    {"term": "Topological order", "definition": "A sequence of all nodes in which every node comes after all of its upstream dependencies."},
+    {"term": "Kahn's algorithm", "definition": "Topological sorting by repeatedly removing nodes with no remaining incoming edges. Leftover nodes indicate a cycle."},
+    {"term": "upstream_failed", "definition": "An Airflow task state for tasks that didn't run because a dependency failed."},
+    {"term": "Retry", "definition": "Re-running a failed task automatically, to absorb transient errors like network timeouts."}
+  ],
+  "sources": [
+    {"title": "Apache Airflow: Core Concepts (DAGs, Tasks)", "author": "Apache Software Foundation", "publisher": "airflow.apache.org", "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/", "kind": "docs"},
+    {"title": "graphlib: Functionality to operate with graph-like structures", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/graphlib.html", "kind": "docs"},
+    {"title": "Designing Data-Intensive Applications (Ch. 10, Batch Processing)", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"}
+  ]
+}

@@ -89,19 +89,25 @@ def test_me_defaults_and_rename(client):
 
 def test_fresh_learner_sees_only_first_lesson_unlocked(client):
     courses = client.get("/api/courses", headers=H).json()
-    assert [c["id"] for c in courses] == ["classical-ml", "deep-learning", "genai-llms"]
-    assert [c["position"] for c in courses] == [1, 2, 3]
-    assert statuses(client) == {
+    assert [c["id"] for c in courses] == [
+        "classical-ml", "deep-learning", "genai-llms", "databases-sql", "etl-pipelines", "mlops-foundations"]
+    assert [(c["track_id"], c["position"]) for c in courses] == [
+        ("machine-learning", 1), ("machine-learning", 2), ("machine-learning", 3),
+        ("data-engineering", 1), ("data-engineering", 2), ("mlops", 1)]
+    s = statuses(client)
+    assert {k: s[k] for k in ("classical-ml", "gradient_descent_intuition", "linear_regression_gd", "deep-learning",
+                              "activations_and_backprop", "genai-llms", "self_attention_head")} == {
         "classical-ml": "available",
         "gradient_descent_intuition": "available",
         "linear_regression_gd": "locked",
         "deep-learning": "locked",
         "activations_and_backprop": "locked",
-        "activation_functions": "locked",
         "genai-llms": "upgrade_required",
-        "attention_intuition": "locked",
         "self_attention_head": "locked",
     }
+    # Tracks are independent: the first course of each free track is open from the start.
+    assert (s["databases-sql"], s["relational_sql_basics"], s["sql_analytics_queries"]) == ("available", "available", "locked")
+    assert (s["etl-pipelines"], s["mlops-foundations"]) == ("locked", "upgrade_required")
     ex = courses[0]["modules"][0]["exercise"]
     assert ex["lock_reason"]["kind"] == "previous_step"
     assert ex["lock_reason"]["target"]["id"] == "gradient_descent_intuition"
@@ -121,7 +127,9 @@ def test_exercise_locked_until_lesson_passed(client):
     assert "def predict" in detail["starter_code"], "sequence-locked exercises stay previewable"
     assert detail["lesson"]["id"] == "gradient_descent_intuition"
     assert detail["next"]["id"] == "activations_and_backprop"
-    assert detail["course"] == {"id": "classical-ml", "title": "Classical Machine Learning", "tier": "free"}
+    assert detail["course"] == {"id": "classical-ml", "title": "Classical Machine Learning", "tier": "free",
+                                "track_id": "machine-learning", "track_title": "Machine Learning"}
+    assert [st["id"] for m in detail["outline"] for st in m["steps"]] == ["gradient_descent_intuition", "linear_regression_gd"]
 
 
 def test_quiz_grading_hides_answers_until_correct(client):
@@ -223,12 +231,13 @@ def test_progress(client):
     pass_exercise(client, "linear_regression_gd")
     p = client.get("/api/progress", headers=H).json()
     assert (p["xp"], p["rank"]) == (125, 1)
-    assert (p["exercises_completed"], p["total_exercises"]) == (1, 3)
-    assert (p["lessons_completed"], p["total_lessons"]) == (1, 3)
+    assert (p["exercises_completed"], p["total_exercises"]) == (1, 11)
+    assert (p["lessons_completed"], p["total_lessons"]) == (1, 11)
     assert p["total_submissions"] == 1 and p["pass_rate"] == 1.0
     assert p["next_up"] == {"kind": "lesson", "id": "activations_and_backprop", "title": p["next_up"]["title"],
                             "status": "available", "course_id": "deep-learning"}
-    assert [c["status"] for c in p["courses"]] == ["completed", "available", "upgrade_required"]
+    assert [c["status"] for c in p["courses"]] == [
+        "completed", "available", "upgrade_required", "available", "locked", "upgrade_required"]
     assert p["recent"][0]["code"] is None and p["activity"][0]["submissions"] == 1
 
     fresh = client.get("/api/progress", headers=H2).json()
@@ -281,7 +290,7 @@ def _copy_content(tmp_path):
 def test_catalog_rejects_unreferenced_content(tmp_path):
     ex, lessons = _copy_content(tmp_path)
     cur = json.loads((ex / "curriculum.json").read_text())
-    cur["courses"][0]["modules"][0]["lesson"] = None
+    cur["tracks"][0]["courses"][0]["modules"][0]["lesson"] = None
     (ex / "curriculum.json").write_text(json.dumps(cur))
     with pytest.raises(ValueError, match="not referenced"):
         Catalog(ex, lessons)
@@ -290,7 +299,84 @@ def test_catalog_rejects_unreferenced_content(tmp_path):
 def test_catalog_rejects_duplicate_steps(tmp_path):
     ex, lessons = _copy_content(tmp_path)
     cur = json.loads((ex / "curriculum.json").read_text())
-    cur["courses"][1]["modules"][1]["exercise"] = "linear_regression_gd"
+    cur["tracks"][1]["courses"][0]["modules"][1]["exercise"] = "linear_regression_gd"
     (ex / "curriculum.json").write_text(json.dumps(cur))
     with pytest.raises(ValueError, match="more than once"):
         Catalog(ex, lessons)
+
+
+# ------------------------------------------------------------------ tracks, data engineering & MLOps
+
+def test_tracks_summarize_courses(client):
+    tracks = client.get("/api/tracks", headers=H).json()
+    assert [t["id"] for t in tracks] == ["machine-learning", "data-engineering", "mlops"]
+    by_id = {t["id"]: t for t in tracks}
+    assert by_id["data-engineering"]["status"] == "available" and by_id["data-engineering"]["total_steps"] == 10
+    assert by_id["mlops"]["status"] == "upgrade_required"
+    assert [c["id"] for c in by_id["data-engineering"]["courses"]] == ["databases-sql", "etl-pipelines"]
+
+
+def test_data_engineering_track_sequence(client):
+    pass_lesson(client, "relational_sql_basics")
+    first = pass_exercise(client, "sql_analytics_queries")
+    assert [u["id"] for u in first["unlocked"]] == ["indexes_and_transactions"]
+    pass_lesson(client, "indexes_and_transactions")
+    done = pass_exercise(client, "sql_indexes_transactions")
+    assert done["xp_earned"] == 200
+    assert [u["id"] for u in done["unlocked"]] == ["etl_vs_elt"], "finishing Databases & SQL opens ETL/ELT Pipelines"
+    s = statuses(client)
+    assert s["databases-sql"] == "completed" and s["etl-pipelines"] == "available"
+    assert s["deep-learning"] == "locked", "progress in one track never unlocks another"
+
+
+def test_lesson_detail_has_learning_aids(client):
+    lesson = client.get("/api/lessons/feature_store_pit", headers=H).json()
+    assert lesson["markdown"] == "" and lesson["questions"] == [] and lesson["flow"] is None, "Pro lesson withheld"
+    assert lesson["sources"], "sources stay visible as a preview"
+    lesson = client.get("/api/lessons/etl_vs_elt", headers=H).json()
+    assert lesson["status"] == "locked" and lesson["markdown"], "sequence-locked lessons are previewable"
+    assert len(lesson["takeaways"]) >= 3 and lesson["flow"]["steps"] and lesson["terms"]
+    assert all(src["url"].startswith("https://") for src in lesson["sources"])
+    assert lesson["course"]["track_title"] == "Data Engineering"
+    assert [m["id"] for m in lesson["outline"]] == ["etl-basics", "data-quality", "orchestration"]
+
+
+def test_library_aggregates_sources_and_terms(client):
+    lib = client.get("/api/library", headers=H).json()
+    urls = [s["url"] for s in lib["sources"]]
+    assert len(urls) == len(set(urls)), "sources are deduplicated by URL"
+    assert len(lib["sources"]) >= 25 and len(lib["terms"]) >= 40
+    ddia = next(s for s in lib["sources"] if s["url"] == "https://dataintensive.net/")
+    assert {l["id"] for l in ddia["lessons"]} == {"etl_vs_elt", "orchestration_dags"}
+    assert ddia["track_ids"] == ["data-engineering"]
+    assert [t["term"].lower() for t in lib["terms"]] == sorted(t["term"].lower() for t in lib["terms"])
+    assert {s["kind"] for s in lib["sources"]} <= {"paper", "docs", "book", "course", "article"}
+
+
+def test_playground_schema_and_queries(client):
+    schema = client.get("/api/playground/schema", headers=H).json()
+    assert [t["name"] for t in schema["tables"]] == ["customers", "products", "orders", "order_items"]
+    orders = next(t for t in schema["tables"] if t["name"] == "orders")
+    assert orders["row_count"] == 90
+    assert next(c for c in orders["columns"] if c["name"] == "customer_id")["references"] == "customers.customer_id"
+    assert len(schema["samples"]) >= 5
+
+    r = client.post("/api/playground/sql", headers=H, json={"sql": "SELECT status, COUNT(*) AS n FROM orders GROUP BY status ORDER BY n DESC"}).json()
+    assert r["error"] is None and r["results"][0]["columns"] == ["status", "n"] and r["results"][0]["rows"][0][0] == "completed"
+
+    # Writes only affect a throwaway copy.
+    r = client.post("/api/playground/sql", headers=H, json={"sql": "DELETE FROM order_items; SELECT COUNT(*) FROM order_items"}).json()
+    assert r["results"][0]["rows_affected"] == 183 and r["results"][1]["rows"] == [[0]]
+    r = client.post("/api/playground/sql", headers=H, json={"sql": "SELECT COUNT(*) FROM order_items"}).json()
+    assert r["results"][0]["rows"] == [[183]]
+
+
+def test_playground_reports_errors_and_limits(client):
+    r = client.post("/api/playground/sql", headers=H, json={"sql": "SELEC * FROM orders"}).json()
+    assert r["error"].startswith("SQL error") and r["results"] == []
+    r = client.post("/api/playground/sql", headers=H, json={
+        "sql": "WITH RECURSIVE r(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM r) SELECT max(x) FROM r"}).json()
+    assert r["error"] and "limit" in r["error"]
+    r = client.post("/api/playground/sql", headers=H, json={"sql": "SELECT * FROM order_items, order_items AS b LIMIT 1000"}).json()
+    assert r["results"][0]["truncated"] is True and len(r["results"][0]["rows"]) == 500
+    assert client.post("/api/playground/sql", headers=H, json={"sql": ""}).status_code == 422

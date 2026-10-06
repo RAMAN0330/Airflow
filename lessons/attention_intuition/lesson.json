@@ -1,1 +1,80 @@
-{"id": "attention_intuition", "title": "Attention as Soft Lookup", "estimated_minutes": 15}
+{
+  "id": "attention_intuition",
+  "title": "Attention as Soft Lookup",
+  "estimated_minutes": 15,
+  "summary": "Attention as a soft dictionary lookup: queries score keys, softmax turns scores into weights, and values are mixed accordingly, with scaling, batching and causal masking done right.",
+  "takeaways": [
+    "Each query is compared with every key. Softmax turns the scores into weights over the values.",
+    "Divide scores by √d_k so softmax doesn't saturate when dimensions are large.",
+    "Transpose only the last two axes (swapaxes), never .T, when tensors are batched.",
+    "A causal mask sets future positions to −∞ before softmax, so they get exactly zero weight."
+  ],
+  "flow": {
+    "title": "Scaled dot-product attention",
+    "steps": [
+      {
+        "label": "Project",
+        "detail": "Q = XW_q, K = XW_k, V = XW_v."
+      },
+      {
+        "label": "Score",
+        "detail": "S = Q @ Kᵀ, a (T_q, T_k) matrix of similarities."
+      },
+      {
+        "label": "Scale + mask",
+        "detail": "S / √d_k, then set disallowed (future) positions to −∞."
+      },
+      {
+        "label": "Softmax",
+        "detail": "Row-wise softmax over keys; each row sums to 1."
+      },
+      {
+        "label": "Mix values",
+        "detail": "Output = weights @ V, shape (T_q, d_v)."
+      }
+    ]
+  },
+  "terms": [
+    {
+      "term": "Query / Key / Value",
+      "definition": "Learned projections: queries ask, keys are matched against, values are what gets mixed."
+    },
+    {
+      "term": "Scaled dot-product attention",
+      "definition": "softmax(QKᵀ/√d_k)V, the core operation of the transformer."
+    },
+    {
+      "term": "Causal mask",
+      "definition": "A lower-triangular mask so position i can attend only to positions ≤ i."
+    },
+    {
+      "term": "Permutation equivariance",
+      "definition": "Without positions, permuting input tokens permutes outputs identically."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Attention Is All You Need",
+      "author": "A. Vaswani et al.",
+      "publisher": "NeurIPS",
+      "year": 2017,
+      "url": "https://arxiv.org/abs/1706.03762",
+      "kind": "paper"
+    },
+    {
+      "title": "The Annotated Transformer",
+      "author": "Harvard NLP (A. Rush et al.)",
+      "publisher": "nlp.seas.harvard.edu",
+      "url": "https://nlp.seas.harvard.edu/annotated-transformer",
+      "kind": "article"
+    },
+    {
+      "title": "Deep Learning (Ch. 10: Sequence Modeling)",
+      "author": "I. Goodfellow, Y. Bengio, A. Courville",
+      "publisher": "MIT Press",
+      "year": 2016,
+      "url": "https://www.deeplearningbook.org/",
+      "kind": "book"
+    }
+  ]
+}

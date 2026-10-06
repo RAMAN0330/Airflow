@@ -1,0 +1,7 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "Feature rows exist at timestamps 100, 200 and 300. Which one should a label at event_ts = 250 use?", "options": ["100", "200", "300", "The average of all three"], "answer": 1, "explanation": "Point-in-time correctness: use the newest feature value that existed at the event, i.e. the largest feature_ts ≤ 250, which is 200."},
+    {"id": "q2", "prompt": "A model scores 0.99 AUC offline but performs poorly in production. A training feature was joined using each user's latest value. What's the likely cause?", "options": ["Overfitting to noise", "Target leakage: features from after the event", "Too few trees", "Class imbalance"], "answer": 1, "explanation": "Joining the latest value lets training rows see information from after the event, which isn't available at prediction time. That inflates offline metrics."},
+    {"id": "q3", "prompt": "Why group by entity and binary-search instead of scanning all feature rows per label?", "options": ["Binary search returns different results", "It cuts the work from O(n·m) to about O((n + m) log m)", "It avoids needing timestamps", "It removes the need for a TTL"], "answer": 1, "explanation": "Sorting each entity's history once and bisecting for each label replaces a full scan per label with a logarithmic lookup."}
+  ]
+}

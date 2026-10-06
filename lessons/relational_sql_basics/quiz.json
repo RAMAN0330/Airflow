@@ -1,0 +1,7 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "You join orders to order_items and run COUNT(*). What are you counting?", "options": ["Orders", "Order lines (one row per product in an order)", "Customers", "Products"], "answer": 1, "explanation": "A join's grain is its finest table. Each order appears once per line item, so COUNT(*) counts lines. Use COUNT(DISTINCT order_id) to count orders."},
+    {"id": "q2", "prompt": "Which clause filters groups after aggregation?", "options": ["WHERE", "HAVING", "ORDER BY", "PARTITION BY"], "answer": 1, "explanation": "WHERE filters individual rows before GROUP BY. HAVING filters the resulting groups and can use aggregates like SUM()."},
+    {"id": "q3", "prompt": "What does a window function like SUM(x) OVER (ORDER BY month) do that GROUP BY can't?", "options": ["Runs faster on every database", "Computes across related rows while keeping every row in the result", "Removes duplicate rows", "Creates an index on month"], "answer": 1, "explanation": "Window functions aggregate over a window of rows without collapsing them, so each month keeps its own row alongside its running total."}
+  ]
+}

@@ -14,6 +14,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 
 from grader.run import grade
+from grader.sql_runner import describe as describe_dataset, run_sql
 
 from . import schemas
 from .catalog import Catalog, Step
@@ -49,6 +50,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.db = Database(settings.database_path)
         app.state.run_slots = asyncio.Semaphore(settings.max_concurrent_runs)
         app.state.running_users = set()
+        shop = settings.datasets_dir / "shop.sql"
+        app.state.playground = schemas.PlaygroundSchema(
+            dataset="shop",
+            description="A small online shop: customers place orders, and each order has one or more product lines. "
+                        "Every run starts from a fresh copy, so feel free to INSERT, UPDATE or CREATE INDEX.",
+            tables=describe_dataset(shop),
+            samples=json.loads((settings.datasets_dir / "shop.samples.json").read_text()),
+        )
         yield
 
     app = FastAPI(title="Gradient: ML Practice Platform API", version="0.3.0", lifespan=lifespan)
@@ -107,7 +116,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def course_ref(cat: Catalog, course_id: str) -> schemas.CourseRef:
         c = cat.course_by_id[course_id]
-        return schemas.CourseRef(id=c["id"], title=c["title"], tier=c.get("tier", "free"))
+        return schemas.CourseRef(id=c["id"], title=c["title"], tier=c.get("tier", "free"),
+                                 track_id=c["track_id"], track_title=cat.track_by_id[c["track_id"]]["title"])
+
+    def outline(cat: Catalog, course_id: str, prog: Progression) -> list[schemas.OutlineModule]:
+        """Released modules of a course with their steps' live status (for side navigation)."""
+        steps = cat.steps_by_course[course_id]
+        mods = []
+        for m in cat.course_by_id[course_id]["modules"]:
+            ms = [step_ref(cat, st, prog) for st in steps if st.module_id == m["id"]]
+            if ms:
+                mods.append(schemas.OutlineModule(id=m["id"], title=m["title"], steps=ms))
+        return mods
 
     def course_out(cat: Catalog, course: dict, lr: Learner) -> schemas.Course:
         state = lr.progression.courses[course["id"]]
@@ -122,8 +142,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 exercise=step_summary(cat, exercise, lr) if exercise else None,
             ))
         return schemas.Course(
-            id=course["id"], title=course["title"], tagline=course["tagline"], description=course["description"],
-            level=course["level"], tier=course.get("tier", "free"), position=cat.courses.index(course) + 1,
+            id=course["id"], track_id=course["track_id"], title=course["title"], tagline=course["tagline"], description=course["description"],
+            level=course["level"], tier=course.get("tier", "free"), position=course["position"],
             status=state.status, lock_reason=lock_reason(state.lock_reason),
             completed_steps=state.completed_steps, total_steps=state.total_steps,
             estimated_minutes=sum(cat.minutes(s) for s in steps), total_xp=sum(cat.xp(s) for s in steps),
@@ -212,6 +232,62 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # ------------------------------------------------------------- courses & lessons
 
+    @app.get("/api/tracks", response_model=list[schemas.Track])
+    def list_tracks(lr: Learner = Depends(learner), cat: Catalog = Depends(catalog)):
+        out = []
+        for t in cat.tracks:
+            courses = [course_out(cat, c, lr) for c in t["courses"]]
+            done = sum(c.completed_steps for c in courses)
+            total = sum(c.total_steps for c in courses)
+            if total and done == total:
+                status = "completed"
+            elif done or any(c.status == "in_progress" for c in courses):
+                status = "in_progress"
+            elif all(c.status == "upgrade_required" for c in courses):
+                status = "upgrade_required"
+            else:
+                status = "available"
+            out.append(schemas.Track(id=t["id"], title=t["title"], tagline=t["tagline"], description=t["description"],
+                                     icon=t.get("icon", "book"), status=status, completed_steps=done,
+                                     total_steps=total, courses=courses))
+        return out
+
+    @app.get("/api/library", response_model=schemas.Library)
+    def get_library(uid: str = Depends(user_id), cat: Catalog = Depends(catalog)):
+        sources: dict[str, dict] = {}
+        terms = []
+        for st in cat.steps:
+            if st.kind != "lesson":
+                continue
+            lesson = cat.lessons[st.id]
+            course = cat.course_by_id[st.course_id]
+            link = schemas.LessonLink(id=lesson.id, title=lesson.title, course_id=course["id"], track_id=course["track_id"])
+            for src in lesson.meta.get("sources", []):
+                entry = sources.setdefault(src["url"], {**src, "track_ids": [], "lessons": []})
+                if course["track_id"] not in entry["track_ids"]:
+                    entry["track_ids"].append(course["track_id"])
+                entry["lessons"].append(link)
+            for term in lesson.meta.get("terms", []):
+                terms.append(schemas.LibraryTerm(**term, lesson=link))
+        terms.sort(key=lambda t: t.term.lower())
+        return schemas.Library(sources=list(sources.values()), terms=terms)
+
+    @app.get("/api/playground/schema", response_model=schemas.PlaygroundSchema)
+    def playground_schema(request: Request, uid: str = Depends(user_id)):
+        return request.app.state.playground
+
+    @app.post("/api/playground/sql", response_model=schemas.PlaygroundOut)
+    async def playground_sql(body: schemas.PlaygroundIn, request: Request, uid: str = Depends(user_id)):
+        running = request.app.state.running_users
+        if uid in running:
+            raise HTTPException(429, "A run is already in progress for this user")
+        running.add(uid)
+        try:
+            async with request.app.state.run_slots:
+                return await run_in_threadpool(run_sql, body.sql, settings.datasets_dir / "shop.sql")
+        finally:
+            running.discard(uid)
+
     @app.get("/api/courses", response_model=list[schemas.Course])
     def list_courses(lr: Learner = Depends(learner), cat: Catalog = Depends(catalog)):
         return [course_out(cat, c, lr) for c in cat.courses]
@@ -235,7 +311,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             status=state.status, lock_reason=lock_reason(state.lock_reason),
             completed_at=lr.lessons.get(lesson_id), course=course_ref(cat, step.course_id),
             module_title=step.module_title, questions=[] if paywalled else lesson.public_questions(),
-            next=step_ref(cat, nxt, lr.progression) if nxt else None,
+            next=step_ref(cat, nxt, lr.progression) if nxt and nxt.course_id == step.course_id else None,
+            summary=lesson.meta.get("summary", ""),
+            takeaways=[] if paywalled else lesson.meta.get("takeaways", []),
+            flow=None if paywalled else lesson.meta.get("flow"),
+            terms=[] if paywalled else lesson.meta.get("terms", []),
+            sources=lesson.meta.get("sources", []),
+            outline=outline(cat, step.course_id, lr.progression),
         )
 
     @app.post("/api/lessons/{lesson_id}/attempts", response_model=schemas.QuizAttemptOut)
@@ -277,6 +359,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             task_markdown="" if is_paywalled(state) else ex.task_markdown,
             starter_code="" if is_paywalled(state) else ex.starter_code,
             time_limit_seconds=ex.meta.get("limits", {}).get("wall_seconds", 15),
+            outline=outline(cat, step.course_id, lr.progression),
         )
 
     @app.get("/api/exercises/{exercise_id}/submissions", response_model=list[schemas.Submission])
@@ -326,7 +409,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             total_lessons=len(cat.lessons), lessons_completed=len(lr.lessons),
             total_submissions=total_subs, pass_rate=round(passes / total_subs, 4) if total_subs else 0.0,
             courses=[
-                schemas.CourseProgress(id=c["id"], title=c["title"], status=lr.progression.courses[c["id"]].status,
+                schemas.CourseProgress(id=c["id"], track_id=c["track_id"], title=c["title"], status=lr.progression.courses[c["id"]].status,
                                        completed_steps=lr.progression.courses[c["id"]].completed_steps,
                                        total_steps=lr.progression.courses[c["id"]].total_steps)
                 for c in cat.courses

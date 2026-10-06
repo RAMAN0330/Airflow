@@ -37,7 +37,7 @@ export function LeaderboardView() {
   const meOutside = board?.me && !board.entries.some((e) => e.is_me)
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-2">
           <p className="text-sm font-medium text-brand">Community</p>

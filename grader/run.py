@@ -72,6 +72,9 @@ def grade(submission_code, exercise_dir, timeout=None):
         (work / "submission.py").write_text(submission_code)
         shutil.copy(exercise_dir / "tests_hidden.py", work / "test_hidden.py")
         shutil.copy(PLUGIN, work / "conftest.py")
+        # Optional read-only inputs for the hidden tests (e.g. a sample database).
+        if (exercise_dir / "fixtures").is_dir():
+            shutil.copytree(exercise_dir / "fixtures", work / "fixtures")
         (work / "pytest.ini").write_text("[pytest]\naddopts =\n")
 
         env = {

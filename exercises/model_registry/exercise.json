@@ -1,0 +1,21 @@
+{
+  "id": "model_registry",
+  "title": "Experiment Tracking & a Model Registry",
+  "summary": "Track experiment runs with reproducible fingerprints, pick the best run, register versioned models, promote them through Staging and Production safely, and roll back in one call.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 35,
+  "tags": ["mlops", "experiment-tracking", "model-registry", "reproducibility"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_log_run_ids_and_storage": "Hand out ids 'run-1', 'run-2', … and store copies of params and metrics, so a caller mutating its dict later can't change history.",
+    "test_fingerprint_is_order_independent": "Hash a canonical form: json.dumps(params, sort_keys=True, separators=(',', ':')), then sha256 hexdigest.",
+    "test_duplicate_runs_are_detectable": "Group runs by fingerprint. Any fingerprint with more than one run is a repeated experiment.",
+    "test_best_run_max_and_min": "Skip runs that don't have the metric. For mode='min' pick the smallest. On ties keep the earliest run.",
+    "test_register_versions_per_model": "Versions count up from 1 separately for each model name. Each new version starts in stage 'None'.",
+    "test_promotion_archives_previous_production": "Only one version may be in Production. Promoting a new one moves the old one to 'Archived'.",
+    "test_invalid_transitions": "Reject unknown stages with ValueError. Unknown models or versions raise KeyError.",
+    "test_rollback_restores_previous_production": "Remember which version was in Production before. Rollback re-promotes it and archives the current one.",
+    "test_rollback_without_history_fails": "Raise ValueError when there's no previous Production version to go back to."
+  }
+}

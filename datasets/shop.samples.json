@@ -1,0 +1,8 @@
+[
+  {"title": "Peek at orders", "sql": "SELECT * FROM orders\nORDER BY order_date DESC\nLIMIT 10;"},
+  {"title": "Revenue by category", "sql": "SELECT p.category,\n       ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM order_items oi\nJOIN orders o   ON o.order_id = oi.order_id AND o.status = 'completed'\nJOIN products p ON p.product_id = oi.product_id\nGROUP BY p.category\nORDER BY revenue DESC;"},
+  {"title": "Orders per status", "sql": "SELECT status, COUNT(*) AS orders\nFROM orders\nGROUP BY status\nORDER BY orders DESC;"},
+  {"title": "Running monthly revenue (window)", "sql": "WITH monthly AS (\n  SELECT substr(o.order_date, 1, 7) AS month,\n         SUM(oi.quantity * oi.unit_price) AS revenue\n  FROM order_items oi\n  JOIN orders o ON o.order_id = oi.order_id AND o.status = 'completed'\n  GROUP BY month\n)\nSELECT month,\n       ROUND(revenue, 2) AS revenue,\n       ROUND(SUM(revenue) OVER (ORDER BY month), 2) AS running_revenue\nFROM monthly\nORDER BY month;"},
+  {"title": "Customers who never ordered (anti-join)", "sql": "SELECT c.customer_id, c.name\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.customer_id\nWHERE o.order_id IS NULL;"},
+  {"title": "Query plan before/after an index", "sql": "EXPLAIN QUERY PLAN\nSELECT order_id FROM orders WHERE customer_id = 3;\n\nCREATE INDEX idx_orders_customer ON orders (customer_id);\n\nEXPLAIN QUERY PLAN\nSELECT order_id FROM orders WHERE customer_id = 3;"}
+]

@@ -1,0 +1,22 @@
+{
+  "id": "sql_indexes_transactions",
+  "title": "Indexes, Pagination & Transactions",
+  "summary": "Make slow lookups use indexes (proved with EXPLAIN QUERY PLAN), page through data with keyset pagination, and move stock atomically so a failure never leaves the database half-updated.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 35,
+  "tags": ["sql", "indexes", "transactions", "acid"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_customer_orders_query_uses_index": "The query filters on customer_id (equality) and order_date (range). A composite index on (customer_id, order_date) lets SQLite SEARCH instead of SCAN, with the equality column first.",
+    "test_product_lookup_uses_index": "order_items' primary key starts with order_id, so it can't help a lookup by product_id. Add an index whose first column is product_id.",
+    "test_create_indexes_is_idempotent": "Use CREATE INDEX IF NOT EXISTS so running the migration twice is safe.",
+    "test_keyset_pagination": "Use WHERE order_id > ? ORDER BY order_id LIMIT ?. Each page starts after the last id of the previous page, so there's no OFFSET to re-scan.",
+    "test_transfer_moves_stock": "Decrement the source and increment the destination inside one transaction, then return the two new quantities.",
+    "test_transfer_creates_destination_row": "Use INSERT … ON CONFLICT(warehouse, product_id) DO UPDATE SET qty = qty + excluded.qty so a missing destination row is created.",
+    "test_insufficient_stock_rolls_back": "Check the source quantity first and raise ValueError. Make sure nothing was written and no transaction is left open.",
+    "test_invalid_quantity_rejected": "Reject qty <= 0 with ValueError before touching the database.",
+    "test_failure_midway_is_atomic": "Wrap both writes in `with conn:`. It commits on success and rolls back if anything inside raises, including the second write.",
+    "test_queries_are_parameterized": "Never build SQL with f-strings. Pass values as parameters (?), so names with quotes work and injection attempts are just data."
+  }
+}

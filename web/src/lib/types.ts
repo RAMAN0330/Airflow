@@ -43,10 +43,13 @@ export interface CourseRef {
   id: string
   title: string
   tier: Plan
+  track_id: string
+  track_title: string
 }
 
 export interface Course {
   id: string
+  track_id: string
   title: string
   tagline: string
   description: string
@@ -60,6 +63,52 @@ export interface Course {
   estimated_minutes: number
   total_xp: number
   modules: ModuleSummary[]
+}
+
+export type TrackIcon = "brain" | "database" | "workflow" | string
+
+export interface Track {
+  id: string
+  title: string
+  tagline: string
+  description: string
+  icon: TrackIcon
+  status: CourseStatus
+  completed_steps: number
+  total_steps: number
+  courses: Course[]
+}
+
+export interface FlowStep {
+  label: string
+  detail: string
+}
+
+export interface Flow {
+  title: string
+  steps: FlowStep[]
+}
+
+export interface Term {
+  term: string
+  definition: string
+}
+
+export type SourceKind = "paper" | "docs" | "book" | "course" | "article"
+
+export interface Source {
+  title: string
+  author: string | null
+  publisher: string | null
+  year: number | null
+  url: string
+  kind: SourceKind
+}
+
+export interface OutlineModule {
+  id: string
+  title: string
+  steps: StepRef[]
 }
 
 export interface QuizQuestion {
@@ -81,6 +130,12 @@ export interface LessonDetail {
   module_title: string
   questions: QuizQuestion[]
   next: StepRef | null
+  summary: string
+  takeaways: string[]
+  flow: Flow | null
+  terms: Term[]
+  sources: Source[]
+  outline: OutlineModule[]
 }
 
 export interface QuizAttemptResult {
@@ -110,6 +165,7 @@ export interface ExerciseDetail {
   task_markdown: string
   starter_code: string
   time_limit_seconds: number
+  outline: OutlineModule[]
 }
 
 export interface TestResult {
@@ -184,6 +240,7 @@ export interface ExerciseProgress {
 
 export interface CourseProgress {
   id: string
+  track_id: string
   title: string
   status: CourseStatus
   completed_steps: number
@@ -222,4 +279,61 @@ export interface Leaderboard {
   total_learners: number
   entries: LeaderboardEntry[]
   me: LeaderboardEntry | null
+}
+
+export interface LessonLink {
+  id: string
+  title: string
+  course_id: string
+  track_id: string
+}
+
+export interface LibrarySource extends Source {
+  track_ids: string[]
+  lessons: LessonLink[]
+}
+
+export interface LibraryTerm extends Term {
+  lesson: LessonLink
+}
+
+export interface Library {
+  sources: LibrarySource[]
+  terms: LibraryTerm[]
+}
+
+export interface PlaygroundColumn {
+  name: string
+  type: string
+  pk: boolean
+  references: string | null
+}
+
+export interface PlaygroundTable {
+  name: string
+  row_count: number
+  columns: PlaygroundColumn[]
+}
+
+export interface PlaygroundSchema {
+  dataset: string
+  description: string
+  tables: PlaygroundTable[]
+  samples: { title: string; sql: string }[]
+}
+
+export interface PlaygroundResultSet {
+  statement: number
+  sql: string
+  columns: string[]
+  rows: (string | number | null)[][]
+  truncated: boolean
+  rows_affected: number | null
+}
+
+export interface PlaygroundResult {
+  results: PlaygroundResultSet[]
+  statements: number
+  error: string | null
+  duration_ms: number
 }

@@ -9,12 +9,14 @@ ROOT = Path(__file__).resolve().parents[1]
 LINREG = ROOT / "exercises" / "linear_regression_gd"
 ATTN = ROOT / "exercises" / "self_attention_head"
 ACT = ROOT / "exercises" / "activation_functions"
+ALL_EXERCISES = sorted(p.parent for p in (ROOT / "exercises").glob("*/exercise.json"))
+EX = ROOT / "exercises"
 
 EXPECTED_KEYS = {"exercise_id", "status", "passed_tests", "total_tests", "score", "tests",
                  "stdout", "stderr", "duration_ms", "error_tags", "remediation"}
 
 
-@pytest.mark.parametrize("exercise", [LINREG, ACT, ATTN], ids=lambda p: p.name)
+@pytest.mark.parametrize("exercise", ALL_EXERCISES, ids=lambda p: p.name)
 def test_reference_solution_passes_everything(exercise):
     r = grade((exercise / "solution.py").read_text(), exercise)
     assert set(r) == EXPECTED_KEYS
@@ -22,7 +24,7 @@ def test_reference_solution_passes_everything(exercise):
     assert r["passed_tests"] == r["total_tests"] > 0
 
 
-@pytest.mark.parametrize("exercise", [LINREG, ACT, ATTN], ids=lambda p: p.name)
+@pytest.mark.parametrize("exercise", ALL_EXERCISES, ids=lambda p: p.name)
 def test_starter_imports_but_fails(exercise):
     r = grade((exercise / "starter.py").read_text(), exercise)
     assert r["status"] == "failed"
@@ -130,8 +132,99 @@ def test_unstable_softmax_is_tagged_and_hinted():
 
 def test_every_hidden_test_has_a_hint():
     import ast, json
-    for ex in (LINREG, ACT, ATTN):
+    assert len(ALL_EXERCISES) == 11
+    for ex in ALL_EXERCISES:
         hints = json.loads((ex / "exercise.json").read_text())["hints"]
         tree = ast.parse((ex / "tests_hidden.py").read_text())
         names = {n.name for n in tree.body if isinstance(n, ast.FunctionDef) and n.name.startswith("test_")}
         assert names == set(hints), f"{ex.name}: hint keys out of sync with tests"
+
+
+
+def _failed(code, exercise):
+    r = grade(code, exercise)
+    return r, {t["name"].split("[")[0] for t in r["tests"] if t["outcome"] == "failed"}
+
+
+def test_sql_wrong_grain_is_caught():
+    # COUNT(*) over a join counts order lines, not orders.
+    code = (EX / "sql_analytics_queries" / "solution.py").read_text().replace(
+        "COUNT(DISTINCT o.order_id) AS orders", "COUNT(*) AS orders")
+    _, failed = _failed(code, EX / "sql_analytics_queries")
+    assert failed == {"test_monthly_revenue"}
+
+
+def test_non_atomic_transfer_is_caught():
+    code = (EX / "sql_indexes_transactions" / "solution.py").read_text().replace(
+        "    with conn:  # commit on success, roll back on any exception", "    if True:")
+    _, failed = _failed(code, EX / "sql_indexes_transactions")
+    assert "test_failure_midway_is_atomic" in failed
+
+
+def test_plain_insert_is_not_idempotent():
+    code = (EX / "etl_pipeline" / "solution.py").read_text().replace(
+        'f"ON CONFLICT (order_id) DO UPDATE SET {updates}"', '""').replace(
+        "INSERT INTO fact_orders", "INSERT OR IGNORE INTO fact_orders")
+    _, failed = _failed(code, EX / "etl_pipeline")
+    assert "test_rerun_applies_corrections" in failed
+
+
+def test_watermark_reset_on_empty_batch_is_caught():
+    code = (EX / "data_quality_checks" / "solution.py").read_text().replace(
+        'return batch, (batch[-1]["updated_at"] if batch else watermark)',
+        'return batch, (batch[-1]["updated_at"] if batch else None)')
+    _, failed = _failed(code, EX / "data_quality_checks")
+    assert failed == {"test_incremental_no_new_rows_keeps_watermark"}
+
+
+def test_upstream_failure_not_propagated_is_caught():
+    code = (EX / "dag_scheduler" / "solution.py").read_text().replace(
+        'if any(result[u]["state"] != "success" for u in dag[t]):', "if False:")
+    _, failed = _failed(code, EX / "dag_scheduler")
+    assert "test_failure_propagates_downstream" in failed
+
+
+def test_promotion_without_archiving_is_caught():
+    code = (EX / "model_registry" / "solution.py").read_text().replace(
+        'self._models[name][current]["stage"] = "Archived"\n            if current != version:',
+        'pass\n            if current != version:')
+    _, failed = _failed(code, EX / "model_registry")
+    assert "test_promotion_archives_previous_production" in failed
+
+
+def test_psi_without_eps_clip_is_caught():
+    code = (EX / "drift_detection" / "solution.py").read_text().replace(
+        "np.clip(np.histogram(cur, edges)[0] / cur.size, eps, None)", "np.histogram(cur, edges)[0] / cur.size")
+    _, failed = _failed(code, EX / "drift_detection")
+    assert "test_psi_constant_reference_is_finite" in failed
+
+
+def test_leaky_latest_value_join_is_caught():
+    code = (EX / "point_in_time_join" / "solution.py").read_text().replace(
+        'i = bisect_right(stamps, label["event_ts"]) - 1', "i = len(stamps) - 1")
+    _, failed = _failed(code, EX / "point_in_time_join")
+    assert {"test_never_uses_future_features", "test_joins_latest_feature_at_or_before_event"} <= failed
+
+
+def test_quadratic_join_is_too_slow():
+    code = """
+def point_in_time_join(labels, features, ttl=None):
+    out = []
+    for label in labels:
+        best = None
+        for f in features:
+            if f["entity_id"] == label["entity_id"] and f["feature_ts"] <= label["event_ts"]:
+                if best is None or f["feature_ts"] >= best["feature_ts"]:
+                    best = f
+        if best is not None and ttl is not None and label["event_ts"] - best["feature_ts"] > ttl:
+            best = None
+        out.append({**label, "feature_ts": best and best["feature_ts"],
+                    "features": best and {k: v for k, v in best.items() if k not in ("entity_id", "feature_ts")}})
+    return out
+
+
+def detect_leakage(rows):
+    return [i for i, r in enumerate(rows) if r.get("feature_ts") is not None and r["feature_ts"] > r["event_ts"]]
+"""
+    r = grade(code, EX / "point_in_time_join")
+    assert r["status"] == "timeout", "an O(n·m) join should exhaust the sandbox CPU budget"

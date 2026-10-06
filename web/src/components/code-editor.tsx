@@ -16,9 +16,10 @@ interface CodeEditorProps {
   onChange: (value: string) => void
   onRun: () => void
   readOnly?: boolean
+  language?: "python" | "sql"
 }
 
-export function CodeEditor({ value, onChange, onRun, readOnly }: CodeEditorProps) {
+export function CodeEditor({ value, onChange, onRun, readOnly, language = "python" }: CodeEditorProps) {
   const { resolvedTheme } = useTheme()
   const fontSize = useEditorStore((s) => s.fontSize)
   const minimap = useEditorStore((s) => s.minimap)
@@ -35,7 +36,7 @@ export function CodeEditor({ value, onChange, onRun, readOnly }: CodeEditorProps
 
   return (
     <Editor
-      language="python"
+      language={language}
       value={value}
       onChange={(v) => onChange(v ?? "")}
       onMount={handleMount}
@@ -48,7 +49,7 @@ export function CodeEditor({ value, onChange, onRun, readOnly }: CodeEditorProps
         minimap: { enabled: minimap },
         readOnly,
         scrollBeyondLastLine: false,
-        tabSize: 4,
+        tabSize: language === "sql" ? 2 : 4,
         insertSpaces: true,
         renderLineHighlight: "all",
         smoothScrolling: true,

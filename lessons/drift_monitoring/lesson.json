@@ -1,0 +1,36 @@
+{
+  "id": "drift_monitoring",
+  "title": "Monitoring Models: Data Drift & Dataset Shift",
+  "estimated_minutes": 13,
+  "summary": "Models fail quietly when live data stops looking like training data. Learn the kinds of shift, and the two statistics most monitoring systems use to detect them: PSI and the Kolmogorov–Smirnov distance.",
+  "takeaways": [
+    "Labels arrive late, but inputs arrive now. Comparing input distributions is your early warning.",
+    "PSI measures how far binned proportions moved. KS measures the largest gap between empirical CDFs.",
+    "Bin PSI on reference-data quantiles, and clip empty bins to a small epsilon to avoid log(0).",
+    "Thresholds (PSI 0.1 / 0.25) are rules of thumb, so tune alerts to your own data."
+  ],
+  "flow": {
+    "title": "A drift check",
+    "steps": [
+      {"label": "Reference window", "detail": "Snapshot each feature's distribution from training or a known-good period."},
+      {"label": "Current window", "detail": "Collect the same features from recent production traffic."},
+      {"label": "Compute PSI + KS", "detail": "Per feature: binned shift (PSI) and maximum CDF gap (KS)."},
+      {"label": "Compare thresholds", "detail": "Flag features whose PSI crosses the alert threshold."},
+      {"label": "Act", "detail": "Investigate upstream data, retrain, or roll back, depending on which features moved."}
+    ]
+  },
+  "terms": [
+    {"term": "Dataset shift", "definition": "Any change between the training and deployment data distributions."},
+    {"term": "Covariate shift", "definition": "The input distribution P(x) changes while the relationship P(y|x) stays the same."},
+    {"term": "Concept drift", "definition": "The relationship between inputs and target, P(y|x), changes over time."},
+    {"term": "PSI", "definition": "Population Stability Index: Σ (c − r)·ln(c/r) over bins of current and reference proportions."},
+    {"term": "KS statistic", "definition": "The maximum absolute difference between two empirical cumulative distribution functions."},
+    {"term": "Empirical CDF", "definition": "F(x) = fraction of sample values ≤ x."}
+  ],
+  "sources": [
+    {"title": "Failing Loudly: An Empirical Study of Methods for Detecting Dataset Shift", "author": "S. Rabanser, S. Günnemann, Z. C. Lipton", "publisher": "NeurIPS", "year": 2019, "url": "https://arxiv.org/abs/1810.11953", "kind": "paper"},
+    {"title": "The ML Test Score: A Rubric for ML Production Readiness and Technical Debt Reduction", "author": "E. Breck, S. Cai, E. Nielsen, M. Salib, D. Sculley", "publisher": "IEEE Big Data / Google Research", "year": 2017, "url": "https://research.google/pubs/pub46555/", "kind": "paper"},
+    {"title": "scipy.stats.ks_2samp", "author": "SciPy", "publisher": "docs.scipy.org", "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ks_2samp.html", "kind": "docs"},
+    {"title": "Rules of Machine Learning (training-serving skew)", "author": "Martin Zinkevich", "publisher": "Google for Developers", "url": "https://developers.google.com/machine-learning/guides/rules-of-ml/", "kind": "article"}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "Your load step uses plain INSERT INTO fact_orders. The job fails halfway and is retried. What's the risk?", "options": ["Nothing; the database ignores repeats", "Duplicate rows for every order loaded before the failure", "The table is dropped", "Old rows are deleted"], "answer": 1, "explanation": "Plain INSERTs aren't idempotent. Upserting on the business key (ON CONFLICT … DO UPDATE) makes retries safe."},
+    {"id": "q2", "prompt": "What best describes ELT?", "options": ["Transform data before it is stored", "Load raw data first, then transform it inside the warehouse", "Only extract data, never load it", "Encrypt then load"], "answer": 1, "explanation": "ELT lands raw data first and runs transformations in the warehouse, usually as SQL models, so they can be re-run against the raw data."},
+    {"id": "q3", "prompt": "A row has amount = 'oops'. What should a robust pipeline do?", "options": ["Crash the run so someone notices", "Silently skip it", "Route it to a rejects output with a reason and continue", "Load it as 0"], "answer": 2, "explanation": "Rejecting with a reason keeps the run going and keeps the bad row visible and fixable. Silently dropping or defaulting it hides data loss."}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "Why bin PSI on quantiles of the reference data?", "options": ["So bins have equal width", "So each bin holds a similar share of the reference data, making proportions comparable", "Because PSI requires exactly 10 bins", "To make PSI symmetric"], "answer": 1, "explanation": "Quantile bins give every bin roughly equal reference mass, so shifts show up as proportions moving between well-populated bins."},
+    {"id": "q2", "prompt": "Two samples don't overlap at all (every value in A is below every value in B). What is the KS distance?", "options": ["0", "0.5", "1", "It depends on sample size"], "answer": 2, "explanation": "Between the two samples, A's empirical CDF has already reached 1 while B's is still 0, so the maximum gap is 1."},
+    {"id": "q3", "prompt": "Only 'country' drifted sharply overnight; every other feature is stable. What's the best first step?", "options": ["Retrain immediately", "Investigate the upstream data for that feature (a pipeline bug is likely)", "Raise the PSI threshold", "Delete the feature"], "answer": 1, "explanation": "A sudden, isolated jump usually means a data or pipeline bug (a new encoding, a broken join) rather than a real population change."}
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "indexes_and_transactions",
+  "title": "Indexes, Query Plans & ACID Transactions",
+  "estimated_minutes": 15,
+  "summary": "Why a B-tree index turns a full table scan into a fast search, how to read EXPLAIN QUERY PLAN, and how transactions keep multi-step changes all-or-nothing.",
+  "takeaways": [
+    "Without a usable index, the database scans every row. An index lets it search a sorted structure instead.",
+    "Composite index column order matters: equality columns first, then the range column.",
+    "Keyset pagination (WHERE id > last_id) stays fast on deep pages; OFFSET re-reads every skipped row.",
+    "A transaction makes several writes atomic. Commit them all, or roll back to exactly where you started."
+  ],
+  "flow": {
+    "title": "An atomic transfer",
+    "steps": [
+      {"label": "BEGIN", "detail": "Open a transaction. Nothing is visible to others until commit."},
+      {"label": "Validate", "detail": "Read the source balance and raise if there isn't enough."},
+      {"label": "Debit source", "detail": "UPDATE … SET qty = qty − n, using parameters, never string formatting."},
+      {"label": "Credit destination", "detail": "INSERT … ON CONFLICT DO UPDATE, so a missing row is created."},
+      {"label": "COMMIT or ROLLBACK", "detail": "Success makes both writes durable. Any error undoes both."}
+    ]
+  },
+  "terms": [
+    {"term": "B-tree index", "definition": "A balanced, sorted tree of key values pointing at rows, so lookups and range scans take logarithmic time."},
+    {"term": "Covering index", "definition": "An index that contains every column a query needs, so the table itself isn't read."},
+    {"term": "Query plan", "definition": "The strategy the database picks to execute a query, shown by EXPLAIN / EXPLAIN QUERY PLAN."},
+    {"term": "ACID", "definition": "Atomicity, Consistency, Isolation, Durability: the guarantees a database transaction provides."},
+    {"term": "Keyset pagination", "definition": "Paging by remembering the last key seen (WHERE id > ?) instead of skipping rows with OFFSET."},
+    {"term": "SQL injection", "definition": "An attack where untrusted input is pasted into SQL text. Parameterized queries prevent it."}
+  ],
+  "sources": [
+    {"title": "The SQLite Query Optimizer Overview / Query Planning", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/queryplanner.html", "kind": "docs"},
+    {"title": "EXPLAIN QUERY PLAN", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/eqp.html", "kind": "docs"},
+    {"title": "Use The Index, Luke: SQL Indexing and Tuning", "author": "Markus Winand", "publisher": "use-the-index-luke.com", "url": "https://use-the-index-luke.com/", "kind": "book"},
+    {"title": "Transactions (BEGIN / COMMIT / ROLLBACK)", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/lang_transaction.html", "kind": "docs"},
+    {"title": "UPSERT (INSERT … ON CONFLICT)", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/lang_upsert.html", "kind": "docs"},
+    {"title": "sqlite3: DB-API 2.0 interface for SQLite databases", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/sqlite3.html", "kind": "docs"}
+  ]
+}

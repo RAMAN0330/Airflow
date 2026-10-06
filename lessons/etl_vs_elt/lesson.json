@@ -1,0 +1,36 @@
+{
+  "id": "etl_vs_elt",
+  "title": "ETL vs ELT: Moving Data You Can Trust",
+  "estimated_minutes": 13,
+  "summary": "What extract, transform and load each do, why modern warehouses often load first and transform later, and the properties every pipeline needs: idempotency, auditability and explicit rejects.",
+  "takeaways": [
+    "ETL transforms before loading. ELT loads raw data first and transforms inside the warehouse.",
+    "Make every run idempotent: re-running the same input must produce the same result, never duplicates.",
+    "Never drop bad rows silently. Route them to a rejects table with a reason.",
+    "Dedup and upsert on a business key, keeping the latest version of each record."
+  ],
+  "flow": {
+    "title": "A nightly batch pipeline",
+    "steps": [
+      {"label": "Extract", "detail": "Read the source exactly as delivered (CSV export, API, database dump) without changing it."},
+      {"label": "Validate", "detail": "Check types and required fields. Send failures to rejects with a reason."},
+      {"label": "Transform", "detail": "Normalize formats, standardize codes and dedup to the latest version per key."},
+      {"label": "Load (upsert)", "detail": "Insert new keys and update changed ones, so re-runs are safe."},
+      {"label": "Audit", "detail": "Record counts extracted, loaded and rejected for every run."}
+    ]
+  },
+  "terms": [
+    {"term": "ETL", "definition": "Extract, Transform, Load: data is cleaned and reshaped before it lands in the target system."},
+    {"term": "ELT", "definition": "Extract, Load, Transform: raw data lands first and is transformed inside the warehouse, often with SQL."},
+    {"term": "Idempotent", "definition": "An operation that can be repeated with the same input without changing the result after the first run."},
+    {"term": "Upsert", "definition": "Insert a row, or update it if a row with the same key already exists."},
+    {"term": "Business key", "definition": "The identifier meaningful to the business (e.g. order_id) used to recognize the same record across loads."},
+    {"term": "Fact table", "definition": "A warehouse table of measurable events (orders, payments) at a declared grain, linked to descriptive dimension tables."}
+  ],
+  "sources": [
+    {"title": "Dimensional Modeling Techniques", "author": "Kimball Group", "publisher": "kimballgroup.com", "url": "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling/", "kind": "article"},
+    {"title": "Designing Data-Intensive Applications", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"},
+    {"title": "UPSERT (INSERT … ON CONFLICT)", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/lang_upsert.html", "kind": "docs"},
+    {"title": "csv: CSV File Reading and Writing", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/csv.html", "kind": "docs"}
+  ]
+}

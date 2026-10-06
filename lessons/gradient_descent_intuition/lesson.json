@@ -1,1 +1,83 @@
-{"id": "gradient_descent_intuition", "title": "Gradient Descent, From the Loss Up", "estimated_minutes": 12}
+{
+  "id": "gradient_descent_intuition",
+  "title": "Gradient Descent, From the Loss Up",
+  "estimated_minutes": 12,
+  "summary": "Build linear regression from the loss up: the MSE cost, its gradient, the update rule, L2 regularization, and how to check a gradient numerically.",
+  "takeaways": [
+    "A model, a loss, its gradient and an update rule make up nearly every training loop.",
+    "Gradient descent steps against the gradient. The learning rate sets the step size.",
+    "With a sensible learning rate the cost never increases, which makes a great debugging signal.",
+    "Ridge (L2) adds (λ/2m)·‖w‖² and shrinks weights, but never the bias."
+  ],
+  "flow": {
+    "title": "One gradient-descent step",
+    "steps": [
+      {
+        "label": "Predict",
+        "detail": "ŷ = X @ w + b for every example at once."
+      },
+      {
+        "label": "Residual",
+        "detail": "r = ŷ − y, the error for each example."
+      },
+      {
+        "label": "Cost",
+        "detail": "J = (1/2m)·Σ r² (+ (λ/2m)·‖w‖² for ridge)."
+      },
+      {
+        "label": "Gradient",
+        "detail": "∂J/∂w = (1/m)·Xᵀr (+ (λ/m)·w), and ∂J/∂b = mean(r)."
+      },
+      {
+        "label": "Update",
+        "detail": "w ← w − α·∂J/∂w and b ← b − α·∂J/∂b, both computed at the same point."
+      }
+    ]
+  },
+  "terms": [
+    {
+      "term": "Mean squared error",
+      "definition": "The average of squared prediction errors; the standard regression loss."
+    },
+    {
+      "term": "Gradient",
+      "definition": "The vector of partial derivatives, pointing in the direction of steepest increase of a function."
+    },
+    {
+      "term": "Learning rate",
+      "definition": "The step size α used in gradient descent updates."
+    },
+    {
+      "term": "L2 regularization",
+      "definition": "Adding a penalty proportional to ‖w‖² to the loss to discourage large weights (ridge regression)."
+    },
+    {
+      "term": "Finite-difference check",
+      "definition": "Approximating a derivative as [J(w+ε) − J(w−ε)] / 2ε to verify an analytic gradient."
+    }
+  ],
+  "sources": [
+    {
+      "title": "CS229: Machine Learning (lecture notes)",
+      "author": "Andrew Ng, Tengyu Ma",
+      "publisher": "Stanford University",
+      "url": "https://cs229.stanford.edu/",
+      "kind": "course"
+    },
+    {
+      "title": "Machine Learning Crash Course: Linear regression",
+      "author": "Google",
+      "publisher": "Google for Developers",
+      "url": "https://developers.google.com/machine-learning/crash-course",
+      "kind": "course"
+    },
+    {
+      "title": "Deep Learning (Ch. 4: Numerical Computation, Ch. 5: ML Basics)",
+      "author": "I. Goodfellow, Y. Bengio, A. Courville",
+      "publisher": "MIT Press",
+      "year": 2016,
+      "url": "https://www.deeplearningbook.org/",
+      "kind": "book"
+    }
+  ]
+}

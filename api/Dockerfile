@@ -16,6 +16,7 @@ COPY grader grader
 COPY api api
 COPY exercises exercises
 COPY lessons lessons
+COPY datasets datasets
 
 USER app
 EXPOSE 8000

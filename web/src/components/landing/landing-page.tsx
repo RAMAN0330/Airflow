@@ -7,7 +7,10 @@ import {
   FlaskConicalIcon,
   LightbulbIcon,
   ListOrderedIcon,
+  DatabaseIcon,
+  LibraryIcon,
   MoonStarIcon,
+  WorkflowIcon,
   ShieldCheckIcon,
   TrophyIcon,
 } from "lucide-react"
@@ -15,6 +18,7 @@ import {
 import { CoursePreview } from "@/components/landing/course-preview"
 import { Faq } from "@/components/landing/faq"
 import { HeroPreview } from "@/components/landing/hero-preview"
+import { PlaygroundPreview } from "@/components/landing/playground-preview"
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/primitives"
 import { PlanCards } from "@/components/pricing/plan-cards"
 import { SiteFooter } from "@/components/site-footer"
@@ -61,6 +65,21 @@ const FEATURES = [
     body: "Lessons and exercises unlock in sequence, and each course opens when you finish the previous one.",
   },
   {
+    icon: DatabaseIcon,
+    title: "A real SQL playground",
+    body: "Query a sample shop database in a full SQL editor with a schema explorer. Every run gets a fresh copy, so experiment freely.",
+  },
+  {
+    icon: LibraryIcon,
+    title: "Cited, trusted sources",
+    body: "Each lesson links the original papers, official docs and textbooks it's based on, all collected in a searchable library and glossary.",
+  },
+  {
+    icon: WorkflowIcon,
+    title: "See the flow",
+    body: "Every lesson opens with its key takeaways and an animated diagram of the process, from SQL evaluation to model promotion.",
+  },
+  {
     icon: TrophyIcon,
     title: "XP and leaderboard",
     body: "Earn XP for every lesson and exercise you complete, and see how you stack up this week and all time.",
@@ -78,23 +97,23 @@ export function LandingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--color-brand)/0.12,transparent_60%)]" />
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:py-24">
+        <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:py-24">
           <div className="space-y-6">
             <div className="enter" style={{ "--enter-delay": "0ms" } as React.CSSProperties}>
             <Badge variant="outline" className="gap-1.5 border-brand/30 bg-brand/5 py-1 text-brand">
-              <BoxIcon /> Hands-on ML, graded in a sandbox
+              <BoxIcon /> ML · Data Engineering · MLOps, graded in a sandbox
             </Badge>
             </div>
             <div className="enter" style={{ "--enter-delay": "90ms" } as React.CSSProperties}>
             <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-              Learn machine learning by{" "}
+              Learn ML and data by{" "}
               <span className="animate-gradient bg-gradient-to-r from-brand via-fuchsia-500 to-brand bg-[length:200%_auto] bg-clip-text text-transparent">building it</span>.
             </h1>
             </div>
             <div className="enter" style={{ "--enter-delay": "180ms" } as React.CSSProperties}>
             <p className="max-w-xl text-lg text-pretty text-muted-foreground">
-              Go from gradient descent to self-attention by writing every algorithm yourself. Short lessons explain the
-              math, and hidden tests check your code the way a reviewer would.
+              Learn machine learning, data engineering and MLOps by writing every algorithm and pipeline yourself.
+              Short lessons cite their sources, and hidden tests check your code the way a reviewer would.
             </p>
             </div>
             <div className="enter flex flex-wrap gap-3" style={{ "--enter-delay": "270ms" } as React.CSSProperties}>
@@ -116,7 +135,7 @@ export function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+      <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6">
         <Reveal className="mx-auto mb-12 max-w-2xl space-y-3 text-center">
           <p className="text-sm font-medium text-brand">How it works</p>
           <h2 className="text-3xl font-semibold tracking-tight">Read, implement, get graded. Then unlock the next step.</h2>
@@ -141,14 +160,14 @@ export function LandingPage() {
 
       {/* Curriculum */}
       <section className="border-y bg-muted/30">
-        <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+        <div className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6">
           <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl space-y-3">
-              <p className="text-sm font-medium text-brand">The path</p>
-              <h2 className="text-3xl font-semibold tracking-tight">Three courses, in order</h2>
+              <p className="text-sm font-medium text-brand">The paths</p>
+              <h2 className="text-3xl font-semibold tracking-tight">Three tracks, each in order</h2>
               <p className="text-muted-foreground">
-                Start with the estimators every model is built on, move through neural-network internals, and finish
-                inside a transformer.
+                Build models from the math up, build the data platform they depend on, then learn to run them in
+                production. Tracks are independent, so start wherever you like.
               </p>
             </div>
             <Button asChild variant="outline">
@@ -161,8 +180,34 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Playground showcase */}
+      <section className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2">
+        <Reveal className="space-y-5">
+          <p className="text-sm font-medium text-sky-600 dark:text-sky-400">Practice, not just theory</p>
+          <h2 className="text-3xl font-semibold tracking-tight">Query a real database from your first lesson</h2>
+          <p className="text-muted-foreground">
+            The SQL Playground loads a small online shop: customers, products, orders and order lines. Explore the
+            schema, run the sample queries, compare query plans before and after adding an index. Then apply it in the
+            graded Databases & SQL exercises.
+          </p>
+          <ul className="space-y-2 text-sm">
+            {["Schema explorer with keys and relationships", "Every statement's result in its own tab", "Sandboxed: writes never persist, runaway queries are stopped"].map((t) => (
+              <li key={t} className="flex gap-2">
+                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-sky-500" /> {t}
+              </li>
+            ))}
+          </ul>
+          <Button asChild variant="outline">
+            <Link href="/playground">
+              Open the playground <ArrowRightIcon />
+            </Link>
+          </Button>
+        </Reveal>
+        <PlaygroundPreview />
+      </section>
+
       {/* Features */}
-      <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+      <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6">
         <Reveal className="mx-auto mb-12 max-w-2xl space-y-3 text-center">
           <p className="text-sm font-medium text-brand">Why Gradient</p>
           <h2 className="text-3xl font-semibold tracking-tight">Feedback that teaches, not just a pass/fail</h2>
@@ -180,7 +225,7 @@ export function LandingPage() {
 
       {/* Pricing teaser */}
       <section className="border-y bg-muted/30">
-        <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+        <div className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6">
           <Reveal className="mx-auto mb-12 max-w-2xl space-y-3 text-center">
             <p className="text-sm font-medium text-brand">Pricing</p>
             <h2 className="text-3xl font-semibold tracking-tight">Start free. Upgrade when you reach transformers.</h2>
@@ -201,7 +246,7 @@ export function LandingPage() {
       </Reveal>
 
       {/* CTA */}
-      <section className="mx-auto w-full max-w-6xl px-4 pb-20 sm:px-6">
+      <section className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6">
         <Reveal className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-fuchsia-600 px-6 py-14 text-center text-white sm:px-12">
           <div className="animate-blob pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-white/15 blur-3xl" />
           <h2 className="text-3xl font-semibold tracking-tight">Your first lesson takes 12 minutes.</h2>

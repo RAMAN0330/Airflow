@@ -11,11 +11,15 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Why do lessons and courses unlock in order?",
-    a: "Each step builds on the one before it. You pass a short quiz on a lesson before writing its code, and you finish a course before the next one opens. That keeps the path from getting ahead of the fundamentals.",
+    a: "Each step builds on the one before it. You pass a short quiz on a lesson before writing its code, and you finish a course before the next course in the same track opens. Tracks are independent, so you can start Data Engineering and Machine Learning at the same time.",
+  },
+  {
+    q: "Where does the material come from?",
+    a: "Every lesson cites its primary sources: original papers (Codd's relational model, Attention Is All You Need, Hidden Technical Debt in ML Systems…), official documentation (SQLite, PostgreSQL, dbt, Airflow, MLflow, Feast) and standard textbooks. They're all collected in the Library.",
   },
   {
     q: "What's included for free?",
-    a: "The Classical Machine Learning and Deep Learning Foundations courses, every lesson and quiz in them, sandboxed grading, hints and the leaderboard. Pro adds the Generative AI & LLMs course and future Pro courses.",
+    a: "Four full courses: Classical ML and Deep Learning Foundations in the Machine Learning track, plus Databases & SQL and ETL/ELT Pipelines in the Data Engineering track. Every lesson, quiz and graded exercise in them is included, along with the SQL Playground, the Library and the leaderboard. Pro adds Generative AI & LLMs, MLOps Foundations and future Pro courses.",
   },
   {
     q: "Can I cancel Pro at any time?",

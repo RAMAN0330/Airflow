@@ -1,0 +1,35 @@
+{
+  "id": "feature_store_pit",
+  "title": "Feature Stores & Point-in-Time Correctness",
+  "estimated_minutes": 12,
+  "summary": "How feature stores let teams share features and keep training and serving consistent, and why every training row must only see feature values that existed at its event time.",
+  "takeaways": [
+    "Leakage is information available in training that won't exist at prediction time, and it inflates offline metrics.",
+    "A point-in-time join uses, for each event, the newest feature value with timestamp ≤ the event time.",
+    "A TTL drops matches that are too old to trust.",
+    "Group by entity, sort once and binary-search: O((n + m) log m) instead of O(n·m)."
+  ],
+  "flow": {
+    "title": "Building leak-free training data",
+    "steps": [
+      {"label": "Label events", "detail": "Entity, event timestamp and outcome, e.g. a transaction and whether it was fraud."},
+      {"label": "Feature history", "detail": "Every computed feature value with the timestamp it became available."},
+      {"label": "As-of lookup", "detail": "Per event: the latest feature row for that entity with feature_ts ≤ event_ts."},
+      {"label": "Apply TTL", "detail": "Drop matches older than the allowed staleness."},
+      {"label": "Audit for leakage", "detail": "Assert no feature_ts > event_ts anywhere in the training set."}
+    ]
+  },
+  "terms": [
+    {"term": "Feature store", "definition": "A system that defines, stores and serves ML features consistently for offline training and online inference."},
+    {"term": "Point-in-time join", "definition": "An as-of join attaching, for each event, the latest feature values known at or before the event time."},
+    {"term": "Target leakage", "definition": "Training features that contain information about the label that wouldn't be available at prediction time."},
+    {"term": "TTL", "definition": "Time to live: the maximum age of a feature value that may still be used for an event."},
+    {"term": "Training/serving skew", "definition": "A mismatch between features used in training and those computed at serving time."}
+  ],
+  "sources": [
+    {"title": "Point-in-time joins", "author": "Feast", "publisher": "docs.feast.dev", "url": "https://docs.feast.dev/v0.46/getting-started/concepts/point-in-time-joins", "kind": "docs"},
+    {"title": "Leakage in Data Mining: Formulation, Detection, and Avoidance", "author": "S. Kaufman, S. Rosset, C. Perlich, O. Stitelman", "publisher": "ACM TKDD (extended from KDD 2011)", "year": 2012, "url": "https://doi.org/10.1145/2382577.2382579", "kind": "paper"},
+    {"title": "Meet Michelangelo: Uber's Machine Learning Platform", "author": "J. Hermann, M. Del Balso", "publisher": "Uber Engineering Blog", "year": 2017, "url": "https://www.uber.com/blog/michelangelo-machine-learning-platform/", "kind": "article"},
+    {"title": "bisect: Array bisection algorithm", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/bisect.html", "kind": "docs"}
+  ]
+}

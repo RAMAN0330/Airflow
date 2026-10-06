@@ -1,0 +1,37 @@
+{
+  "id": "mlops_lifecycle",
+  "title": "The MLOps Lifecycle: Tracking, Registry & Promotion",
+  "estimated_minutes": 14,
+  "summary": "Why ML systems accumulate hidden technical debt, and the practices that keep them manageable: tracked experiments, reproducible runs, a versioned model registry, and controlled promotion with rollback.",
+  "takeaways": [
+    "Most of a production ML system is code and infrastructure around the model, and that's where debt hides.",
+    "Log every run's params, metrics and a reproducibility fingerprint. If it isn't tracked, it didn't happen.",
+    "A registry gives models names, versions and stages. Exactly one version serves production.",
+    "Promotion should be reversible: keep the previous production version one call away."
+  ],
+  "flow": {
+    "title": "From experiment to production",
+    "steps": [
+      {"label": "Train & log", "detail": "Each run records its params, metrics and a fingerprint of its config."},
+      {"label": "Select", "detail": "Pick the best run on the agreed metric. Ties go to the earliest, deterministically."},
+      {"label": "Register", "detail": "Create a new version of the named model from that run."},
+      {"label": "Stage & validate", "detail": "Move it to Staging, run integration and shadow tests."},
+      {"label": "Promote", "detail": "Move it to Production. The previous version is archived automatically."},
+      {"label": "Monitor / roll back", "detail": "Watch live metrics. If they regress, restore the previous version."}
+    ]
+  },
+  "terms": [
+    {"term": "MLOps", "definition": "Applying DevOps practices (automation, CI/CD, monitoring) to building and operating ML systems."},
+    {"term": "Experiment tracking", "definition": "Recording each training run's parameters, metrics, code version and artifacts so results are comparable and reproducible."},
+    {"term": "Model registry", "definition": "A central store of named, versioned models with lineage to the runs that produced them and lifecycle stages or aliases."},
+    {"term": "Technical debt (ML)", "definition": "Long-term maintenance cost from shortcuts such as entangled features, glue code, undeclared consumers and pipeline jungles."},
+    {"term": "Continuous training", "definition": "Automatically retraining and validating models when new data or triggers arrive (MLOps level 1+)."}
+  ],
+  "sources": [
+    {"title": "Hidden Technical Debt in Machine Learning Systems", "author": "D. Sculley et al.", "publisher": "NeurIPS", "year": 2015, "url": "https://proceedings.neurips.cc/paper/2015/file/86df7dcfd896fcaf2674f757a2463eba-Paper.pdf", "kind": "paper"},
+    {"title": "MLOps: Continuous delivery and automation pipelines in machine learning", "author": "Google Cloud", "publisher": "cloud.google.com", "url": "https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning", "kind": "article"},
+    {"title": "MLflow Tracking", "author": "MLflow", "publisher": "mlflow.org", "url": "https://mlflow.org/docs/latest/ml/tracking.html", "kind": "docs"},
+    {"title": "MLflow Model Registry", "author": "MLflow", "publisher": "mlflow.org", "url": "https://mlflow.org/docs/latest/ml/model-registry", "kind": "docs"},
+    {"title": "Rules of Machine Learning: Best Practices for ML Engineering", "author": "Martin Zinkevich", "publisher": "Google for Developers", "url": "https://developers.google.com/machine-learning/guides/rules-of-ml/", "kind": "article"}
+  ]
+}

@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { useEffect } from "react"
-import { ArrowRightIcon, ChevronLeftIcon, ClockIcon, PartyPopperIcon, SparklesIcon } from "lucide-react"
+import { ArrowRightIcon, ChevronLeftIcon, ClockIcon, CrownIcon, LibraryIcon, PartyPopperIcon, SparklesIcon } from "lucide-react"
+import { motion } from "motion/react"
 
 import { StepRow } from "@/components/learn/step-row"
 import { LockNotice } from "@/components/lock-notice"
@@ -13,13 +14,15 @@ import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { plural } from "@/lib/format"
 import { courseHref, stepHref } from "@/lib/links"
-import type { StepSummary } from "@/lib/types"
+import type { Course, StepSummary } from "@/lib/types"
+import { cn } from "@/lib/utils"
 import { useCatalogStore } from "@/stores/catalog-store"
 
 export function CourseView({ courseId }: { courseId: string }) {
   const courses = useCatalogStore((s) => s.courses)
+  const tracks = useCatalogStore((s) => s.tracks)
   const state = useCatalogStore((s) => s.coursesState)
-  const load = useCatalogStore((s) => s.loadCourses)
+  const load = useCatalogStore((s) => s.loadTracks)
 
   useEffect(() => {
     load()
@@ -27,7 +30,7 @@ export function CourseView({ courseId }: { courseId: string }) {
 
   if (!courses) {
     return (
-      <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-[1400px] space-y-6 px-4 py-10 sm:px-6 lg:px-8">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-40 rounded-xl" />
         <Skeleton className="h-64 rounded-xl" />
@@ -49,24 +52,28 @@ export function CourseView({ courseId }: { courseId: string }) {
     )
   }
 
-  const nextCourse = courses.find((c) => c.position === course.position + 1)
+  const nextCourse = courses.find((c) => c.track_id === course.track_id && c.position === course.position + 1)
   const released = course.modules.filter((m) => !m.coming_soon)
   const upcoming = course.modules.filter((m) => m.coming_soon)
   const steps = released.flatMap((m) => [m.lesson, m.exercise]).filter(Boolean) as StepSummary[]
   const current = steps.find((s) => s.status === "in_progress" || s.status === "available")
   const pct = course.total_steps ? (course.completed_steps / course.total_steps) * 100 : 0
 
+  const track = tracks?.find((t) => t.id === course.track_id) ?? null
+  const trackCourses = courses.filter((c) => c.track_id === course.track_id)
+
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-      <Link href="/learn" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ChevronLeftIcon className="size-4" /> All courses
+    <div className="mx-auto grid w-full max-w-[1400px] gap-10 px-4 py-8 sm:px-6 sm:py-12 lg:grid-cols-[minmax(0,1fr)_340px] lg:px-8">
+    <div className="min-w-0">
+      <Link href={`/learn?track=${course.track_id}`} className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <ChevronLeftIcon className="size-4" /> {track?.title ?? "All courses"}
       </Link>
 
       <Reveal as="div" y={10} className="mb-8 space-y-5">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-              Course {course.position} of {courses.length} · {course.level}
+              Course {course.position} of {trackCourses.length} · {course.level}
             </span>
             {course.tier === "pro" && course.status !== "upgrade_required" && <ProBadge />}
             <StatusBadge status={course.status} />
@@ -176,5 +183,90 @@ export function CourseView({ courseId }: { courseId: string }) {
         </section>
       )}
     </div>
+    <CourseRail course={course} trackCourses={trackCourses} trackTitle={track?.title ?? ""} />
+    </div>
   )
 }
+
+function CourseRail({ course, trackCourses, trackTitle }: { course: Course; trackCourses: Course[]; trackTitle: string }) {
+  const pct = course.total_steps ? Math.round((course.completed_steps / course.total_steps) * 100) : 0
+  const concepts = course.modules.filter((m) => !m.coming_soon).flatMap((m) => m.concepts)
+  const r = 42
+  const circ = 2 * Math.PI * r
+  return (
+    <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
+      <div className="flex items-center gap-5 rounded-2xl border bg-card p-5 shadow-xs">
+        <svg viewBox="0 0 100 100" className="size-24 shrink-0 -rotate-90" aria-hidden>
+          <circle cx="50" cy="50" r={r} className="fill-none stroke-muted" strokeWidth="9" />
+          <motion.circle
+            cx="50" cy="50" r={r}
+            className={course.status === "completed" ? "fill-none stroke-success" : "fill-none stroke-brand"}
+            strokeWidth="9" strokeLinecap="round" strokeDasharray={circ}
+            initial={{ strokeDashoffset: circ }}
+            animate={{ strokeDashoffset: circ * (1 - pct / 100) }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </svg>
+        <div className="space-y-1">
+          <p className="text-3xl font-semibold tabular-nums">{pct}%</p>
+          <p className="text-sm text-muted-foreground">
+            {course.completed_steps} of {course.total_steps} steps · +{course.total_xp} XP
+          </p>
+        </div>
+      </div>
+
+      {concepts.length > 0 && (
+        <div className="space-y-3 rounded-2xl border bg-card p-5">
+          <p className="text-sm font-semibold">What you&apos;ll learn</p>
+          <div className="flex flex-wrap gap-1.5">
+            {concepts.map((c) => (
+              <span key={c} className="rounded-md bg-brand/10 px-2 py-0.5 text-xs text-brand">
+                {c}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-3 rounded-2xl border bg-card p-5">
+        <p className="text-sm font-semibold">{trackTitle} path</p>
+        <ol className="space-y-1">
+          {trackCourses.map((c, i) => {
+            const current = c.id === course.id
+            return (
+              <li key={c.id} className="relative">
+                {i < trackCourses.length - 1 && <span className="absolute top-8 bottom-[-4px] left-[15px] w-px bg-border" aria-hidden />}
+                <Link
+                  href={courseHref(c.id)}
+                  className={cn("flex items-center gap-3 rounded-lg p-1.5 text-sm hover:bg-muted", current && "bg-brand/10 font-medium")}
+                >
+                  <span
+                    className={cn(
+                      "relative grid size-[22px] shrink-0 place-items-center rounded-full border-2 bg-background text-[10px] font-semibold",
+                      c.status === "completed" ? "border-success bg-success text-white" : current ? "border-brand text-brand" : "text-muted-foreground"
+                    )}
+                    style={{ marginLeft: 4 }}
+                  >
+                    {c.status === "completed" ? "✓" : c.position}
+                  </span>
+                  <span className="flex-1 truncate">{c.title}</span>
+                  {c.tier === "pro" && <CrownIcon className="size-3.5 text-amber-500" />}
+                </Link>
+              </li>
+            )
+          })}
+        </ol>
+      </div>
+
+      <Link href="/library" className="group flex items-center gap-3 rounded-2xl border bg-card p-4 text-sm hover:border-brand/40">
+        <LibraryIcon className="size-4 text-brand" />
+        <span className="flex-1">
+          <span className="block font-medium group-hover:text-brand">Sources for this course</span>
+          <span className="text-muted-foreground">Every lesson cites the papers and docs it&apos;s based on.</span>
+        </span>
+        <ArrowRightIcon className="size-4 text-muted-foreground" />
+      </Link>
+    </aside>
+  )
+}
+

@@ -1,0 +1,22 @@
+{
+  "id": "data_quality_checks",
+  "title": "Data Quality Tests & Incremental Loads",
+  "summary": "Write the data tests every warehouse relies on (not_null, unique, accepted_values, range, relationships), run them as a suite with error and warn severities, and load only new rows with a watermark.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 30,
+  "tags": ["data-quality", "data-contracts", "incremental"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_not_null": "Treat None and empty or whitespace-only strings as null. Count failures and keep the first five row indices as a sample.",
+    "test_unique": "Count how often each non-null value occurs. Every row whose value occurs more than once fails, not just the second copy.",
+    "test_accepted_values": "A non-null value fails if it isn't in the allowed set. Nulls are not_null's job, so skip them here.",
+    "test_range": "Skip nulls. Fail values that aren't numbers, or that fall below min or above max. Either bound may be None.",
+    "test_relationships": "Referential integrity: every non-null child value must exist among the parent keys (put them in a set for O(1) lookups).",
+    "test_result_shape_and_sample_cap": "Every check returns {check, column, passed, failures, sample}, with sample holding at most 5 row indices.",
+    "test_suite_severity": "Only failures with severity 'error' make the suite fail. Count errors and warnings separately in summary.",
+    "test_suite_rejects_unknown_check": "Map check names to functions with a dict, and raise ValueError for a name you don't recognize.",
+    "test_incremental_first_and_next_runs": "With no watermark, take every row. Otherwise take rows with updated_at strictly greater than the watermark, sorted. The new watermark is the max updated_at seen.",
+    "test_incremental_no_new_rows_keeps_watermark": "An empty batch must return the old watermark unchanged, never None."
+  }
+}

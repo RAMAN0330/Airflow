@@ -31,6 +31,12 @@ import { useEditorStore } from "@/stores/editor-store"
 import { useSessionStore } from "@/stores/session-store"
 import { useUserStore } from "@/stores/user-store"
 
+const TRACK_TITLES: Record<string, string> = {
+  "machine-learning": "Machine Learning",
+  "data-engineering": "Data Engineering",
+  mlops: "MLOps",
+}
+
 export function ProgressView() {
   const progress = useCatalogStore((s) => s.progress)
   const state = useCatalogStore((s) => s.progressState)
@@ -42,7 +48,7 @@ export function ProgressView() {
   }, [load])
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6 sm:py-12">
+    <div className="mx-auto w-full max-w-[1400px] space-y-8 px-4 py-8 sm:px-6 sm:py-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Your progress</h1>
@@ -122,16 +128,16 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
       <Card>
         <CardHeader>
           <CardTitle>Courses</CardTitle>
-          <CardDescription>Courses unlock in order. Finish one to open the next.</CardDescription>
+          <CardDescription>Courses unlock in order within each track. Finish one to open the next.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          {progress.courses.map((c, i) => {
+        <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {progress.courses.map((c) => {
             const pct = c.total_steps ? (c.completed_steps / c.total_steps) * 100 : 0
             return (
               <Link key={c.id} href={`/learn/${c.id}`} className="space-y-3 rounded-lg border p-4 transition-colors hover:bg-muted/40">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="text-xs text-muted-foreground">Course {i + 1}</p>
+                    <p className="text-xs text-muted-foreground">{TRACK_TITLES[c.track_id] ?? c.track_id}</p>
                     <p className="font-medium">{c.title}</p>
                   </div>
                   <StatusBadge status={c.status} />
