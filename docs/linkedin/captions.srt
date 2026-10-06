@@ -1,0 +1,71 @@
+1
+00:00:00,300 --> 00:00:04,600
+Gradient: learn ML, data engineering & MLOps by building every piece yourself
+
+2
+00:00:05,754 --> 00:00:08,658
+Learn ML, data engineering & MLOps by building every piece yourself
+
+3
+00:00:10,764 --> 00:00:14,760
+Three independent tracks: Machine Learning · Data Engineering · MLOps
+
+4
+00:00:16,502 --> 00:00:22,132
+Courses unlock in sequence: lesson → quiz → graded exercise
+
+5
+00:00:23,895 --> 00:00:32,036
+Every lesson: key takeaways, an animated flow, and cited primary sources
+
+6
+00:00:32,336 --> 00:00:37,102
+Grounded in the originals: Codd (1970), SQLite & PostgreSQL docs…
+
+7
+00:00:37,402 --> 00:00:40,978
+Pass a quick quiz to unlock the exercise
+
+8
+00:00:41,278 --> 00:00:43,980
++25 XP and the exercise unlocks 🎉
+
+9
+00:00:46,497 --> 00:00:51,390
+Write real SQL, then hidden tests grade it in a sandbox
+
+10
+00:00:51,690 --> 00:00:55,199
+7 / 7 tests passing: exact columns, rows, joins, window functions
+
+11
+00:00:57,212 --> 00:01:00,023
+Indexes, query plans & atomic transactions, all graded
+
+12
+00:01:00,323 --> 00:01:04,537
+Finish a course and the next one unlocks
+
+13
+00:01:06,431 --> 00:01:09,756
+SQL Playground: a real database to explore, safely sandboxed
+
+14
+00:01:10,056 --> 00:01:12,942
+Before the index: SCAN orders
+
+15
+00:01:13,242 --> 00:01:15,726
+After: SEARCH … USING COVERING INDEX
+
+16
+00:01:17,390 --> 00:01:25,294
+37 trusted sources + a 57-term glossary, linked to every lesson
+
+17
+00:01:27,043 --> 00:01:30,345
+Earn XP and climb the leaderboard
+
+18
+00:01:32,600 --> 00:01:37,900
+Learn it by building it. 11 lessons, 11 sandbox-graded exercises, 108 hidden tests
