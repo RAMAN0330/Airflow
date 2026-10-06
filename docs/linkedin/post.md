@@ -9,11 +9,37 @@ Assets in this folder:
 | `cover-1920x1080.png` | Video thumbnail (on the upload screen, under **Edit → Thumbnail**) |
 | `cover-1200x627.png` | Link-preview size, for an image-only post or an article header |
 
-Character count of the post body below: about 1,900 (the LinkedIn limit is 3,000). The first two lines are what shows before "…see more".
+The main post below is written in a conversational first-person voice (about 1,900 characters; LinkedIn allows 3,000). The opening two lines are what shows before "…see more". A punchier feature-list version follows it.
 
 ---
 
 ## Post (copy from here)
+
+I used to think I understood attention.
+
+Then I tried to write it from scratch, and got the shapes wrong three times before anything ran.
+
+That's the gap I wanted to close. Watching someone explain gradient descent feels like learning. Writing it, hitting Run, and seeing a test fail with "your loss went up, check the sign of your update" is when it actually sticks.
+
+So I built Gradient, a small learning platform for ML, data engineering and MLOps where you learn by building every piece yourself.
+
+Each step is simple: read a short lesson, pass a quick quiz, then write the real thing in the browser. Your code runs in a sandbox against hidden tests, and every failing test comes with a hint instead of just a red X. Finish a course and the next one unlocks.
+
+Right now there are 11 lessons and 11 exercises across 3 tracks. You write SQL analytics queries, an ETL pipeline, a little DAG scheduler, drift detection, a point-in-time feature join and a self-attention head. There's also a SQL playground where you can add an index and watch the query plan change from a full scan to an index search. That moment never gets old for me.
+
+I didn't want to invent explanations, so every lesson links back to where the ideas come from: Codd's 1970 relational paper, "Attention Is All You Need", Google's "Hidden Technical Debt in ML Systems", and the official Postgres, SQLite and Airflow docs. 37 sources in total.
+
+For the curious, it's Next.js, shadcn/ui and Zustand on the front, FastAPI and SQLite on the back, and a sandboxed pytest grader doing the judging.
+
+It's early, and I'm sure there's plenty to improve. If you work with data or ML, I'd really like to know: which concept do you wish you'd had to build yourself when you were learning?
+
+Code's here if you want to poke around: https://github.com/raman0330/airflow
+
+#MachineLearning #DataEngineering #MLOps #LearnByDoing #BuildInPublic
+
+---
+
+## Alternative: feature-list version
 
 Most ML courses let you watch someone else write the gradient descent loop.
 
