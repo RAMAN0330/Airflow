@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "A LoRA adapter with r = 8 wraps a 1024 × 4096 linear layer (d_out = 1024, d_in = 4096). How many trainable parameters does it add?",
+      "options": ["4,194,304", "65,536", "40,960", "8,192"],
+      "answer": 2,
+      "explanation": "A is r × d_in = 8 × 4096 = 32,768 and B is d_out × r = 1024 × 8 = 8,192, for 40,960 in total. Full fine-tuning would train all 4,194,304 entries of W."
+    },
+    {
+      "id": "q2",
+      "prompt": "Why is B initialized to zero rather than randomly?",
+      "options": ["So the adapted model starts out exactly equal to the pretrained model", "So that W receives a gradient", "To make BA full-rank", "Because A is also zero"],
+      "answer": 0,
+      "explanation": "BA = 0 at initialization, so h = xWᵀ and training starts from the pretrained behaviour. A stays random, otherwise neither matrix would get a gradient."
+    },
+    {
+      "id": "q3",
+      "prompt": "After merging (W ← W + (α/r)BA), what is the extra inference cost compared with the original layer?",
+      "options": ["One extra matmul with A", "Two extra matmuls, one with A and one with B", "None: it's a single matrix again", "A 2× slowdown from the higher rank"],
+      "answer": 2,
+      "explanation": "The merged weight has the same shape as W, so inference is one ordinary matmul. This is LoRA's advantage over adapter layers, which add sequential computation."
+    }
+  ]
+}

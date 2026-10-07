@@ -1,0 +1,37 @@
+{
+  "id": "lora_finetuning",
+  "title": "LoRA: Fine-Tuning Through a Low-Rank Window",
+  "estimated_minutes": 14,
+  "summary": "Freeze the pretrained weights and learn only a low-rank update ΔW = (α/r)·BA: why it works, why B starts at zero, how the gradients flow, and how merging gives zero-overhead inference.",
+  "takeaways": [
+    "LoRA freezes W and trains ΔW = (α/r)·BA with r ≪ d, often under 1% of the parameters.",
+    "B starts at zero, so the adapted model starts identical to the pretrained one. A starts random so gradients can flow.",
+    "W gets no gradient and no optimizer state. That is where the memory savings come from.",
+    "Merging W + ΔW after training gives a plain linear layer, so inference has no extra cost."
+  ],
+  "flow": {
+    "title": "A LoRA fine-tune",
+    "steps": [
+      {"label": "Freeze", "detail": "Keep the pretrained W fixed: no gradients, no optimizer state."},
+      {"label": "Attach", "detail": "Add A (r × d_in, random) and B (d_out × r, zeros) next to W."},
+      {"label": "Forward", "detail": "h = xWᵀ + (α/r)(xAᵀ)Bᵀ. At step 0 this equals the base model."},
+      {"label": "Train A, B", "detail": "Backprop only into A and B with the usual optimizer."},
+      {"label": "Merge or swap", "detail": "Fold ΔW into W for deployment, or keep small per-task adapters."}
+    ]
+  },
+  "terms": [
+    {"term": "Parameter-efficient fine-tuning (PEFT)", "definition": "Adapting a pretrained model by training a small set of new or selected parameters while the rest stay frozen."},
+    {"term": "Rank r", "definition": "The inner dimension of B·A. It caps the rank of the update and sets the adapter's size."},
+    {"term": "Scaling α / r", "definition": "A constant multiplier on BA that keeps the update size comparable when r changes."},
+    {"term": "Intrinsic dimension", "definition": "The smallest number of free parameters needed to reach a given fraction of full-training quality."},
+    {"term": "Merge", "definition": "Replacing W with W + (α/r)BA after training, so inference uses one ordinary matrix."}
+  ],
+  "sources": [
+    {"title": "LoRA: Low-Rank Adaptation of Large Language Models", "author": "E. J. Hu et al.", "publisher": "ICLR", "year": 2022, "url": "https://arxiv.org/abs/2106.09685", "kind": "paper"},
+    {"title": "Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning", "author": "A. Aghajanyan, L. Zettlemoyer, S. Gupta", "publisher": "ACL", "year": 2021, "url": "https://arxiv.org/abs/2012.13255", "kind": "paper"},
+    {"title": "Measuring the Intrinsic Dimension of Objective Landscapes", "author": "C. Li, H. Farkhoor, R. Liu, J. Yosinski", "publisher": "ICLR", "year": 2018, "url": "https://arxiv.org/abs/1804.08838", "kind": "paper"},
+    {"title": "Parameter-Efficient Transfer Learning for NLP", "author": "N. Houlsby et al.", "publisher": "ICML", "year": 2019, "url": "https://arxiv.org/abs/1902.00751", "kind": "paper"},
+    {"title": "QLoRA: Efficient Finetuning of Quantized LLMs", "author": "T. Dettmers, A. Pagnoni, A. Holtzman, L. Zettlemoyer", "publisher": "NeurIPS", "year": 2023, "url": "https://arxiv.org/abs/2305.14314", "kind": "paper"},
+    {"title": "LoRA (loralib): official implementation", "author": "Microsoft", "publisher": "GitHub", "url": "https://github.com/microsoft/LoRA", "kind": "docs"}
+  ]
+}

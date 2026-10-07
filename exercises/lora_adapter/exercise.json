@@ -1,0 +1,29 @@
+{
+  "id": "lora_adapter",
+  "title": "LoRA Adapter from Scratch",
+  "summary": "Wrap a frozen linear layer with a trainable low-rank update ΔW = (α/r)·BA, derive its gradients by hand, merge it back for free inference, and fit a low-rank target with a fraction of the parameters.",
+  "difficulty": "advanced",
+  "estimated_minutes": 40,
+  "tags": ["fine-tuning", "numpy", "backprop", "llm"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {
+      "hint": "Write the shapes down: W (d_out, d_in), A (r, d_in), B (d_out, r), x (N, d_in). Every matmul has to contract matching axes.",
+      "exercise": "activation_functions"
+    },
+    "NaNInSoftmax": {
+      "hint": "The loss blew up to inf or NaN. Check that the gradient is scaled by 1/N (mean, not sum) and that α/r is applied exactly once."
+    }
+  },
+  "hints": {
+    "test_init_shapes_and_zero_B": "A is (r, d_in), drawn as rng.standard_normal((r, d_in)) / sqrt(d_in) from np.random.default_rng(seed). B is np.zeros((d_out, r)). scale = alpha / r.",
+    "test_init_output_equals_base_layer": "With B = 0 the update B @ A is exactly zero, so a fresh adapter reproduces x @ W.T. If the output moved, B wasn't zero-initialized.",
+    "test_forward_matches_reference": "forward = x @ W.T + (alpha / r) * (x @ A.T) @ B.T. Don't forget the alpha / r factor.",
+    "test_backward_matches_finite_differences": "With h = x @ A.T: dB = scale * grad_out.T @ h and dA = scale * (grad_out @ B).T @ x.",
+    "test_backward_grads_only_for_A_and_B": "Return exactly {'A': ..., 'B': ...}. W is frozen and must never receive a gradient. backward should raise RuntimeError while merged.",
+    "test_merge_matches_unmerged_and_unmerge_restores": "merge sets W = W + scale * B @ A once (check self.merged), unmerge subtracts it. Copy W in __init__ with np.array(W, dtype=float) so the caller's array is never touched.",
+    "test_parameter_counts": "LoRA trains r·d_in + d_out·r numbers. Full fine-tuning trains every entry of W: d_in·d_out.",
+    "test_training_fits_low_rank_target": "Each step: pred = forward(X), loss = mean((pred − Y)²), grad_out = 2 (pred − Y) / pred.size, then backward and step. Record the loss before updating.",
+    "test_training_keeps_base_frozen": "step should update only the parameters named in grads, and backward should only ever name A and B."
+  }
+}

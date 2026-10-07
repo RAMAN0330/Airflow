@@ -1,0 +1,31 @@
+{
+  "id": "multi_head_attention_rope",
+  "title": "Multi-Head Attention with Rotary Embeddings",
+  "summary": "Split a model's features into heads, run attention in every head at once, and give queries and keys a sense of position by rotating them with RoPE.",
+  "difficulty": "advanced",
+  "estimated_minutes": 45,
+  "tags": ["transformers", "numpy", "positional-encoding"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {
+      "hint": "Write down every intermediate shape: (B, T, D) → (B, T, H, d_head) → (B, H, T, d_head). Reshape and transpose are different operations.",
+      "exercise": "self_attention_head"
+    },
+    "NaNInSoftmax": {
+      "hint": "A NaN in the weights usually means a whole row was masked or the softmax overflowed. Revisit the masking and max-subtraction from the previous exercise.",
+      "exercise": "self_attention_head"
+    }
+  },
+  "hints": {
+    "test_split_heads_shape_and_layout": "Reshaping (B, T, D) straight to (B, H, T, d_head) scrambles tokens and features together. Reshape to (B, T, H, d_head) first, then transpose(0, 2, 1, 3).",
+    "test_merge_heads_inverts_split": "Undo the steps in reverse order: transpose(0, 2, 1, 3) back to (B, T, H, d_head), then reshape to (B, T, H * d_head).",
+    "test_split_heads_rejects_indivisible": "Check D % n_heads before reshaping and raise ValueError if it isn't 0.",
+    "test_rope_frequencies_values": "theta_i = base ** (-2i / d_head) for i = 0 .. d_head/2 − 1. np.arange(0, d_head, 2) / d_head gives the exponents 2i / d_head directly.",
+    "test_apply_rope_matches_reference": "Angles are positions[:, None] * theta[None, :], shape (T, d/2). Rotate the interleaved pairs: even' = even·cos − odd·sin, odd' = even·sin + odd·cos.",
+    "test_rope_preserves_norms": "A rotation never changes length. If norms change, your cos/sin terms are paired with the wrong features or have the wrong sign.",
+    "test_rope_dot_product_depends_only_on_offset": "Rotating q by mθ and k by nθ leaves their dot product depending on (m − n)θ. Use the same frequencies and the same pairing for q and k.",
+    "test_apply_rope_does_not_mutate_input": "Write the rotated values into a new array (np.empty_like), not into x.",
+    "test_mha_matches_reference": "Project with x @ W, split heads, apply RoPE to q and k only (never v), scale by √d_head (not √D), softmax over keys, merge heads, then multiply by W_o.",
+    "test_causal_mha_ignores_future_tokens": "Build a (T, T) lower-triangular boolean mask and set disallowed scores to -inf before the softmax. It broadcasts across batch and heads."
+  }
+}

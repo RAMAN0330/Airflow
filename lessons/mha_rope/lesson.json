@@ -1,0 +1,38 @@
+{
+  "id": "mha_rope",
+  "title": "Multi-Head Attention & Rotary Position Embeddings",
+  "estimated_minutes": 16,
+  "summary": "Run several attention heads at once by slicing the feature axis, and give attention a sense of order by rotating queries and keys with RoPE, so scores depend only on how far apart two tokens are.",
+  "takeaways": [
+    "Heads are slices of the feature axis: reshape (B, T, D) to (B, T, H, d_head), then transpose to (B, H, T, d_head).",
+    "Reshaping without the transpose gives the right shape but the wrong heads, and nothing errors.",
+    "RoPE rotates each feature pair of q and k by position × θᵢ, with θᵢ = 10000^(−2i/d_head).",
+    "Rotations preserve norms, and rotated q·k depends only on the offset m − n: absolute rotations, relative scores."
+  ],
+  "flow": {
+    "title": "One multi-head attention layer with RoPE",
+    "steps": [
+      {"label": "Project", "detail": "Q, K, V = X W_q, X W_k, X W_v, each (B, T, D)."},
+      {"label": "Split heads", "detail": "Reshape to (B, T, H, d_head) and transpose to (B, H, T, d_head)."},
+      {"label": "Rotate", "detail": "Apply RoPE to Q and K (not V) using each token's position."},
+      {"label": "Attend per head", "detail": "softmax(QKᵀ/√d_head) with an optional causal mask, times V."},
+      {"label": "Merge + mix", "detail": "Transpose back, reshape to (B, T, D), multiply by W_o."}
+    ]
+  },
+  "terms": [
+    {"term": "Attention head", "definition": "One independent attention computation over its own d_head-dimensional slice of the projected features."},
+    {"term": "d_head", "definition": "Per-head width, D / H. Scores are scaled by √d_head."},
+    {"term": "Output projection W_o", "definition": "A (D, D) matrix that mixes the concatenated head outputs back into the model dimension."},
+    {"term": "RoPE", "definition": "Rotary position embedding: rotate feature pairs of q and k by an angle proportional to the token's position."},
+    {"term": "Relative position", "definition": "The offset m − n between two tokens. Under RoPE it's the only positional information the q·k score sees."},
+    {"term": "Interleaved vs half-split", "definition": "Two RoPE pairing conventions: (x₂ᵢ, x₂ᵢ₊₁) versus (xᵢ, xᵢ₊d/2). Same idea, incompatible weights."}
+  ],
+  "sources": [
+    {"title": "Attention Is All You Need", "author": "A. Vaswani et al.", "publisher": "NeurIPS", "year": 2017, "url": "https://arxiv.org/abs/1706.03762", "kind": "paper"},
+    {"title": "RoFormer: Enhanced Transformer with Rotary Position Embedding", "author": "J. Su, Y. Lu, S. Pan, A. Murtadha, B. Wen, Y. Liu", "publisher": "arXiv (Neurocomputing)", "year": 2021, "url": "https://arxiv.org/abs/2104.09864", "kind": "paper"},
+    {"title": "LLaMA: Open and Efficient Foundation Language Models", "author": "H. Touvron et al.", "publisher": "arXiv / Meta AI", "year": 2023, "url": "https://arxiv.org/abs/2302.13971", "kind": "paper"},
+    {"title": "Dive into Deep Learning (11.5: Multi-Head Attention)", "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola", "publisher": "d2l.ai", "url": "https://d2l.ai/chapter_attention-mechanisms-and-transformers/multihead-attention.html", "kind": "book"},
+    {"title": "torch.nn.MultiheadAttention", "author": "PyTorch", "publisher": "docs.pytorch.org", "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html", "kind": "docs"},
+    {"title": "The Annotated Transformer", "author": "Harvard NLP (A. Rush et al.)", "publisher": "nlp.seas.harvard.edu", "url": "https://nlp.seas.harvard.edu/annotated-transformer", "kind": "article"}
+  ]
+}

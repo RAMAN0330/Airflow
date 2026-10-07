@@ -1,0 +1,25 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "A 22-word document is chunked with size = 10 and overlap = 4. At which word index does the third chunk start?",
+      "options": ["8", "20", "18", "12"],
+      "answer": 3,
+      "explanation": "The step is size − overlap = 6, so chunks start at 0, 6 and 12. The chunk at 12 covers words 12–21 and reaches the end, so it's the last one."
+    },
+    {
+      "id": "q2",
+      "prompt": "Why rank chunks by cosine similarity rather than the raw dot product of count vectors?",
+      "options": ["Cosine is faster to compute", "The dot product grows with vector length, so long chunks win just for being long", "Cosine works on negative numbers", "The dot product isn't symmetric"],
+      "answer": 1,
+      "explanation": "Cosine divides out both norms and compares direction only. With unit-normalized vectors the two agree, which is why indexes normalize at insert time."
+    },
+    {
+      "id": "q3",
+      "prompt": "The context budget is 46 characters. The top two citation lines are 28 and 18 characters long. How many go into the prompt?",
+      "options": ["Only the first", "Both, since 28 + 18 = 46", "Neither", "Only the second, because it is shorter"],
+      "answer": 0,
+      "explanation": "Joining two lines adds a newline, so both would take 28 + 1 + 18 = 47 characters, which is over budget. Lower-ranked chunks don't jump ahead, so stop after the first."
+    }
+  ]
+}

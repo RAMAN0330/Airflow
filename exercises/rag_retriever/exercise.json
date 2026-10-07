@@ -1,0 +1,25 @@
+{
+  "id": "rag_retriever",
+  "title": "Build a RAG Retriever",
+  "summary": "Build the retrieval half of retrieval-augmented generation: chunk documents with overlap, embed them with a hashed bag of words, rank chunks by cosine similarity, and pack the best ones into a cited prompt that respects a context budget.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 35,
+  "tags": ["rag", "retrieval", "numpy", "llm"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "NaNInSoftmax": {
+      "hint": "A NaN in the similarity scores comes from dividing by a zero norm. Return 0 for empty vectors instead of dividing."
+    }
+  },
+  "hints": {
+    "test_chunk_text_windows": "words = text.split(); step = size − overlap; take words[start:start + size] for start in range(0, len(words), step), and stop after the window that reaches the end. Validate size and overlap first.",
+    "test_chunk_overlap_is_exact": "The next window starts at start + (size − overlap). Using size − overlap ± 1 makes neighbours share one word too many or too few.",
+    "test_embed_matches_spec": "Count tokenize(text) into v[bucket(tok, dim)], then divide by np.linalg.norm(v), but only if the norm is > 0.",
+    "test_cosine_similarity_normalizes": "A raw dot product rewards long vectors. Divide M @ q by ‖row‖·‖q‖, and return 0 wherever that product is 0.",
+    "test_top_k_order_and_ties": "Sort indices by the key (−score, index). np.argsort(-scores) isn't stable by default, so ties can come out in either order.",
+    "test_index_search_finds_relevant_chunk": "add_document should chunk_text the document and add() every chunk under the same source. search embeds the query, scores every stored vector and keeps top_k.",
+    "test_index_ties_keep_insertion_order": "Ids are positions in insertion order (0, 1, 2, …). Equal scores must come back in that order, which a stable top_k gives you.",
+    "test_build_prompt_format": "Each line is f\"[{n}] ({source}) {text}\", numbered from 1 in rank order. Copy the header, 'Context:', 'Question:' and 'Answer:' lines from task.md exactly.",
+    "test_build_prompt_respects_budget": "Count the newline that joins a line to the previous one: adding line n costs len(line) + 1 except for the first. Stop at the first chunk that doesn't fit."
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "rag_fundamentals",
+  "title": "Retrieval-Augmented Generation: Look It Up, Then Answer",
+  "estimated_minutes": 15,
+  "summary": "Ground a language model in your own documents: chunk them with overlap, embed and index the chunks, retrieve the closest ones by cosine similarity, and inject them into the prompt with citations and a strict context budget.",
+  "takeaways": [
+    "RAG lets the model read the answer from retrieved text instead of recalling it, which gives fresher facts and citable sources.",
+    "Chunk with overlap so boundary sentences survive. The step is size − overlap, exactly.",
+    "Rank by cosine similarity, not raw dot product, and break ties deterministically.",
+    "Inject chunks in rank order with numbered citations, and count every character, newlines included, against the budget."
+  ],
+  "flow": {
+    "title": "Retrieve, then generate",
+    "steps": [
+      {"label": "Chunk", "detail": "Split each document into overlapping windows of words."},
+      {"label": "Embed + index", "detail": "Turn every chunk into a unit vector and store it with its source."},
+      {"label": "Retrieve", "detail": "Embed the question and take the top-k chunks by cosine similarity."},
+      {"label": "Inject", "detail": "Add the chunks to the prompt as [n] (source) text until the budget is full."},
+      {"label": "Generate", "detail": "The LLM answers from the context and cites the [n] markers."}
+    ]
+  },
+  "terms": [
+    {"term": "Retrieval-augmented generation (RAG)", "definition": "Conditioning a generator on passages retrieved from an external corpus at query time."},
+    {"term": "Chunk overlap", "definition": "The number of words consecutive chunks share, so text that spans a boundary stays intact in at least one chunk."},
+    {"term": "Hashing trick", "definition": "Mapping tokens to vector indices with a hash function, so no vocabulary has to be stored."},
+    {"term": "Cosine similarity", "definition": "q·d / (‖q‖‖d‖): the angle between two vectors, independent of their lengths."},
+    {"term": "Context budget", "definition": "The maximum amount of retrieved text allowed in the prompt, in characters or tokens."}
+  ],
+  "sources": [
+    {"title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks", "author": "P. Lewis et al.", "publisher": "NeurIPS", "year": 2020, "url": "https://arxiv.org/abs/2005.11401", "kind": "paper"},
+    {"title": "Dense Passage Retrieval for Open-Domain Question Answering", "author": "V. Karpukhin et al.", "publisher": "EMNLP", "year": 2020, "url": "https://arxiv.org/abs/2004.04906", "kind": "paper"},
+    {"title": "Lost in the Middle: How Language Models Use Long Contexts", "author": "N. F. Liu et al.", "publisher": "TACL", "year": 2023, "url": "https://arxiv.org/abs/2307.03172", "kind": "paper"},
+    {"title": "Feature Hashing for Large Scale Multitask Learning", "author": "K. Weinberger, A. Dasgupta, J. Attenberg, J. Langford, A. Smola", "publisher": "ICML", "year": 2009, "url": "https://arxiv.org/abs/0902.2206", "kind": "paper"},
+    {"title": "Introduction to Information Retrieval", "author": "C. D. Manning, P. Raghavan, H. Schütze", "publisher": "Cambridge University Press", "year": 2008, "url": "https://nlp.stanford.edu/IR-book/", "kind": "book"},
+    {"title": "sklearn.feature_extraction.text.HashingVectorizer", "author": "scikit-learn developers", "publisher": "scikit-learn.org", "url": "https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html", "kind": "docs"}
+  ]
+}
