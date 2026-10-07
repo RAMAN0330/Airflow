@@ -1,0 +1,39 @@
+{
+  "id": "cnn_convolutions",
+  "title": "Convolutional Networks: Filters, Stride, Padding and Pooling",
+  "estimated_minutes": 15,
+  "summary": "How convolutional layers exploit locality and weight sharing: multi-channel filters, the cross-correlation convention, the output-size formula for stride and padding, im2col for speed, and max-pooling with its argmax-routing gradient.",
+  "takeaways": [
+    "A filter spans all input channels. F filters of shape (C, KH, KW) produce F output channels.",
+    "Deep-learning 'convolution' is cross-correlation. The kernel isn't flipped, because the weights are learned anyway.",
+    "H_out = ⌊(H + 2p − K)/s⌋ + 1. Get the floor right and every layer's shape follows.",
+    "Max-pool backward routes each gradient to its window's argmax, accumulating when windows overlap."
+  ],
+  "flow": {
+    "title": "A conv → pool block",
+    "steps": [
+      {"label": "Pad", "detail": "Add p zeros around H and W so edge pixels can sit under the kernel's center."},
+      {"label": "Gather patches", "detail": "im2col: one row of C·KH·KW values per output position, stepping by the stride."},
+      {"label": "Multiply", "detail": "cols @ w.reshape(F, −1).T + b computes every filter at every position at once."},
+      {"label": "Reshape", "detail": "Back to (N, F, H_out, W_out)."},
+      {"label": "Pool", "detail": "Max over k×k windows to downsample, then pass the result to the next layer."}
+    ]
+  },
+  "terms": [
+    {"term": "Cross-correlation", "definition": "Sliding a kernel over the input and taking dot products without flipping it, which is what Conv2d computes."},
+    {"term": "Receptive field", "definition": "The input region that one output value depends on."},
+    {"term": "Stride", "definition": "How many pixels the window moves between output positions."},
+    {"term": "Zero padding", "definition": "A border of zeros added around the input to control the output size."},
+    {"term": "im2col", "definition": "Unrolling input patches into matrix rows so convolution becomes a single matrix multiply."},
+    {"term": "Max-pooling", "definition": "Replacing each window with its maximum. It has no parameters and routes gradients to the argmax."}
+  ],
+  "sources": [
+    {"title": "Gradient-Based Learning Applied to Document Recognition", "author": "Y. LeCun, L. Bottou, Y. Bengio, P. Haffner", "publisher": "Proceedings of the IEEE", "year": 1998, "url": "https://doi.org/10.1109/5.726791", "kind": "paper"},
+    {"title": "A guide to convolution arithmetic for deep learning", "author": "V. Dumoulin, F. Visin", "publisher": "arXiv", "year": 2016, "url": "https://arxiv.org/abs/1603.07285", "kind": "paper"},
+    {"title": "High Performance Convolutional Neural Networks for Document Processing", "author": "K. Chellapilla, S. Puri, P. Simard", "publisher": "IWFHR 2006 (HAL Inria)", "year": 2006, "url": "https://hal.inria.fr/inria-00112631", "kind": "paper"},
+    {"title": "CS231n: Convolutional Neural Networks", "author": "Stanford CS231n", "publisher": "Stanford University", "url": "https://cs231n.github.io/convolutional-networks/", "kind": "course"},
+    {"title": "Dive into Deep Learning: Padding and Stride", "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola", "publisher": "d2l.ai", "url": "https://d2l.ai/chapter_convolutional-neural-networks/padding-and-strides.html", "kind": "book"},
+    {"title": "torch.nn.Conv2d", "author": "PyTorch", "publisher": "docs.pytorch.org", "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html", "kind": "docs"},
+    {"title": "Deep Learning (Ch. 9: Convolutional Networks)", "author": "I. Goodfellow, Y. Bengio, A. Courville", "publisher": "MIT Press", "year": 2016, "url": "https://www.deeplearningbook.org/", "kind": "book"}
+  ]
+}

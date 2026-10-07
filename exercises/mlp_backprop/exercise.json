@@ -1,0 +1,25 @@
+{
+  "id": "mlp_backprop",
+  "title": "Backprop Through a Two-Layer MLP",
+  "summary": "Write the forward and backward pass of a linear layer, ReLU and softmax cross-entropy by hand, chain them into a two-layer network, verify every gradient numerically and train it with SGD.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["numpy", "backprop", "neural-networks", "gradient-checking"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "Every gradient has the shape of the thing it's a gradient of. dW must be (D, M) like W, and db must be (M,) like b. Write the shapes next to each matmul.", "exercise": "linear_regression_gd"},
+    "NaNInSoftmax": {"hint": "Compute log-softmax as z − log Σ exp(z) after subtracting the row max, rather than taking log(softmax(z)).", "exercise": "activation_functions"}
+  },
+  "hints": {
+    "test_linear_forward_values": "out = x @ W + b. The bias broadcasts across the batch. Don't write into x.",
+    "test_linear_gradient_shapes": "dW = xᵀ @ dout is (D, N) @ (N, M) = (D, M). db sums dout over axis 0, because the same bias is added to every row.",
+    "test_linear_backward_matches_numerical": "dx = dout @ Wᵀ, dW = xᵀ @ dout, db = dout.sum(axis=0). Each is the chain rule with the linear layer's Jacobian.",
+    "test_relu_forward_backward": "Cache the forward input. The backward pass multiplies dout by (x > 0).",
+    "test_softmax_cross_entropy_loss_value": "Loss is the mean over the batch of −log p[y]. Uniform logits give p = 1/C everywhere.",
+    "test_softmax_cross_entropy_is_stable": "Subtract each row's max, then log_probs = z − log(sum(exp(z))). Never take log of a probability that may have underflowed to 0.",
+    "test_softmax_cross_entropy_gradient_numerical": "dlogits = (softmax − onehot) / N. The / N comes from averaging the loss over the batch.",
+    "test_mlp_init_shapes_and_determinism": "Build all weights from one np.random.default_rng(seed): W1 first, then W2, each standard_normal times sqrt(2 / fan_in). Biases start at zero.",
+    "test_mlp_gradients_match_numerical": "Backward runs in reverse: loss → linear 2 → ReLU → linear 1. Feed each layer's dx into the layer before it.",
+    "test_training_reduces_loss": "sgd_step must update self.params (p -= lr * g). If the loss doesn't drop, check gradient signs and that the update actually changes the stored arrays."
+  }
+}

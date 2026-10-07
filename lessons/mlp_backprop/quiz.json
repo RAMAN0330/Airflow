@@ -1,0 +1,8 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "A linear layer has x of shape (32, 10) and W of shape (10, 4). Which expression gives dW?", "options": ["dout @ x.T", "dout.T @ x", "x.T @ dout", "x @ dout.T"], "answer": 2, "explanation": "dW must have W's shape, (10, 4). Only xᵀ·dout = (10, 32)·(32, 4) produces it. dout.T @ x gives the transpose, (4, 10)."},
+    {"id": "q2", "prompt": "Why is db computed as dout.sum(axis=0)?", "options": ["The same bias vector is added to every example, so each example's gradient contributes to it", "It's an approximation that speeds up training", "To normalize the gradient by batch size", "Because ReLU zeroes half the gradients"], "answer": 0, "explanation": "b is broadcast across the batch. When one parameter is used several times, its gradient is the sum of the gradients from each use."},
+    {"id": "q3", "prompt": "The loss is the mean cross-entropy over a batch of N. What is ∂L/∂logits?", "options": ["softmax(z) − onehot(y)", "(softmax(z) − onehot(y)) / N", "−log softmax(z)", "onehot(y) − softmax(z)"], "answer": 1, "explanation": "Each example's loss has gradient p − onehot, and the mean divides it by N. Without the 1/N, gradients grow with batch size."},
+    {"id": "q4", "prompt": "Why use the central difference (f(θ+h) − f(θ−h))/2h for gradient checking instead of (f(θ+h) − f(θ))/h?", "options": ["It needs fewer function evaluations", "It works without float64", "Its error shrinks as O(h²) rather than O(h), so it is far more accurate", "It avoids ReLU kinks entirely"], "answer": 2, "explanation": "The first-order Taylor error terms cancel in the centered formula, leaving an O(h²) error. That makes a relative-error threshold like 1e-6 meaningful."}
+  ]
+}

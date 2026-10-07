@@ -1,0 +1,35 @@
+{
+  "id": "conv2d_pooling",
+  "title": "Conv2D and Max-Pooling from Scratch",
+  "summary": "Implement the output-size formula, zero padding, a vectorized multi-channel conv2d with stride and padding, and max-pooling with its argmax-routing backward pass, checked against naive loop references.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 45,
+  "tags": [
+    "numpy",
+    "cnn",
+    "convolution",
+    "vectorization"
+  ],
+  "limits": {
+    "cpu_seconds": 10,
+    "wall_seconds": 15,
+    "memory_mb": 2048
+  },
+  "remediation": {
+    "ShapeMismatch": {
+      "hint": "Compute H_out and W_out with conv_output_size first, then make sure every reshape uses exactly N·H_out·W_out rows and C·KH·KW columns."
+    }
+  },
+  "hints": {
+    "test_output_size_formula": "out = floor((in + 2·pad − kernel) / stride) + 1. Use integer division on the whole numerator, then add 1. If kernel > in + 2·pad there is no valid position. Raise ValueError.",
+    "test_pad_input": "np.pad(x, ((0, 0), (0, 0), (pad, pad), (pad, pad))). Batch and channel axes are never padded.",
+    "test_conv_is_cross_correlation": "Don't flip the kernel. out[i, j] = Σ x[i + u, j + v] · w[u, v], exactly like PyTorch's Conv2d.",
+    "test_conv_matches_naive_reference": "Each output sums over all input channels and the whole KH × KW window, then adds b[f].",
+    "test_conv_stride_and_padding": "Pad first. Output (i, j) reads the window starting at row i·stride, column j·stride of the padded input.",
+    "test_conv_channel_mismatch_raises": "Compare x.shape[1] with w.shape[1] before doing any math.",
+    "test_conv_is_fast_enough": "Avoid Python loops over N, F and C. im2col: gather patches into (N·H_out·W_out, C·KH·KW) and do one matmul with w.reshape(F, -1).T. numpy.lib.stride_tricks.sliding_window_view helps.",
+    "test_maxpool_forward_matches_reference": "stride defaults to pool_size. Window (i, j) starts at row i·stride, column j·stride; take the max over its last two axes.",
+    "test_maxpool_backward_routes_to_argmax": "Only the max element of each window receives that window's gradient. Everything else gets 0.",
+    "test_maxpool_backward_overlapping_windows": "With stride < pool_size one input can be the max of several windows. Add (+=) every contribution into dx."
+  }
+}

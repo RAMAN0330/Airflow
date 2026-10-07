@@ -1,0 +1,39 @@
+{
+  "id": "rnn_lstm",
+  "title": "RNNs & LSTMs: Memory, BPTT and Exploding Gradients",
+  "estimated_minutes": 17,
+  "summary": "How recurrent networks carry a hidden state through a sequence, how backpropagation through time computes their gradients, why those gradients vanish or explode, and how LSTM gates and global-norm clipping keep training stable.",
+  "takeaways": [
+    "An RNN reuses the same weights at every step, and each step's hidden state feeds the next.",
+    "BPTT walks backwards in time. Each hidden state's gradient is the local loss gradient plus what flows back from the future.",
+    "Repeated multiplication by W_h makes gradients vanish or explode. Clip by the global norm, which preserves direction.",
+    "LSTM gates (i, f, o) are sigmoids, and the candidate g is a tanh. An additive cell update lets gradients survive long spans."
+  ],
+  "flow": {
+    "title": "Training a recurrent network on one sequence",
+    "steps": [
+      {"label": "Unroll", "detail": "For t = 0…T−1, compute h_t (and c_t) from x_t and the previous state."},
+      {"label": "Loss", "detail": "Read predictions from some or all hidden states and sum the losses."},
+      {"label": "BPTT", "detail": "Walk t = T−1…0, adding dh from the loss to dh flowing back from t+1. Accumulate weight gradients."},
+      {"label": "Clip", "detail": "If the global gradient norm exceeds max_norm, scale every gradient by max_norm / norm."},
+      {"label": "Update", "detail": "Apply the optimizer step with the clipped gradients."}
+    ]
+  },
+  "terms": [
+    {"term": "Hidden state", "definition": "The vector h_t an RNN carries between time steps, summarizing everything seen so far."},
+    {"term": "BPTT", "definition": "Backpropagation through time: ordinary backprop applied to the unrolled recurrent network."},
+    {"term": "Exploding gradient", "definition": "Gradients that grow exponentially with sequence length because of repeated multiplication by the recurrent weights."},
+    {"term": "Gradient clipping", "definition": "Rescaling all gradients so their combined (global) L2 norm is at most a threshold."},
+    {"term": "Cell state", "definition": "The LSTM's additive memory c_t, written by the input gate and erased by the forget gate."},
+    {"term": "Gate", "definition": "A sigmoid-valued vector in (0, 1) that multiplies another signal element-wise to control how much passes."}
+  ],
+  "sources": [
+    {"title": "Long Short-Term Memory", "author": "S. Hochreiter, J. Schmidhuber", "publisher": "Neural Computation", "year": 1997, "url": "https://doi.org/10.1162/neco.1997.9.8.1735", "kind": "paper"},
+    {"title": "On the difficulty of training recurrent neural networks", "author": "R. Pascanu, T. Mikolov, Y. Bengio", "publisher": "ICML", "year": 2013, "url": "https://arxiv.org/abs/1211.5063", "kind": "paper"},
+    {"title": "Dive into Deep Learning, 9.7: Backpropagation Through Time", "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola", "publisher": "d2l.ai", "url": "https://d2l.ai/chapter_recurrent-neural-networks/bptt.html", "kind": "book"},
+    {"title": "Deep Learning (Ch. 10: Sequence Modeling: Recurrent and Recursive Nets)", "author": "I. Goodfellow, Y. Bengio, A. Courville", "publisher": "MIT Press", "year": 2016, "url": "https://www.deeplearningbook.org/", "kind": "book"},
+    {"title": "torch.nn.LSTM", "author": "PyTorch", "publisher": "docs.pytorch.org", "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.LSTM.html", "kind": "docs"},
+    {"title": "torch.nn.utils.clip_grad_norm_", "author": "PyTorch", "publisher": "docs.pytorch.org", "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.utils.clip_grad_norm_.html", "kind": "docs"},
+    {"title": "Understanding LSTM Networks", "author": "C. Olah", "publisher": "colah.github.io", "year": 2015, "url": "https://colah.github.io/posts/2015-08-Understanding-LSTMs/", "kind": "article"}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "Input height 9, kernel 3, stride 2, padding 1. What is the output height?", "options": ["4", "5", "6", "9"], "answer": 1, "explanation": "⌊(9 + 2 − 3)/2⌋ + 1 = ⌊8/2⌋ + 1 = 5."},
+    {"id": "q2", "prompt": "A layer maps a (N, 16, 32, 32) input to 64 output channels with 3×3 kernels. What shape are the weights?", "options": ["(64, 3, 3)", "(16, 64, 3, 3)", "(64, 16, 3, 3)", "(64, 16, 32, 32)"], "answer": 2, "explanation": "Each of the 64 filters spans all 16 input channels, so the weights are (F, C, KH, KW) = (64, 16, 3, 3)."},
+    {"id": "q3", "prompt": "Your conv matches a reference only when the kernel is symmetric. What's the likely bug?", "options": ["Wrong padding", "Missing bias", "The kernel is flipped (true convolution instead of cross-correlation)", "Stride applied twice"], "answer": 2, "explanation": "Flipping a symmetric kernel changes nothing, so the bug only shows up with asymmetric kernels. Conv2d computes cross-correlation, with no flip."},
+    {"id": "q4", "prompt": "In max-pool backward, a 2×2 window's values are [1, 7; 3, 2] and its upstream gradient is 5. What gradient does each input get?", "options": ["5 to the 7, 0 to the rest", "1.25 to each", "5 to every element", "7·5 to the max"], "answer": 0, "explanation": "Only the max influenced the output, so it receives the full gradient. The other three get 0."}
+  ]
+}

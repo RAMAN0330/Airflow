@@ -1,0 +1,25 @@
+{
+  "id": "rnn_lstm_cell",
+  "title": "RNN, LSTM Cell and Gradient Clipping",
+  "summary": "Unroll a vanilla RNN and an LSTM over a sequence, backpropagate through time and check it numerically, and clip exploding gradients by their global norm.",
+  "difficulty": "advanced",
+  "estimated_minutes": 50,
+  "tags": ["numpy", "rnn", "lstm", "backprop", "sequence-models"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "x is (N, T, D) and the hidden state is (N, H). Slice one time step with x[:, t, :]. LSTM weights are (D, 4H) and (H, 4H), so a has 4H columns to split into 4 blocks of H."},
+    "NaNInSoftmax": {"hint": "1 / (1 + exp(-x)) overflows for very negative x. Use 0.5 * (1 + tanh(x / 2)), which is the same function and stays finite."}
+  },
+  "hints": {
+    "test_sigmoid_values_and_stability": "σ(x) = 0.5·(1 + tanh(x/2)) equals 1/(1 + e^−x) and never overflows.",
+    "test_rnn_step_matches_reference": "h_t = tanh(x_t @ Wx + h_prev @ Wh + b), with shapes (N, D)·(D, H) + (N, H)·(H, H) + (H,).",
+    "test_rnn_forward_matches_reference": "Loop t = 0 … T−1, store each h_t into hs[:, t, :]. Don't write into the inputs.",
+    "test_rnn_hidden_state_is_carried": "The h you pass to step t+1 must be the h returned by step t. Only step 0 uses h0.",
+    "test_rnn_backward_matches_numerical": "Walk backwards in time. At step t, dh = dhs[:, t] + dh_next; da = dh·(1 − h_t²); accumulate dWx += x_tᵀ·da, dWh += h_{t−1}ᵀ·da, db += Σ da; dh_next = da @ Whᵀ. dh0 is the final dh_next.",
+    "test_lstm_step_matches_reference": "Split a into 4 blocks of width H in the order i, f, g, o. c = f·c_prev + i·g, h = o·tanh(c).",
+    "test_lstm_gate_semantics": "i, f and o are sigmoids (0 to 1, they gate). Only the candidate g uses tanh (−1 to 1, it's content).",
+    "test_lstm_forward_unrolls_sequence": "Carry both h and c across time steps, collect every h, and return the last c as well.",
+    "test_clip_grad_norm_uses_global_norm": "Compute one norm over all arrays together: sqrt(Σ_arrays Σ g²). Then scale every array by the same factor max_norm / total.",
+    "test_clip_grad_norm_noop_below_threshold_and_no_mutation": "Below the threshold return the gradients unchanged. Build new arrays (g * scale) instead of using *=."
+  }
+}

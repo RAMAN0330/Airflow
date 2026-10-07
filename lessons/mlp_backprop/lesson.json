@@ -1,0 +1,40 @@
+{
+  "id": "mlp_backprop",
+  "title": "Backpropagation Through a Multilayer Perceptron",
+  "estimated_minutes": 15,
+  "summary": "How a multilayer perceptron computes gradients: layers that cache on the way forward, vector-Jacobian products instead of Jacobians on the way back, a fused softmax cross-entropy, and numerical gradient checks that prove it's right.",
+  "takeaways": [
+    "Backprop is the chain rule applied layer by layer in reverse, with each layer using only its cache and dout.",
+    "Never build Jacobians. For a linear layer, dx = dout·Wᵀ, dW = xᵀ·dout and db = Σ dout over the batch.",
+    "A gradient always has the shape of what it differentiates. Shape mismatches reveal missing transposes and unsummed biases.",
+    "Fused softmax cross-entropy has gradient (p − onehot)/N. Verify every gradient with central differences."
+  ],
+  "flow": {
+    "title": "One training step of a 2-layer MLP",
+    "steps": [
+      {"label": "Forward", "detail": "x → Linear → ReLU → Linear → logits, caching each layer's inputs."},
+      {"label": "Loss", "detail": "Stable log-softmax and mean negative log-likelihood of the true class."},
+      {"label": "Loss gradient", "detail": "dlogits = (softmax − onehot) / N."},
+      {"label": "Backward", "detail": "Each layer turns dout into dx plus dW and db, in reverse order."},
+      {"label": "Check", "detail": "Compare against central differences on a tiny network."},
+      {"label": "Update", "detail": "SGD: every parameter p -= lr · grad."}
+    ]
+  },
+  "terms": [
+    {"term": "Multilayer perceptron (MLP)", "definition": "Stacked fully connected layers with non-linearities between them."},
+    {"term": "Jacobian", "definition": "The matrix of all partial derivatives ∂yᵢ/∂xⱼ of a vector function."},
+    {"term": "Vector-Jacobian product", "definition": "Jᵀ·dout, computed directly from the layer's formula without ever forming J."},
+    {"term": "Cache", "definition": "Values saved during the forward pass that the backward pass needs, such as a layer's input."},
+    {"term": "Gradient check", "definition": "Comparing analytic gradients with finite differences, (f(θ+h) − f(θ−h)) / 2h."},
+    {"term": "He initialization", "definition": "Weights drawn with standard deviation √(2/fan_in), which keeps ReLU activations from shrinking or exploding."}
+  ],
+  "sources": [
+    {"title": "Learning representations by back-propagating errors", "author": "D. E. Rumelhart, G. E. Hinton, R. J. Williams", "publisher": "Nature", "year": 1986, "url": "https://www.nature.com/articles/323533a0", "kind": "paper"},
+    {"title": "Deep Learning (Ch. 6: Deep Feedforward Networks)", "author": "I. Goodfellow, Y. Bengio, A. Courville", "publisher": "MIT Press", "year": 2016, "url": "https://www.deeplearningbook.org/", "kind": "book"},
+    {"title": "Dive into Deep Learning, 5.3: Forward Propagation, Backward Propagation, and Computational Graphs", "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola", "publisher": "d2l.ai", "url": "https://d2l.ai/chapter_multilayer-perceptrons/backprop.html", "kind": "book"},
+    {"title": "Derivatives, Backpropagation, and Vectorization", "author": "J. Johnson (Stanford CS231n)", "publisher": "Stanford University", "year": 2017, "url": "https://cs231n.stanford.edu/handouts/derivatives.pdf", "kind": "course"},
+    {"title": "CS231n: Neural Networks Part 3 (gradient checks)", "author": "Stanford CS231n", "publisher": "Stanford University", "url": "https://cs231n.github.io/neural-networks-3/", "kind": "course"},
+    {"title": "Understanding the difficulty of training deep feedforward neural networks", "author": "X. Glorot, Y. Bengio", "publisher": "AISTATS (PMLR 9)", "year": 2010, "url": "https://proceedings.mlr.press/v9/glorot10a.html", "kind": "paper"},
+    {"title": "torch.nn.CrossEntropyLoss", "author": "PyTorch", "publisher": "docs.pytorch.org", "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html", "kind": "docs"}
+  ]
+}
