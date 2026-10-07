@@ -425,8 +425,8 @@
                 "ROUGE-L",
                 "Golden sets"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "llm_evaluation",
+              "exercise": "llm_eval_metrics"
             },
             {
               "id": "llm-judge",
@@ -436,8 +436,8 @@
                 "Position bias",
                 "Elo / Bradley–Terry"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "llm_judge_harness",
+              "exercise": "judge_harness"
             },
             {
               "id": "llm-gateway",
@@ -447,8 +447,8 @@
                 "Token bucket",
                 "PII redaction"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "llm_serving_guardrails",
+              "exercise": "llm_gateway"
             }
           ]
         }

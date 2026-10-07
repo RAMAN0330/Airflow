@@ -1,0 +1,38 @@
+{
+  "id": "llm_judge_harness",
+  "title": "LLM-as-a-Judge & Eval Harnesses",
+  "estimated_minutes": 16,
+  "summary": "Open-ended answers have no single reference, so teams use a strong LLM as the grader. Learn its biases and how to cancel position bias by swapping order, how to turn pairwise verdicts into win rates, Elo and Bradley–Terry rankings, and how to check a judge against humans with Cohen's kappa.",
+  "takeaways": [
+    "LLM judges agree with human preferences surprisingly well, but they're biased toward position, length and their own style.",
+    "Judge every pair in both orders. Only a verdict that survives the swap counts as a win. Otherwise it's a tie.",
+    "Elo is a cheap online rating that depends on match order. Bradley–Terry fits all matches at once, and Hunter's MM algorithm solves it in a few lines.",
+    "Before trusting a judge, measure its agreement with human labels using Cohen's kappa, which subtracts the agreement expected by chance."
+  ],
+  "flow": {
+    "title": "A pairwise judge harness",
+    "steps": [
+      {"label": "Collect pairs", "detail": "For each prompt, the answers from model A and model B (or many models, in a tournament)."},
+      {"label": "Judge both orders", "detail": "Ask the judge with A first, then with B first. Disagreement becomes a tie."},
+      {"label": "Score", "detail": "Win rate with ties counted as half a win, per model pair."},
+      {"label": "Rank", "detail": "Fit Bradley–Terry strengths (or run Elo) over all match results."},
+      {"label": "Validate the judge", "detail": "On a human-labelled sample, compute Cohen's kappa between judge and human verdicts."}
+    ]
+  },
+  "terms": [
+    {"term": "LLM-as-a-judge", "definition": "Using a strong language model, prompted with a rubric, to grade or compare model outputs."},
+    {"term": "Position bias", "definition": "A judge's tendency to prefer an answer because of where it appears in the prompt (often first), regardless of quality."},
+    {"term": "Pairwise comparison", "definition": "Showing the judge two answers to the same prompt and asking which is better, instead of scoring each one alone."},
+    {"term": "Elo rating", "definition": "An online rating: after each match, R ← R + K·(S − E), where E = 1/(1 + 10^((R_opp − R)/400))."},
+    {"term": "Bradley–Terry model", "definition": "P(i beats j) = p_i / (p_i + p_j), with one positive strength per player, fitted by maximum likelihood."},
+    {"term": "Cohen's kappa", "definition": "κ = (p_o − p_e)/(1 − p_e): observed agreement between two raters, corrected for the agreement expected by chance."}
+  ],
+  "sources": [
+    {"title": "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena", "author": "L. Zheng, W.-L. Chiang, Y. Sheng, et al.", "publisher": "NeurIPS Datasets and Benchmarks", "year": 2023, "url": "https://arxiv.org/abs/2306.05685", "kind": "paper"},
+    {"title": "Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference", "author": "W.-L. Chiang, L. Zheng, Y. Sheng, A. N. Angelopoulos, et al.", "publisher": "ICML (PMLR 235)", "year": 2024, "url": "https://proceedings.mlr.press/v235/chiang24b.html", "kind": "paper"},
+    {"title": "Large Language Models are not Fair Evaluators", "author": "P. Wang, L. Li, L. Chen, et al.", "publisher": "ACL", "year": 2024, "url": "https://aclanthology.org/2024.acl-long.511/", "kind": "paper"},
+    {"title": "Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons", "author": "R. A. Bradley, M. E. Terry", "publisher": "Biometrika", "year": 1952, "url": "https://doi.org/10.2307/2334029", "kind": "paper"},
+    {"title": "MM Algorithms for Generalized Bradley-Terry Models", "author": "D. R. Hunter", "publisher": "The Annals of Statistics", "year": 2004, "url": "https://doi.org/10.1214/aos/1079120141", "kind": "paper"},
+    {"title": "A Coefficient of Agreement for Nominal Scales", "author": "J. Cohen", "publisher": "Educational and Psychological Measurement", "year": 1960, "url": "https://doi.org/10.1177/001316446002000104", "kind": "paper"}
+  ]
+}

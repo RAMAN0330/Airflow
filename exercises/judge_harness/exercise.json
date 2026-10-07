@@ -1,0 +1,21 @@
+{
+  "id": "judge_harness",
+  "title": "Build an LLM-as-a-Judge Harness",
+  "summary": "Turn a biased judge into a usable evaluator: judge every pair in both orders, compute win rates with ties, rank models with Elo and Bradley–Terry (Hunter's MM algorithm), and check the judge against human labels with Cohen's kappa.",
+  "difficulty": "advanced",
+  "estimated_minutes": 40,
+  "tags": ["llmops", "evaluation", "ranking", "statistics"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_judge_pair_runs_both_orders": "Call judge(q, a, b) and then judge(q, b, a). In the second call 'A' means answer b won, so map it back before comparing.",
+    "test_position_bias_becomes_tie": "A judge that always says 'A' picks a first and then b first. The two verdicts disagree, so the result must be 'tie'.",
+    "test_pairwise_eval_and_win_rate": "Win rate = (wins + 0.5 * ties) / n. Raise ValueError for an empty list or mismatched input lengths.",
+    "test_elo_known_values": "E_x = 1 / (1 + 10 ** ((R_y - R_x) / 400)). R_x += K * (S_x - E_x), with S_x = 1, 0.5 or 0. Unseen players start at `initial`.",
+    "test_elo_zero_sum_and_order_dependent": "Process matches in the given order. Both updates use the ratings from before the match, so the total rating stays constant.",
+    "test_bradley_terry_two_players_closed_form": "MM update: p_i <- W_i / sum_j n_ij / (p_i + p_j), then normalize to sum 1. A tie adds 0.5 to each player's W.",
+    "test_bradley_terry_satisfies_score_equations": "Iterate until the largest change is below tol. At convergence each player's wins equal the sum of p_i / (p_i + p_j) over its games.",
+    "test_cohens_kappa_known_values": "kappa = (p_o - p_e) / (1 - p_e), where p_e = sum over labels of P_a(label) * P_b(label).",
+    "test_cohens_kappa_corrects_for_chance": "Raw agreement is not kappa. Subtract the agreement expected from each rater's label frequencies. If p_e == 1 return 1.0; raise ValueError on empty or unequal inputs."
+  }
+}

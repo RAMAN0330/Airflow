@@ -1,0 +1,22 @@
+{
+  "id": "llm_eval_metrics",
+  "title": "Evaluate LLM Answers Against a Golden Set",
+  "summary": "Implement SQuAD-style answer normalization, exact match and token F1, ROUGE-L via longest common subsequence, a seeded bootstrap confidence interval, and a regression check that compares two model runs example by example.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 35,
+  "tags": ["llmops", "evaluation", "nlp", "statistics"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_normalize_answer": "Order matters: lowercase, strip string.punctuation, then re.sub(r\"\\b(a|an|the)\\b\", \" \", text), then \" \".join(text.split()). The \\b boundaries keep 'Anthem' and 'Theory' intact.",
+    "test_exact_match": "Accept a str or a list of references. Compare normalized strings and take the max over references, returned as a float.",
+    "test_token_f1_counts_repeated_tokens_once_per_match": "Use Counter(pred) & Counter(gold) and sum the counts. A set intersection undercounts repeated words that appear in both answers.",
+    "test_token_f1_matches_reference": "precision = overlap / len(pred tokens), recall = overlap / len(gold tokens), F1 = 2PR/(P+R). Return 0.0 when overlap is 0.",
+    "test_empty_answers_edge_cases": "If either side normalizes to no tokens, F1 is 1.0 only when both are empty. 'the' normalizes to nothing.",
+    "test_lcs_and_rouge_l_known_values": "Build an (m+1) x (n+1) table and loop i over 1..m and j over 1..n inclusive. The answer is table[m][n].",
+    "test_rouge_l_matches_reference": "Tokenize with re.findall(r\"\\w+\", text.lower()). precision = lcs/len(candidate), recall = lcs/len(reference), f = 2PR/(P+R).",
+    "test_bootstrap_ci_deterministic_and_correct": "rng = np.random.default_rng(seed); idx = rng.integers(0, n, size=(n_boot, n)); take np.quantile of the row means at alpha/2 and 1 - alpha/2.",
+    "test_evaluate_golden_set": "Look up predictions.get(item['id'], '') for each golden item and average the per-example EM and F1. Don't modify the inputs.",
+    "test_regression_check": "Per-example diff = candidate - baseline. Regressions are negative diffs sorted by (diff, id); improvements are positive diffs sorted by (-diff, id). passed = delta >= -tolerance."
+  }
+}

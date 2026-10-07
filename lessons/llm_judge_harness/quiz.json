@@ -1,0 +1,8 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "Your judge says 'A' when shown (a, b) and also 'A' when shown (b, a). What should the harness record?", "options": ["A win for a", "A win for b", "A tie, because the verdicts disagree once the order is accounted for", "Discard the judge"], "answer": 2, "explanation": "The second 'A' means b won. The judge picked whichever answer came first, which is position bias, so the conservative rule records a tie."},
+    {"id": "q2", "prompt": "Two models both start at Elo 1000. Model x wins one game with K = 32. What are the new ratings?", "options": ["1016 and 984", "1032 and 968", "1032 and 1000", "1008 and 992"], "answer": 0, "explanation": "Equal ratings give E = 0.5. x gains 32·(1 − 0.5) = 16 and y loses 16."},
+    {"id": "q3", "prompt": "Why did Chatbot Arena move from online Elo to a Bradley–Terry fit?", "options": ["Bradley–Terry needs no data", "Bradley–Terry handles more than two models, and Elo can't", "Elo can't represent ties", "Elo results depend on the order of matches. Bradley–Terry fits all results jointly and gives stable estimates with confidence intervals"], "answer": 3, "explanation": "Online Elo is path-dependent. The Bradley–Terry MLE uses all comparisons at once, so the ranking doesn't change when the matches are shuffled."},
+    {"id": "q4", "prompt": "A judge and a human both label 90% of items 'A'. Their labels are independent. What are the raw agreement and Cohen's kappa?", "options": ["90% and 0.9", "82% and 0", "82% and 0.82", "100% and 1"], "answer": 1, "explanation": "Chance agreement is 0.9·0.9 + 0.1·0.1 = 0.82. Observed agreement equals chance, so κ = (0.82 − 0.82)/(1 − 0.82) = 0."}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "llm_gateway",
+  "title": "Build an LLM Gateway: Limits, Caches & Guardrails",
+  "summary": "Put the plumbing in front of a model endpoint: a token-bucket rate limiter, an LRU response cache with TTL, a cosine-similarity semantic cache, Luhn-checked PII redaction, context-window truncation that keeps the system prompt, and per-model cost accounting.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["llmops", "serving", "caching", "security"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_token_bucket_burst_and_refill": "Start full. On every call: tokens = min(capacity, tokens + elapsed * refill_rate), then spend `cost` only if tokens >= cost. Read time from the injected clock.",
+    "test_token_bucket_never_exceeds_capacity": "Cap the refill at capacity, or a long idle period lets through an unbounded burst. Reject capacity <= 0 with ValueError.",
+    "test_response_cache_key_normalization": "Key = ' '.join(prompt.split()) plus json.dumps(params, sort_keys=True). Don't lowercase. Count hits and misses.",
+    "test_response_cache_lru_eviction": "An OrderedDict works well: move_to_end on get and put, popitem(last=False) while over max_entries.",
+    "test_response_cache_ttl_expiry": "Store the insertion time with each value. On get, if now - stored_at >= ttl, delete the entry and count a miss.",
+    "test_semantic_cache_threshold": "Cosine = a·b / (|a||b|), treated as 0 when either norm is 0. Return (response, similarity) for the argmax only if it is >= threshold.",
+    "test_luhn_valid": "Only digits, spaces and dashes are allowed, with 13-19 digits. From the rightmost digit, double every second digit, subtract 9 if it exceeds 9, and check that the sum % 10 == 0.",
+    "test_redact_pii": "Apply EMAIL_RE, then CARD_RE (replace only if luhn_valid), then PHONE_RE. Use a replacement function so you can skip invalid cards and count replacements.",
+    "test_truncate_history_keeps_system_and_recent": "Always keep system messages and subtract their tokens from the budget. Then walk backwards from the newest turn and stop at the first one that doesn't fit. Return messages in their original order.",
+    "test_cost_report": "dollars = (input_tokens * price_in + output_tokens * price_out) / 1_000_000, summed per model. Raise KeyError for a model with no price."
+  }
+}

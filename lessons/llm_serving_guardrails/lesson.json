@@ -1,0 +1,38 @@
+{
+  "id": "llm_serving_guardrails",
+  "title": "Serving LLMs: Caching, Limits & Guardrails",
+  "estimated_minutes": 15,
+  "summary": "LLM calls are slow, metered per token, and full of user text. Learn the gateway layer that sits in front of a model: token-bucket rate limits, exact and semantic response caches, PII redaction with checksum validation, context-window truncation that never drops the system prompt, and cost accounting.",
+  "takeaways": [
+    "A token bucket allows short bursts up to its capacity while enforcing an average rate. Cap the refill, or idle time turns into an unbounded burst.",
+    "Exact caches need normalized keys that include the generation params, plus a TTL so stale answers expire. Semantic caches trade a similarity threshold for hit rate.",
+    "Redact PII before it reaches logs or third-party models, and validate matches (Luhn for card numbers) so you don't mangle order IDs.",
+    "When a chat exceeds the context budget, keep the system prompt and drop the oldest turns. Count tokens and dollars per model so costs stay visible."
+  ],
+  "flow": {
+    "title": "A request through the gateway",
+    "steps": [
+      {"label": "Rate limit", "detail": "Spend from the caller's token bucket. If it's empty, reject with 429 before doing any work."},
+      {"label": "Redact", "detail": "Replace emails, phone numbers and Luhn-valid card numbers with placeholders."},
+      {"label": "Cache lookup", "detail": "Exact key (normalized prompt + params) first, then the nearest embedding above the similarity threshold."},
+      {"label": "Fit the context", "detail": "Keep the system prompt and the most recent turns that fit the token budget."},
+      {"label": "Call + account", "detail": "Call the model, store the response with a timestamp, and record input and output tokens and cost."}
+    ]
+  },
+  "terms": [
+    {"term": "Token bucket", "definition": "A rate limiter holding up to `capacity` tokens that refill at a fixed rate. Each request spends tokens or is rejected."},
+    {"term": "TTL", "definition": "Time to live: how long a cached entry stays valid before it must be recomputed."},
+    {"term": "LRU eviction", "definition": "When the cache is full, discard the least recently used entry first."},
+    {"term": "Semantic cache", "definition": "A cache that returns a stored response when a new prompt's embedding is within a cosine-similarity threshold of a cached prompt."},
+    {"term": "Luhn checksum", "definition": "A mod-10 check digit scheme used by payment card numbers that catches every single-digit error and most adjacent transpositions."},
+    {"term": "PII redaction", "definition": "Replacing personally identifiable information such as emails, phone numbers and card numbers with placeholders before storage or forwarding."}
+  ],
+  "sources": [
+    {"title": "OWASP Top 10 for LLM Applications 2025", "author": "OWASP GenAI Security Project", "publisher": "OWASP Foundation", "year": 2024, "url": "https://genai.owasp.org/resource/owasp-top-10-for-llm-applications-2025/", "kind": "docs"},
+    {"title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0), NIST AI 100-1", "author": "National Institute of Standards and Technology", "publisher": "NIST", "year": 2023, "url": "https://doi.org/10.6028/NIST.AI.100-1", "kind": "docs"},
+    {"title": "Throttle requests to your REST APIs for better throughput in API Gateway", "author": "Amazon Web Services", "publisher": "docs.aws.amazon.com", "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-request-throttling.html", "kind": "docs"},
+    {"title": "GPTCache: An Open-Source Semantic Cache for LLM Applications Enabling Faster Answers and Cost Savings", "author": "Fu Bang", "publisher": "NLP-OSS Workshop (EMNLP)", "year": 2023, "url": "https://aclanthology.org/2023.nlposs-1.24/", "kind": "paper"},
+    {"title": "Computer for Verifying Numbers (US Patent 2,950,048)", "author": "H. P. Luhn", "publisher": "U.S. Patent Office", "year": 1960, "url": "https://patents.google.com/patent/US2950048A", "kind": "paper"},
+    {"title": "collections.OrderedDict", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/collections.html#collections.OrderedDict", "kind": "docs"}
+  ]
+}

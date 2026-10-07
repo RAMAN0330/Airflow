@@ -1,0 +1,38 @@
+{
+  "id": "llm_evaluation",
+  "title": "Evaluating LLM Outputs: Golden Sets, EM, F1 & ROUGE-L",
+  "estimated_minutes": 15,
+  "summary": "You can't improve an LLM feature you can't measure. Learn how to build a golden set, score answers with SQuAD-style exact match and token F1 or with ROUGE-L, attach a bootstrap confidence interval, and catch per-example regressions before you ship a new model or prompt.",
+  "takeaways": [
+    "A golden set (fixed inputs with trusted reference answers) turns 'it seems better' into a number you can track across releases.",
+    "Normalize before you compare. Lowercasing and stripping punctuation and articles stop formatting noise from counting as errors.",
+    "EM is strict, token F1 gives partial credit by multiset overlap, and ROUGE-L rewards words in the right order via the longest common subsequence.",
+    "A mean score on 200 examples has an error bar. Report a bootstrap CI and look at which examples regressed, not just the average."
+  ],
+  "flow": {
+    "title": "A golden-set evaluation run",
+    "steps": [
+      {"label": "Curate the golden set", "detail": "Representative inputs with one or more human-approved reference answers, versioned like code."},
+      {"label": "Generate", "detail": "Run the baseline and the candidate (new model, prompt or retriever) on every input."},
+      {"label": "Normalize + score", "detail": "Per example: exact match and token F1 for short answers, ROUGE-L for longer ones. Take the max over references."},
+      {"label": "Aggregate with uncertainty", "detail": "Average the scores and bootstrap a confidence interval with a fixed seed."},
+      {"label": "Diff the runs", "detail": "List per-example regressions and improvements, and gate the release on the overall delta."}
+    ]
+  },
+  "terms": [
+    {"term": "Golden set", "definition": "A fixed, versioned evaluation dataset of inputs with trusted reference outputs, used to compare model versions."},
+    {"term": "Exact match (EM)", "definition": "1 if the normalized prediction equals a normalized reference answer, else 0."},
+    {"term": "Token F1", "definition": "Harmonic mean of token precision and recall, computed on the multiset overlap of prediction and reference tokens."},
+    {"term": "ROUGE-L", "definition": "Precision, recall and F computed from the longest common subsequence of candidate and reference words."},
+    {"term": "Longest common subsequence", "definition": "The longest sequence of tokens that appears in both texts in the same order, not necessarily contiguously."},
+    {"term": "Bootstrap CI", "definition": "A confidence interval from resampling the examples with replacement and taking percentiles of the recomputed mean."}
+  ],
+  "sources": [
+    {"title": "SQuAD: 100,000+ Questions for Machine Comprehension of Text", "author": "P. Rajpurkar, J. Zhang, K. Lopyrev, P. Liang", "publisher": "EMNLP", "year": 2016, "url": "https://arxiv.org/abs/1606.05250", "kind": "paper"},
+    {"title": "ROUGE: A Package for Automatic Evaluation of Summaries", "author": "Chin-Yew Lin", "publisher": "ACL Workshop: Text Summarization Branches Out", "year": 2004, "url": "https://aclanthology.org/W04-1013/", "kind": "paper"},
+    {"title": "Holistic Evaluation of Language Models", "author": "P. Liang, R. Bommasani, T. Lee, et al.", "publisher": "Transactions on Machine Learning Research", "year": 2023, "url": "https://arxiv.org/abs/2211.09110", "kind": "paper"},
+    {"title": "Bootstrap Methods: Another Look at the Jackknife", "author": "B. Efron", "publisher": "The Annals of Statistics", "year": 1979, "url": "https://doi.org/10.1214/aos/1176344552", "kind": "paper"},
+    {"title": "The Hitchhiker's Guide to Testing Statistical Significance in Natural Language Processing", "author": "R. Dror, G. Baumer, S. Shlomov, R. Reichart", "publisher": "ACL", "year": 2018, "url": "https://aclanthology.org/P18-1128/", "kind": "paper"},
+    {"title": "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena", "author": "L. Zheng, W.-L. Chiang, Y. Sheng, et al.", "publisher": "NeurIPS Datasets and Benchmarks", "year": 2023, "url": "https://arxiv.org/abs/2306.05685", "kind": "paper"}
+  ]
+}
