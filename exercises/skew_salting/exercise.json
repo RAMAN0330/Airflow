@@ -1,0 +1,22 @@
+{
+  "id": "skew_salting",
+  "title": "Tame Data Skew: Salting, Range Partitioning & Pruning",
+  "summary": "Find hot partitions the way Spark's adaptive execution does, fix a hot-key aggregation with salting and an exact two-phase aggregate, salt a skewed join by replicating the small side, balance range partitions with sampled quantiles, and prune Hive-style partition directories.",
+  "difficulty": "advanced",
+  "estimated_minutes": 45,
+  "tags": ["distributed", "data-skew", "partitioning", "spark"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_skew_ratio_known_values": "Use statistics.median. All-zero sizes give 1.0. A zero median with a non-empty max gives float('inf'). Raise ValueError for an empty list.",
+    "test_detect_skew_needs_factor_and_min_size": "A partition is skewed only if size > factor * median AND size > min_size. Both comparisons are strict.",
+    "test_two_phase_sum_is_exact": "Phase 1 sums per (key, salt). Phase 2 must ADD the partial sums of a key together. Overwriting with the last partial keeps only one salt's share.",
+    "test_salting_spreads_the_hot_key": "Number rows across all partitions in order (i = 0, 1, 2, ...), give row i the salt i % num_salts, and shuffle by partition_for((key, salt), num_partitions). phase1_sizes counts the rows each partition receives.",
+    "test_phase_two_receives_at_most_num_salts_partials_per_key": "After phase 1, each partition holds one partial sum per distinct (key, salt). Only those partials are shuffled again, by partition_for(key, num_partitions).",
+    "test_salted_join_matches_plain_join": "A left row of hot key k with salt s only meets right rows tagged (k, s). Copy each hot right row once per salt 0..num_salts-1, or most matches disappear. None keys never match.",
+    "test_salted_join_replicates_small_side_and_balances": "Left: hot keys get salts 0, 1, 2, ... in a per-key round-robin and other keys get salt 0. Right: hot rows go to every salt, others to salt 0. replicated_rows counts the extra copies.",
+    "test_range_boundaries_balance_skewed_data": "Sort the sample and take s[i * len(s) // n] for i = 1..n-1. Drop a split point that isn't strictly greater than the previous one. range_partition is bisect_right(bounds, value).",
+    "test_hive_partition_paths_and_pruning": "Paths look like col=value joined by '/'. None is written as __HIVE_DEFAULT_PARTITION__ and parsed back to None. A predicate on a column the path doesn't have can't prune that path.",
+    "test_inputs_not_mutated": "Use sorted() rather than list.sort(), and build new lists for every shuffle."
+  }
+}

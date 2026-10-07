@@ -1,0 +1,38 @@
+{
+  "id": "data_skew",
+  "title": "Data Skew & Partitioning",
+  "estimated_minutes": 15,
+  "summary": "Why a single hot key can stall a whole distributed stage, how to detect skewed partitions the way Spark's adaptive execution does, how salting with a two-phase aggregate (or a replicated join side) spreads the load without changing the answer, and how range and Hive-style partitioning keep data balanced and prunable.",
+  "takeaways": [
+    "Hash partitioning balances keys, not rows. One key with 60% of the rows puts 60% of the work in one task, and the stage waits for it.",
+    "A partition is skewed when it's much bigger than the median (Spark AQE: more than 5x the median and above a minimum size).",
+    "Salting splits a hot key into (key, salt) sub-keys. Aggregations then need a second phase that adds the partials, and joins must replicate the other side's hot rows once per salt.",
+    "Range boundaries from sampled quantiles balance skewed values, and Hive-style key=value directories let the engine skip partitions that a predicate rules out."
+  ],
+  "flow": {
+    "title": "Fixing a skewed aggregation",
+    "steps": [
+      {"label": "Measure", "detail": "Count rows per shuffle partition and compare the largest with the median."},
+      {"label": "Find hot keys", "detail": "The oversized partitions are usually caused by a handful of keys. Sample to find them."},
+      {"label": "Salt", "detail": "Rewrite each key as (key, salt), cycling the salt over 0..S-1, so a hot key spreads over up to S partitions."},
+      {"label": "Phase 1", "detail": "Shuffle by (key, salt) and compute partial aggregates. The work is now balanced."},
+      {"label": "Phase 2", "detail": "Drop the salt, shuffle the few partials by key, and combine them into the exact result."}
+    ]
+  },
+  "terms": [
+    {"term": "Data skew", "definition": "Uneven distribution of rows across partitions, usually caused by a few very frequent keys (hot keys)."},
+    {"term": "Salting", "definition": "Appending a small random or round-robin number to a key so that one hot key's rows spread across several partitions."},
+    {"term": "Two-phase aggregation", "definition": "Aggregate per salted key first, then aggregate the partial results per real key. It's exact for associative operations like sum and count."},
+    {"term": "Range partitioning", "definition": "Assigning rows to partitions by value ranges. Boundaries chosen from sampled quantiles give roughly equal row counts."},
+    {"term": "Partition pruning", "definition": "Skipping whole partitions (for example key=value directories) that a query's predicate proves can't contain matching rows."},
+    {"term": "AQE skew join", "definition": "Spark's adaptive query execution feature that splits oversized shuffle partitions at runtime and replicates the matching partition of the other side."}
+  ],
+  "sources": [
+    {"title": "Spark SQL Performance Tuning: Adaptive Query Execution (Optimizing Skew Join)", "author": "Apache Software Foundation", "publisher": "spark.apache.org", "url": "https://spark.apache.org/docs/latest/sql-performance-tuning.html", "kind": "docs"},
+    {"title": "SkewTune: Mitigating Skew in MapReduce Applications", "author": "YongChul Kwon, Magdalena Balazinska, Bill Howe, Jerome Rolia", "publisher": "ACM SIGMOD", "year": 2012, "url": "https://homes.cs.washington.edu/~magda/papers/kwon-sigmod12.pdf", "kind": "paper"},
+    {"title": "Apache Hive LanguageManual DDL (Partitioned Tables)", "author": "Apache Software Foundation", "publisher": "hive.apache.org", "url": "https://hive.apache.org/docs/latest/language/languagemanual-ddl/", "kind": "docs"},
+    {"title": "Parquet Files: Partition Discovery", "author": "Apache Software Foundation", "publisher": "spark.apache.org", "url": "https://spark.apache.org/docs/latest/sql-data-sources-parquet.html", "kind": "docs"},
+    {"title": "Data skipping for Delta Lake", "author": "Databricks", "publisher": "docs.databricks.com", "url": "https://docs.databricks.com/aws/en/tables/data-skipping", "kind": "docs"},
+    {"title": "Designing Data-Intensive Applications (Ch. 6 Partitioning, Ch. 10 Batch Processing)", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"}
+  ]
+}

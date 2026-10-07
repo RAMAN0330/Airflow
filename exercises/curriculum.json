@@ -317,8 +317,8 @@
                 "Reduce",
                 "Combiners"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "mapreduce_shuffle",
+              "exercise": "mapreduce_engine"
             },
             {
               "id": "distributed-joins",
@@ -328,8 +328,8 @@
                 "Shuffle hash join",
                 "Sort-merge join"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "distributed_joins",
+              "exercise": "distributed_join_strategies"
             },
             {
               "id": "data-skew",
@@ -339,8 +339,8 @@
                 "Salting",
                 "Partition pruning"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "data_skew",
+              "exercise": "skew_salting"
             }
           ]
         }

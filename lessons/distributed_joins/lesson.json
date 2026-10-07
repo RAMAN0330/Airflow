@@ -1,0 +1,36 @@
+{
+  "id": "distributed_joins",
+  "title": "Distributed Joins: Broadcast, Shuffle Hash & Sort-Merge",
+  "estimated_minutes": 15,
+  "summary": "Rows with equal keys have to meet on one machine before they can join. This lesson covers the three ways engines like Spark SQL arrange that (broadcast, shuffle hash and sort-merge), the SQL rules for NULLs, duplicates and left joins, and how the planner chooses.",
+  "takeaways": [
+    "A broadcast hash join copies the small side to every partition of the big side, so the big side never moves. It's the cheapest join when one side is small.",
+    "Shuffle hash and sort-merge joins repartition both sides by the join key so matching keys share a partition. The difference is how each partition is joined: a hash table, or two sorted runs.",
+    "SQL semantics apply in every strategy: duplicate keys give every combination, NULL never matches, and a left join keeps every left row.",
+    "The planner broadcasts a side only if it is under the size threshold, picks the smaller qualifying side, and can never broadcast the preserved side of an outer join."
+  ],
+  "flow": {
+    "title": "How a distributed join runs",
+    "steps": [
+      {"label": "Estimate sizes", "detail": "Use table statistics (or runtime statistics with AQE) to estimate how big each side is."},
+      {"label": "Choose a strategy", "detail": "Broadcast if one eligible side is under the threshold. Otherwise fall back to sort-merge."},
+      {"label": "Co-locate keys", "detail": "Broadcast copies the small side everywhere. Shuffles hash-partition both sides by key."},
+      {"label": "Local join", "detail": "Build a hash table and probe it, or sort both sides and merge equal-key runs."},
+      {"label": "Emit with SQL rules", "detail": "Cross product for duplicate keys, no matches on NULL, and (row, NULL) for unmatched left rows."}
+    ]
+  },
+  "terms": [
+    {"term": "Broadcast hash join", "definition": "Join where the small (build) side is copied to every executor and hashed. The large side is probed in place without a shuffle."},
+    {"term": "Shuffle hash join", "definition": "Both sides are hash-partitioned by the join key, then each partition pair is joined with an in-memory hash table."},
+    {"term": "Sort-merge join", "definition": "Both sides are shuffled by key and sorted within each partition, then merged by walking both sorted runs. It handles build sides too big for memory."},
+    {"term": "Build / probe side", "definition": "In a hash join, the side loaded into the hash table (build) and the side streamed past it (probe)."},
+    {"term": "autoBroadcastJoinThreshold", "definition": "Spark SQL's size limit for broadcasting a join side automatically. Larger sides use a shuffle-based join."}
+  ],
+  "sources": [
+    {"title": "Spark SQL: Relational Data Processing in Spark", "author": "Michael Armbrust, Reynold S. Xin, Cheng Lian, et al.", "publisher": "ACM SIGMOD", "year": 2015, "url": "https://doi.org/10.1145/2723372.2742797", "kind": "paper"},
+    {"title": "Spark SQL Performance Tuning (join strategy hints, adaptive query execution)", "author": "Apache Software Foundation", "publisher": "spark.apache.org", "url": "https://spark.apache.org/docs/latest/sql-performance-tuning.html", "kind": "docs"},
+    {"title": "Spark SQL Hints (BROADCAST, MERGE, SHUFFLE_HASH)", "author": "Apache Software Foundation", "publisher": "spark.apache.org", "url": "https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html", "kind": "docs"},
+    {"title": "Resilient Distributed Datasets: A Fault-Tolerant Abstraction for In-Memory Cluster Computing", "author": "Matei Zaharia, Mosharaf Chowdhury, Tathagata Das, et al.", "publisher": "USENIX NSDI", "year": 2012, "url": "https://www.usenix.org/conference/nsdi12/technical-sessions/presentation/zaharia", "kind": "paper"},
+    {"title": "Designing Data-Intensive Applications (Ch. 10, Reduce-Side and Map-Side Joins)", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"}
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "mapreduce_engine",
+  "title": "Build a Mini MapReduce Engine",
+  "summary": "Simulate the MapReduce execution model in pure Python: split the input, run map tasks, shrink their output with a combiner, route keys with a stable partitioner, shuffle and sort by key, and reduce. Then measure how much a combiner saves on the wire.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["mapreduce", "distributed", "shuffle", "partitioning"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_partitioner_is_stable_crc32": "Use zlib.crc32(str(key).encode('utf-8')) % num_reducers. Python's built-in hash() of a str is salted per process, so two machines would disagree about who owns a key.",
+    "test_split_input_contiguous_and_balanced": "divmod(len(records), num_splits) gives a base size and a remainder. The first `remainder` splits get one extra record. Always return exactly num_splits lists.",
+    "test_word_count_matches_counter": "Lower-case each line and split on whitespace. Every word must end up on exactly one reducer, and the output is the reducers' outputs concatenated in reducer order.",
+    "test_each_key_lands_on_exactly_one_reducer": "Send every shuffled pair to buckets[partition_for(key, num_reducers)]. reducer_input_records[i] is the number of pairs reducer i received.",
+    "test_reducer_input_is_sorted_by_key": "After grouping a reducer's bucket by key, call the reducer for keys in sorted(...) order. Keep values in arrival order: map task order, then emission order.",
+    "test_combiner_reduces_shuffle_volume": "Apply the combiner inside each map task, before partitioning: group that task's output by key (keys in sorted order) and replace it with combiner(key, values). Count shuffle_records and shuffle_bytes (record_size) after the combiner.",
+    "test_mean_via_sum_and_count_is_exact": "A mean of partial means is wrong when partitions differ in size. Carry (sum, count) pairs through the combiner and divide only in the reducer.",
+    "test_inverted_index": "The mapper emits (word, doc_id) once per distinct word in the document. The reducer returns the sorted list of distinct doc ids.",
+    "test_inputs_not_mutated_and_deterministic": "Build new lists instead of modifying the input. With crc32 partitioning and sorted keys, two runs must produce identical results."
+  }
+}

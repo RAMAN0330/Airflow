@@ -1,0 +1,36 @@
+{
+  "id": "mapreduce_shuffle",
+  "title": "MapReduce & the Shuffle",
+  "estimated_minutes": 15,
+  "summary": "How MapReduce turns a map function and a reduce function into a parallel job, why the shuffle is the expensive part, how a stable partitioner and sorted reducer input make it work, and when a combiner can shrink it.",
+  "takeaways": [
+    "Map runs independently on each input split. Reduce runs once per key, after the shuffle has gathered all of that key's values on one machine.",
+    "The partitioner decides which reducer owns a key. It must give the same answer on every machine, so use a stable hash like CRC32, never Python's salted hash().",
+    "Each reducer receives its keys sorted, which makes grouping a streaming merge and the output ordered within each partition.",
+    "A combiner pre-aggregates inside a map task to cut shuffle volume. It's only safe for associative, commutative operations, so compute a mean by carrying (sum, count)."
+  ],
+  "flow": {
+    "title": "One MapReduce job",
+    "steps": [
+      {"label": "Split", "detail": "Cut the input into M splits. Each one becomes an independent map task."},
+      {"label": "Map", "detail": "Call map(record) for every record and collect the intermediate (key, value) pairs."},
+      {"label": "Combine", "detail": "Optionally pre-reduce each map task's output per key, so fewer pairs leave the machine."},
+      {"label": "Partition + shuffle", "detail": "Send each pair to reducer crc32(key) mod R. This is the all-to-all network transfer."},
+      {"label": "Sort + reduce", "detail": "Each reducer sorts its pairs by key and calls reduce(key, values) once per key."}
+    ]
+  },
+  "terms": [
+    {"term": "Input split", "definition": "A contiguous chunk of the input processed by one map task. Splits let M machines read in parallel."},
+    {"term": "Shuffle", "definition": "The phase that moves every intermediate pair from the map task that produced it to the reducer that owns its key. It's usually the most expensive part of a job."},
+    {"term": "Partitioner", "definition": "The function from key to reducer index, by default hash(key) mod R. It must be deterministic across processes and machines."},
+    {"term": "Combiner", "definition": "A mini-reduce run on each map task's output before the shuffle. It's valid only when the operation is associative and commutative."},
+    {"term": "Straggler", "definition": "A task that runs much longer than its peers, so the whole stage has to wait for it."}
+  ],
+  "sources": [
+    {"title": "MapReduce: Simplified Data Processing on Large Clusters", "author": "Jeffrey Dean, Sanjay Ghemawat", "publisher": "USENIX OSDI", "year": 2004, "url": "https://www.usenix.org/legacy/event/osdi04/tech/full_papers/dean/dean_html/", "kind": "paper"},
+    {"title": "Resilient Distributed Datasets: A Fault-Tolerant Abstraction for In-Memory Cluster Computing", "author": "Matei Zaharia, Mosharaf Chowdhury, Tathagata Das, et al.", "publisher": "USENIX NSDI", "year": 2012, "url": "https://www.usenix.org/conference/nsdi12/technical-sessions/presentation/zaharia", "kind": "paper"},
+    {"title": "MapReduce Tutorial (Partitioner, Combiner, Shuffle and Sort)", "author": "Apache Software Foundation", "publisher": "hadoop.apache.org", "url": "https://hadoop.apache.org/docs/r3.2.3/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html", "kind": "docs"},
+    {"title": "RDD Programming Guide: Shuffle operations", "author": "Apache Software Foundation", "publisher": "spark.apache.org", "url": "https://spark.apache.org/docs/latest/rdd-programming-guide.html", "kind": "docs"},
+    {"title": "Designing Data-Intensive Applications (Ch. 10, Batch Processing)", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"}
+  ]
+}

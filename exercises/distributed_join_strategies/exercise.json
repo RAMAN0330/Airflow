@@ -1,0 +1,21 @@
+{
+  "id": "distributed_join_strategies",
+  "title": "Distributed Join Strategies",
+  "summary": "Implement the three join algorithms Spark SQL picks between: broadcast hash join, shuffle hash join and sort-merge join. Get SQL semantics right for duplicate keys, NULL keys and left joins, count the rows each strategy moves over the network, and write the planner that decides when to broadcast.",
+  "difficulty": "advanced",
+  "estimated_minutes": 45,
+  "tags": ["distributed", "joins", "spark", "query-planning"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_broadcast_inner_join_matches_reference": "Build one hash table {key: [rows]} from every row of the right side, then probe it with each row of each left partition. Emit (left_row, right_row) for every match.",
+    "test_shuffle_hash_inner_join_matches_reference": "Route each row of both sides to partition_for(row[on], num_partitions). Matching keys now share a partition index, so join partition i of the left with partition i of the right.",
+    "test_sort_merge_handles_duplicate_keys": "After sorting both partitions by key, find the run of equal keys on each side and emit the full cross product of the two runs before advancing both pointers past it.",
+    "test_null_keys_never_match": "In SQL, NULL = NULL is not true. Leave None keys out of the hash table and out of the merge, but keep None-key left rows for a left join.",
+    "test_left_join_keeps_unmatched_rows": "In a left join, a left row with no match is emitted once as (left_row, None). This includes None-key rows and the case where the right side is empty. Reject any other `how` with ValueError.",
+    "test_network_cost_counters": "Broadcast: count_rows(right) * len(left), since every left partition gets a full copy. Shuffle hash and sort-merge: count_rows(left) + count_rows(right).",
+    "test_planner_broadcasts_the_small_side": "Candidates are sides with count_rows <= threshold. A left join may only build (broadcast) the right side. Among candidates, broadcast the smaller one (ties go to the right). No candidate means sort_merge.",
+    "test_execute_join_follows_plan_and_keeps_orientation": "When the plan builds the left side, call broadcast_hash_join(right, left, ...) and swap every output pair back to (left_row, right_row).",
+    "test_inputs_not_mutated": "Read rows and build new lists and dicts. Never sort a caller's partition in place: use sorted(), not list.sort()."
+  }
+}

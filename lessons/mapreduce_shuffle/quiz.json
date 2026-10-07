@@ -1,0 +1,8 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "Two workers partition intermediate keys with Python's built-in hash(key) % R. What goes wrong?", "options": ["Nothing, hash() is deterministic", "String hashes are salted per process, so the same key can go to different reducers and its values never all meet", "hash() is too slow for large jobs", "It only fails for integer keys"], "answer": 1, "explanation": "With PYTHONHASHSEED randomization, each process hashes strings differently. Partitioning must be stable across machines, as with CRC32."},
+    {"id": "q2", "prompt": "Which operation can't be used directly as a combiner?", "options": ["sum", "max", "count", "mean"], "answer": 3, "explanation": "The combiner runs on uneven subsets of the values. A mean of partial means is wrong unless the partials have equal sizes. Carry (sum, count) instead."},
+    {"id": "q3", "prompt": "A word-count job runs 4 map tasks. Each emits the word 'the' 1,000 times. With a summing combiner, how many ('the', n) pairs are shuffled?", "options": ["4", "1", "1,000", "4,000"], "answer": 0, "explanation": "The combiner collapses each map task's output to one pair per key, so 4 tasks ship 4 partial counts instead of 4,000 ones."},
+    {"id": "q4", "prompt": "Why does MapReduce sort each reducer's input by key?", "options": ["To compress the data", "To balance load across reducers", "So all values for a key are adjacent: grouping becomes a streaming merge and output is ordered", "Because the partitioner requires it"], "answer": 2, "explanation": "Sorting brings equal keys together without holding everything in a hash table, and it leaves each reducer's output sorted by key."}
+  ]
+}
