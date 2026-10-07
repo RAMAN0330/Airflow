@@ -1,0 +1,22 @@
+{
+  "id": "bootstrap_inference",
+  "title": "Bootstrap Confidence Intervals from Scratch",
+  "summary": "Estimate a mean and its uncertainty two ways: the classic normal-approximation interval built from the standard error, and Efron's percentile bootstrap with seeded, vectorized resampling. Then bootstrap a difference between two groups and check coverage by simulation.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 30,
+  "tags": ["statistics", "bootstrap", "confidence-intervals", "numpy"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_mean_and_variance_uses_ddof_1": "The unbiased sample variance divides by n − 1: np.var(x, ddof=1). NumPy's default ddof=0 divides by n and underestimates. Raise ValueError when n < 2.",
+    "test_standard_error": "SE of the mean = s / √n, where s = np.std(x, ddof=1). Quadrupling n halves the SE.",
+    "test_normal_ci_known_values": "z = NormalDist().inv_cdf(0.5 + conf / 2), which is 1.96 for 95%. The interval is mean ± z · SE.",
+    "test_bootstrap_distribution_matches_reference": "rng = np.random.default_rng(seed); idx = rng.integers(0, n, size=(n_boot, n)); return stat(x[idx], axis=1). One draw builds every resample at once.",
+    "test_bootstrap_is_seeded_and_reproducible": "Create the generator from seed inside the function, so the same seed gives the same replicates. Every row of the index matrix is its own resample, so don't reuse one row for all replicates.",
+    "test_percentile_ci_order_and_values": "alpha = 1 − conf. Lower = quantile(alpha / 2), upper = quantile(1 − alpha / 2). Swapping them gives lower > upper.",
+    "test_bootstrap_ci_matches_reference": "Compose the two pieces: percentile_ci(bootstrap_distribution(x, stat, n_boot, seed), conf).",
+    "test_bootstrap_diff_ci": "Use one generator: draw a's (n_boot, len(a)) index matrix first, then b's. The replicates are stat(b[idx_b], axis=1) − stat(a[idx_a], axis=1). The point estimate is stat(b) − stat(a).",
+    "test_coverage_helpers": "Coverage is the mean of (low <= true) & (true <= high). For the simulation, draw rng.normal(mu, sigma, size=(n_sims, n)) and build every CI with vectorized row means and ddof=1 standard deviations.",
+    "test_inputs_not_mutated": "Convert with np.asarray(x, dtype=float) and index into it. Fancy indexing returns copies, so the caller's arrays never change. Lists must work too."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "bayesian_ab_fdr",
+  "title": "Bayesian A/B Tests and Many Comparisons",
+  "summary": "Read an A/B test the Bayesian way, with Beta posteriors, P(B > A) and expected loss from seeded Monte Carlo. Then keep many simultaneous tests honest with Bonferroni and Benjamini–Hochberg, and simulate how peeking at a running test inflates false positives.",
+  "difficulty": "advanced",
+  "estimated_minutes": 35,
+  "tags": ["statistics", "bayesian", "ab-testing", "multiple-testing", "numpy"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_beta_posterior_adds_prior": "Beta is conjugate to the Binomial: posterior = Beta(prior_a + successes, prior_b + failures). Even with zero data, the prior is still there. Validate 0 <= successes <= trials.",
+    "test_bayesian_ab_matches_reference": "rng = np.random.default_rng(seed); draw A's n_samples from rng.beta(...) first, then B's. P(B > A) = mean(sb > sa), loss of choosing A = mean(max(sb − sa, 0)), loss of choosing B = mean(max(sa − sb, 0)).",
+    "test_prob_b_better_matches_closed_form": "With enough draws the Monte Carlo estimate converges to the exact integral. If it's off by a lot, check that both posteriors include the prior and that you compare B against A, not the reverse.",
+    "test_expected_loss_properties": "max(d, 0) − max(−d, 0) = d, so loss_a − loss_b equals the difference of posterior means. More data shrinks the posteriors and the loss.",
+    "test_bonferroni_threshold": "Divide, don't multiply: reject when p <= alpha / m, where m is the number of tests. Return a boolean array.",
+    "test_bh_adjusted_matches_reference": "Sort the p-values, compute p_(i) · m / i, then take a running minimum from the largest rank down (np.minimum.accumulate on the reversed array). Scatter back to the original order.",
+    "test_bh_adjusted_is_monotone_and_capped": "Adjusted p-values must not decrease with rank, and must be capped at 1. Empty input returns an empty array.",
+    "test_benjamini_hochberg_known_example": "Reject where the adjusted p-value is <= alpha. That equals the step-up rule: find the largest i with p_(i) <= i · alpha / m and reject ranks 1..i. Raise ValueError for p-values outside [0, 1].",
+    "test_peeking_inflates_false_positives": "Draw A's then B's binomial batches with shape (n_sims, n_looks), cumulative-sum them, and run the pooled z-test at every look. Peeking rejects if any look crosses the critical value. Fixed horizon only checks the last one.",
+    "test_inputs_not_mutated": "Use np.asarray(p, dtype=float) and np.argsort. Never call p.sort() on the caller's array."
+  }
+}

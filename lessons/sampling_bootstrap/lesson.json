@@ -1,0 +1,38 @@
+{
+  "id": "sampling_bootstrap",
+  "title": "Sampling, Estimation & the Bootstrap",
+  "estimated_minutes": 15,
+  "summary": "Every metric is computed from a sample, so it comes with uncertainty. Learn the unbiased variance, the standard error and the normal-approximation interval, then Efron's bootstrap: resample your own data to get intervals for statistics that have no formula, and check any interval method with a coverage simulation.",
+  "takeaways": [
+    "Use ddof=1 for the sample variance. NumPy's default divides by n and understates spread.",
+    "The standard error s/√n measures how much the estimate wobbles, and it shrinks with √n, not n.",
+    "The percentile bootstrap resamples the data with replacement and reads the interval off the replicates' quantiles, lower quantile first.",
+    "Seed and vectorize the resampling, and verify any interval method by simulating its coverage."
+  ],
+  "flow": {
+    "title": "A percentile bootstrap",
+    "steps": [
+      {"label": "Point estimate", "detail": "Compute the statistic (mean, median, difference) on the observed sample."},
+      {"label": "Resample", "detail": "Draw a (B, n) matrix of indices with replacement from a seeded generator."},
+      {"label": "Replicate", "detail": "Apply the statistic along each row to get B bootstrap replicates."},
+      {"label": "Percentiles", "detail": "Take the alpha/2 and 1 − alpha/2 quantiles of the replicates as the interval."},
+      {"label": "Check coverage", "detail": "On simulated data with a known truth, confirm the interval covers it at the stated rate."}
+    ]
+  },
+  "terms": [
+    {"term": "Estimator", "definition": "A rule that turns a sample into a guess for a population quantity, such as x̄ for the mean."},
+    {"term": "Bessel's correction", "definition": "Dividing squared deviations by n − 1 instead of n, which makes the sample variance unbiased."},
+    {"term": "Standard error", "definition": "The standard deviation of an estimator across repeated samples. For the mean, s/√n."},
+    {"term": "Confidence interval", "definition": "An interval from a procedure that captures the true value in a stated fraction (e.g. 95%) of repeated samples."},
+    {"term": "Bootstrap", "definition": "Approximating an estimator's sampling distribution by recomputing it on resamples drawn with replacement from the data."},
+    {"term": "Coverage", "definition": "The fraction of intervals, over repeated samples, that contain the true value."}
+  ],
+  "sources": [
+    {"title": "Bootstrap Methods: Another Look at the Jackknife", "author": "B. Efron", "publisher": "The Annals of Statistics 7(1)", "year": 1979, "url": "https://doi.org/10.1214/aos/1176344552", "kind": "paper"},
+    {"title": "An Introduction to the Bootstrap", "author": "B. Efron, R. J. Tibshirani", "publisher": "Chapman & Hall/CRC", "year": 1993, "url": "https://www.routledge.com/An-Introduction-to-the-Bootstrap/Efron-Tibshirani/p/book/9780412042317", "kind": "book"},
+    {"title": "OpenIntro Statistics (4th ed.), Ch. 5: Foundations for Inference", "author": "D. Diez, M. Çetinkaya-Rundel, C. D. Barr", "publisher": "OpenIntro", "year": 2019, "url": "https://www.openintro.org/book/os/", "kind": "book"},
+    {"title": "NIST/SEMATECH e-Handbook of Statistical Methods: Confidence Limits for the Mean", "author": "NIST/SEMATECH", "publisher": "National Institute of Standards and Technology", "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda352.htm", "kind": "docs"},
+    {"title": "numpy.var (ddof)", "author": "NumPy Developers", "publisher": "numpy.org", "url": "https://numpy.org/doc/stable/reference/generated/numpy.var.html", "kind": "docs"},
+    {"title": "numpy.random.Generator", "author": "NumPy Developers", "publisher": "numpy.org", "url": "https://numpy.org/doc/stable/reference/random/generator.html", "kind": "docs"}
+  ]
+}

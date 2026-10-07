@@ -1,0 +1,22 @@
+{
+  "id": "ab_test_analysis",
+  "title": "Analyze an A/B Test Like an Experimentation Platform",
+  "summary": "Build the statistics behind a conversion-rate A/B test with nothing but the standard library: the normal CDF and its inverse, a pooled two-proportion z-test, a confidence interval for the lift, a sample-size calculator, a sample-ratio-mismatch check, and the final ship decision.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 35,
+  "tags": ["statistics", "ab-testing", "hypothesis-testing", "experimentation"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_norm_cdf_known_values": "Φ(z) = 0.5 · (1 + erf(z / √2)). The equivalent 0.5 · erfc(−z / √2) keeps more precision far in the lower tail.",
+    "test_norm_ppf_inverts_cdf": "Φ is increasing, so bisect: start with [−40, 40], move lo up when Φ(mid) < p, otherwise move hi down, until the bracket is under tol. Reject p outside (0, 1) with ValueError.",
+    "test_ztest_matches_pooled_reference": "Under H0 both arms share one rate, so pool it: p = (conv_a + conv_b) / (n_a + n_b), SE = √(p(1 − p)(1/n_a + 1/n_b)), z = (p_b − p_a) / SE. Validate n > 0 and 0 <= conv <= n.",
+    "test_ztest_uses_pooled_se": "The test statistic uses the pooled SE, not √(p_a q_a / n_a + p_b q_b / n_b). If the pooled rate is 0 or 1 the SE is 0: return z = 0 and p = 1.",
+    "test_p_value_is_two_sided": "Two-sided p = 2 · (1 − Φ(|z|)) = erfc(|z| / √2). Using 1 − Φ(z) only counts one tail and gives the wrong answer for negative z.",
+    "test_lift_ci_uses_unpooled_se": "For the interval, don't assume H0: SE = √(p_a(1 − p_a)/n_a + p_b(1 − p_b)/n_b) and z = norm_ppf(0.5 + conf/2).",
+    "test_sample_size_per_arm": "n = (z_{1−α/2} + z_{power})² · (p1(1 − p1) + p2(1 − p2)) / mde², with p2 = baseline + mde. Round up with math.ceil and return an int.",
+    "test_srm_check": "Expected counts are total · ratio and total · (1 − ratio). χ² = Σ (observed − expected)² / expected. With 1 degree of freedom, p = erfc(√(χ²/2)). Flag srm when p < threshold.",
+    "test_decide_outcomes": "If p >= alpha it's 'inconclusive'. Otherwise 'ship' when B beats A, and 'dont_ship' when B is significantly worse.",
+    "test_decide_checks_srm_first": "Check SRM before reading any metric. A broken split makes every comparison untrustworthy, so return 'invalid_srm' even when the lift looks great."
+  }
+}

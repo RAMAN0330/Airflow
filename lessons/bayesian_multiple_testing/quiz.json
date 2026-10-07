@@ -1,0 +1,8 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "With a uniform Beta(1, 1) prior, arm A converts 3 of 10 users. What is the posterior?", "options": ["Beta(3, 7)", "Beta(4, 8)", "Beta(3, 10)", "Beta(4, 11)"], "answer": 1, "explanation": "Add conversions to α and non-conversions to β: Beta(1 + 3, 1 + 7) = Beta(4, 8)."},
+    {"id": "q2", "prompt": "You test 10 metrics and want the family-wise error rate at 0.05 with Bonferroni. Which per-test threshold do you use?", "options": ["0.5", "0.05", "0.005", "0.0005"], "answer": 2, "explanation": "Bonferroni divides α by the number of tests: 0.05 / 10 = 0.005. Multiplying would make false positives far more likely."},
+    {"id": "q3", "prompt": "Raw BH ratios p·m/rank for two sorted p-values are [0.04, 0.021]. What are the adjusted p-values?", "options": ["[0.021, 0.021]", "[0.04, 0.021]", "[0.02, 0.021]", "[0.04, 0.04]"], "answer": 0, "explanation": "BH takes a running minimum from the largest rank down, so the first value becomes min(0.04, 0.021) = 0.021. Adjusted p-values never decrease with rank."},
+    {"id": "q4", "prompt": "In A/A tests checked after each of 10 batches, the team stops at the first p < 0.05. Their false positive rate is closest to:", "options": ["0.5%", "5%", "about 19%", "100%"], "answer": 2, "explanation": "Each look is another chance for noise to cross the threshold. With 10 looks the simulated rate is around 19%, nearly four times the nominal 5%."}
+  ]
+}

@@ -477,8 +477,8 @@
                 "Confidence intervals",
                 "Bootstrap"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "sampling_bootstrap",
+              "exercise": "bootstrap_inference"
             },
             {
               "id": "ab-testing",
@@ -488,8 +488,8 @@
                 "Power & sample size",
                 "SRM"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "ab_testing",
+              "exercise": "ab_test_analysis"
             },
             {
               "id": "bayesian-fdr",
@@ -499,8 +499,8 @@
                 "P(B > A)",
                 "False discovery rate"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "bayesian_multiple_testing",
+              "exercise": "bayesian_ab_fdr"
             }
           ]
         },

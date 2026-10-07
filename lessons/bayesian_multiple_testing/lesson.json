@@ -1,0 +1,39 @@
+{
+  "id": "bayesian_multiple_testing",
+  "title": "Bayesian A/B & Multiple Testing",
+  "estimated_minutes": 16,
+  "summary": "Answer \"how likely is B better, and what do we risk?\" with Beta-Binomial posteriors, Monte Carlo P(B > A) and expected loss. Then guard against the two habits that break any test: testing many metrics at once (Bonferroni vs Benjamini–Hochberg) and peeking at a running experiment.",
+  "takeaways": [
+    "Beta is conjugate to the Binomial: the posterior is Beta(α + successes, β + failures). Always include the prior.",
+    "P(B > A) and expected loss come from comparing posterior samples. Seed the generator so reports reproduce.",
+    "Bonferroni (p ≤ α/m) controls any false positive. Benjamini–Hochberg controls the false discovery rate and needs a running minimum to keep adjusted p-values monotone.",
+    "Stopping at the first significant look inflates false positives far above α. Fix n in advance or use sequential methods."
+  ],
+  "flow": {
+    "title": "From counts to decisions",
+    "steps": [
+      {"label": "Prior", "detail": "Pick Beta(α, β) for each arm's rate. Beta(1, 1) is uniform."},
+      {"label": "Posterior", "detail": "Add conversions to α and non-conversions to β."},
+      {"label": "Simulate", "detail": "Draw seeded posterior samples for A and B."},
+      {"label": "Summarize", "detail": "Compute P(B > A) and the expected loss of each choice."},
+      {"label": "Correct for many tests", "detail": "Across metrics or segments, adjust with Bonferroni or Benjamini–Hochberg before declaring wins."}
+    ]
+  },
+  "terms": [
+    {"term": "Beta-Binomial", "definition": "A Beta prior on a success probability with Binomial data. The posterior is again a Beta, with the counts added to its parameters."},
+    {"term": "Posterior probability", "definition": "The probability of a claim (e.g. p_B > p_A) given the data and the prior."},
+    {"term": "Expected loss", "definition": "The average amount of the metric you give up by choosing a variant, counting only the cases where it's actually worse."},
+    {"term": "Family-wise error rate", "definition": "The probability of at least one false positive among all tests. Bonferroni controls it."},
+    {"term": "False discovery rate", "definition": "The expected fraction of false positives among the rejected hypotheses. Benjamini–Hochberg controls it."},
+    {"term": "Peeking", "definition": "Repeatedly checking a fixed-horizon test and stopping when it looks significant, which inflates the false positive rate."}
+  ],
+  "sources": [
+    {"title": "Controlling the False Discovery Rate: A Practical and Powerful Approach to Multiple Testing", "author": "Y. Benjamini, Y. Hochberg", "publisher": "Journal of the Royal Statistical Society: Series B 57(1)", "year": 1995, "url": "https://doi.org/10.1111/j.2517-6161.1995.tb02031.x", "kind": "paper"},
+    {"title": "Bayesian Data Analysis (3rd ed.)", "author": "A. Gelman, J. B. Carlin, H. S. Stern, D. B. Dunson, A. Vehtari, D. B. Rubin", "publisher": "CRC Press", "year": 2013, "url": "https://sites.stat.columbia.edu/gelman/book/", "kind": "book"},
+    {"title": "How Not To Run an A/B Test", "author": "Evan Miller", "publisher": "evanmiller.org", "year": 2010, "url": "https://www.evanmiller.org/how-not-to-run-an-ab-test.html", "kind": "article"},
+    {"title": "Formulas for Bayesian A/B Testing", "author": "Evan Miller", "publisher": "evanmiller.org", "url": "https://www.evanmiller.org/bayesian-ab-testing.html", "kind": "article"},
+    {"title": "Bayesian A/B Testing at VWO (SmartStats technical whitepaper)", "author": "Chris Stucchio", "publisher": "VWO", "year": 2015, "url": "https://www.chrisstucchio.com/pubs/VWO_SmartStats_technical_whitepaper.pdf", "kind": "article"},
+    {"title": "Peeking at A/B Tests: Why It Matters, and What to Do About It", "author": "R. Johari, P. Koomen, L. Pekelis, D. Walsh", "publisher": "KDD 2017", "year": 2017, "url": "https://doi.org/10.1145/3097983.3097992", "kind": "paper"},
+    {"title": "Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing", "author": "R. Kohavi, D. Tang, Y. Xu", "publisher": "Cambridge University Press", "year": 2020, "url": "https://www.cambridge.org/core/books/trustworthy-online-controlled-experiments/D97B26382EB0EB2DC2019A7A7B518F59", "kind": "book"}
+  ]
+}

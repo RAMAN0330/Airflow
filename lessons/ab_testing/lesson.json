@@ -1,0 +1,40 @@
+{
+  "id": "ab_testing",
+  "title": "Hypothesis Tests & A/B Testing",
+  "estimated_minutes": 16,
+  "summary": "Turn a conversion-rate experiment into a decision. Learn the pooled two-proportion z-test and its two-sided p-value, the unpooled interval for the lift, how to size a test from a minimum detectable effect, and why a sample-ratio-mismatch check has to come before reading any metric.",
+  "takeaways": [
+    "The z-test pools both arms because H0 says they share one rate. The lift's confidence interval uses the unpooled SE.",
+    "Report two-sided p-values: p = 2·(1 − Φ(|z|)). A p-value is not an effect size, so always show the interval too.",
+    "Fix the sample size up front from baseline, MDE, α and power. Halving the MDE roughly quadruples n.",
+    "A sample ratio mismatch makes the experiment untrustworthy. Check it first and don't read the metric if it fires."
+  ],
+  "flow": {
+    "title": "Analyzing an A/B test",
+    "steps": [
+      {"label": "Plan", "detail": "Choose α, power and the minimum detectable effect, and compute users per arm."},
+      {"label": "Run to n", "detail": "Collect data until the planned sample size, without stopping on a lucky p-value."},
+      {"label": "SRM check", "detail": "Chi-square test of observed vs designed split. If it fails, stop and debug."},
+      {"label": "Test", "detail": "Pooled two-proportion z-test with a two-sided p-value."},
+      {"label": "Estimate", "detail": "Confidence interval for the lift with the unpooled SE."},
+      {"label": "Decide", "detail": "Ship, don't ship, or inconclusive."}
+    ]
+  },
+  "terms": [
+    {"term": "Null hypothesis (H0)", "definition": "The default claim being tested. In an A/B test, that both arms have the same true rate."},
+    {"term": "p-value", "definition": "The probability, assuming H0, of a result at least as extreme as the one observed."},
+    {"term": "Pooled standard error", "definition": "SE computed from the combined rate of both arms, valid under H0, used for the test statistic."},
+    {"term": "Statistical power", "definition": "The probability of detecting a true effect of a given size, usually set to 80%."},
+    {"term": "Minimum detectable effect (MDE)", "definition": "The smallest true change the test is designed to detect at the chosen α and power."},
+    {"term": "Sample ratio mismatch (SRM)", "definition": "When the observed split of users across arms differs significantly from the designed split, signalling a broken experiment."}
+  ],
+  "sources": [
+    {"title": "Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing", "author": "R. Kohavi, D. Tang, Y. Xu", "publisher": "Cambridge University Press", "year": 2020, "url": "https://www.cambridge.org/core/books/trustworthy-online-controlled-experiments/D97B26382EB0EB2DC2019A7A7B518F59", "kind": "book"},
+    {"title": "Controlled Experiments on the Web: Survey and Practical Guide", "author": "R. Kohavi, R. Longbotham, D. Sommerfield, R. M. Henne", "publisher": "Data Mining and Knowledge Discovery 18(1)", "year": 2009, "url": "https://doi.org/10.1007/s10618-008-0114-1", "kind": "paper"},
+    {"title": "Trustworthy Online Controlled Experiments: Five Puzzling Outcomes Explained", "author": "R. Kohavi, A. Deng, B. Frasca, R. Longbotham, T. Walker, Y. Xu", "publisher": "KDD 2012", "year": 2012, "url": "https://exp-platform.com/puzzling-outcomes/", "kind": "paper"},
+    {"title": "Diagnosing Sample Ratio Mismatch in Online Controlled Experiments: A Taxonomy and Rules of Thumb for Practitioners", "author": "A. Fabijan, J. Gupchup, S. Gupta, J. Omhover, W. Qin, L. Vermeer, P. Dmitriev", "publisher": "KDD 2019", "year": 2019, "url": "https://www.microsoft.com/en-us/research/?p=651990", "kind": "paper"},
+    {"title": "OpenIntro Statistics (4th ed.), Ch. 6: Inference for Categorical Data", "author": "D. Diez, M. Çetinkaya-Rundel, C. D. Barr", "publisher": "OpenIntro", "year": 2019, "url": "https://www.openintro.org/book/os/", "kind": "book"},
+    {"title": "NIST/SEMATECH e-Handbook of Statistical Methods: Chi-Square Goodness-of-Fit Test", "author": "NIST/SEMATECH", "publisher": "National Institute of Standards and Technology", "url": "https://www.itl.nist.gov/div898/handbook/eda/section3/eda35f.htm", "kind": "docs"},
+    {"title": "math.erf (Python standard library)", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/math.html#math.erf", "kind": "docs"}
+  ]
+}
