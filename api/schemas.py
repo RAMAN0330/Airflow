@@ -240,6 +240,7 @@ class Me(BaseModel):
     exercises_completed: int
     lessons_completed: int
     billing_mode: str
+    current_streak: int = 0
 
 
 class MeUpdate(BaseModel):
@@ -287,6 +288,8 @@ class Progress(BaseModel):
     recent: list[Submission]
     activity: list[ActivityDay]
     next_up: StepRef | None
+    current_streak: int = 0
+    longest_streak: int = 0
 
 
 class LeaderboardEntry(BaseModel):
@@ -326,6 +329,52 @@ class LibraryTerm(Term):
 class Library(BaseModel):
     sources: list[LibrarySource]
     terms: list[LibraryTerm]
+
+
+# ------------------------------------------------------------------ review
+
+class ReviewTerm(Term):
+    id: str
+    lesson: LessonLink
+
+
+class ReviewQuestion(BaseModel):
+    id: str
+    prompt: str
+    options: list[str]
+    answer: int
+    explanation: str | None = None
+    lesson: LessonLink
+
+
+class ReviewDeck(BaseModel):
+    terms: list[ReviewTerm]
+    questions: list[ReviewQuestion]
+
+
+# ------------------------------------------------------------------ solutions & certificates
+
+class Solution(BaseModel):
+    exercise_id: str
+    title: str
+    code: str
+    your_code: str | None
+
+
+class Certificate(BaseModel):
+    id: str
+    course_id: str
+    course_title: str
+    track_id: str
+    track_title: str
+    level: str
+    display_name: str
+    completed_at: str
+    total_xp: int
+    lessons: int
+    exercises: int
+    estimated_minutes: int
+    concepts: list[str]
 
 
 # ------------------------------------------------------------------ playground

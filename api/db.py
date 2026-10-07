@@ -116,6 +116,26 @@ class Database:
         with self.connect() as conn:
             return [dict(r) for r in conn.execute(sql, [user_id, f"-{days} days"])]
 
+    def active_days(self, user_id: str) -> list[str]:
+        """UTC days (YYYY-MM-DD, ascending) with a passing submission or a lesson completion."""
+        sql = """
+            SELECT substr(created_at, 1, 10) AS day FROM submissions WHERE user_id = ? AND status = 'passed'
+            UNION
+            SELECT substr(completed_at, 1, 10) AS day FROM lesson_completions WHERE user_id = ?
+            ORDER BY day
+        """
+        with self.connect() as conn:
+            return [r["day"] for r in conn.execute(sql, [user_id, user_id])]
+
+    def latest_passing_code(self, user_id: str, exercise_id: str) -> str | None:
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT code FROM submissions WHERE user_id = ? AND exercise_id = ? AND status = 'passed' "
+                "ORDER BY created_at DESC LIMIT 1",
+                [user_id, exercise_id],
+            ).fetchone()
+            return row["code"] if row else None
+
     # ------------------------------------------------------------- users
 
     def ensure_user(self, user_id: str, default_name: str) -> dict:

@@ -7,6 +7,7 @@
   at a time: each needs the previous step completed.
 """
 from dataclasses import dataclass, field
+from datetime import date, datetime, timedelta, timezone
 
 from .catalog import Catalog, Step
 
@@ -112,3 +113,28 @@ def evaluate(
         previous_course = course
 
     return prog
+
+
+def streaks(active_days: list[str], today: date | None = None) -> tuple[int, int]:
+    """(current, longest) runs of consecutive active UTC days.
+
+    The current streak survives until the end of the day after the last active day,
+    so a learner who studied yesterday still has a live streak this morning.
+    """
+    days = sorted({date.fromisoformat(d) for d in active_days if d})
+    if not days:
+        return 0, 0
+    longest = run = 1
+    for prev, cur in zip(days, days[1:]):
+        run = run + 1 if cur - prev == timedelta(days=1) else 1
+        longest = max(longest, run)
+
+    today = today or datetime.now(timezone.utc).date()
+    if today - days[-1] > timedelta(days=1):
+        return 0, longest
+    current = 1
+    for prev, cur in zip(reversed(days[:-1]), reversed(days)):
+        if cur - prev != timedelta(days=1):
+            break
+        current += 1
+    return current, longest

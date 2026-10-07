@@ -4,6 +4,7 @@ leaderboard and plans.
 Run locally:  uvicorn api.main:app --reload
 """
 import asyncio
+import hashlib
 import json
 import re
 from contextlib import asynccontextmanager
@@ -22,7 +23,7 @@ from .config import Settings
 from .db import Database
 from .leaderboard import standings
 from .names import clean_name, default_name
-from .progression import Progression, evaluate
+from .progression import Progression, evaluate, streaks
 
 USER_ID_RE = re.compile(r"^[A-Za-z0-9_-]{8,64}$")
 
@@ -60,7 +61,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
         yield
 
-    app = FastAPI(title="Gradient: ML Practice Platform API", version="0.3.0", lifespan=lifespan)
+    app = FastAPI(title="Groundwork: ML, Data & MLOps Practice Platform API", version="0.3.0", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware, allow_origins=settings.cors_origins, allow_methods=["*"], allow_headers=["*"],
     )
@@ -198,7 +199,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return schemas.Me(
             display_name=lr.user["display_name"], plan=lr.user["plan"], xp=xp, rank=rank,
             exercises_completed=len(lr.completed_exercises), lessons_completed=len(lr.lessons),
-            billing_mode=settings.billing_mode,
+            billing_mode=settings.billing_mode, current_streak=streaks(store.active_days(lr.id))[0],
         )
 
     @app.get("/api/me", response_model=schemas.Me)
@@ -403,6 +404,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         passes = sum(s["passes"] for s in lr.stats.values())
         ex_steps = [s for s in cat.steps if s.kind == "exercise"]
         nxt = next_up(cat, lr.progression)
+        current_streak, longest_streak = streaks(store.active_days(lr.id))
         return schemas.Progress(
             xp=xp, rank=rank,
             total_exercises=len(ex_steps), exercises_completed=len(lr.completed_exercises),
@@ -425,6 +427,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             recent=[to_submission(r, include_code=False, include_result=False) for r in store.list_submissions(lr.id, limit=10)],
             activity=store.activity(lr.id),
             next_up=step_ref(cat, nxt, lr.progression) if nxt else None,
+            current_streak=current_streak, longest_streak=longest_streak,
         )
 
     @app.get("/api/leaderboard", response_model=schemas.Leaderboard)
@@ -445,6 +448,78 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return schemas.Leaderboard(
             period=period, total_learners=len(rows),
             entries=[entry(r) for r in rows[:limit]], me=entry(me) if me else None,
+        )
+
+    # ------------------------------------------------------------- review, solutions & certificates
+
+    def lesson_link(cat: Catalog, lesson_id: str) -> schemas.LessonLink:
+        step = cat.step_by_key[("lesson", lesson_id)]
+        course = cat.course_by_id[step.course_id]
+        return schemas.LessonLink(id=lesson_id, title=cat.lessons[lesson_id].title,
+                                  course_id=course["id"], track_id=course["track_id"])
+
+    @app.get("/api/review/cards", response_model=schemas.ReviewDeck)
+    def review_cards(lr: Learner = Depends(learner), cat: Catalog = Depends(catalog)):
+        """Flashcards from lessons the learner has passed. Answers are only revealed for those lessons."""
+        terms, questions = [], []
+        for st in cat.steps:
+            if st.kind != "lesson" or st.id not in lr.lessons:
+                continue
+            lesson = cat.lessons[st.id]
+            link = lesson_link(cat, st.id)
+            for term in lesson.meta.get("terms", []):
+                terms.append(schemas.ReviewTerm(id=f"term:{st.id}:{term['term'].strip().lower()}", term=term["term"],
+                                                definition=term["definition"], lesson=link))
+            for q in lesson.questions:
+                questions.append(schemas.ReviewQuestion(
+                    id=f"quiz:{st.id}:{q['id']}", prompt=q["prompt"], options=q["options"], answer=q["answer"],
+                    explanation=q.get("explanation"), lesson=link,
+                ))
+        return schemas.ReviewDeck(terms=terms, questions=questions)
+
+    def reference_source(path) -> str:
+        """solution.py without its "Reference solution" docstring when that is the first line."""
+        lines = path.read_text().splitlines(keepends=True)
+        first = lines[0].strip().lstrip("\"'") if lines else ""
+        if first.startswith("Reference solution"):
+            lines = lines[1:]
+            while lines and not lines[0].strip():
+                lines = lines[1:]
+        return "".join(lines)
+
+    @app.get("/api/exercises/{exercise_id}/solution", response_model=schemas.Solution)
+    def get_solution(exercise_id: str, lr: Learner = Depends(learner),
+                     cat: Catalog = Depends(catalog), store: Database = Depends(db)):
+        get_step(cat, "exercise", exercise_id)
+        if exercise_id not in lr.completed_exercises:
+            raise HTTPException(403, "Pass this exercise to unlock the reference solution")
+        ex = cat.exercises[exercise_id]
+        path = ex.dir / "solution.py"
+        if not path.is_file():
+            raise HTTPException(404, "No reference solution for this exercise")
+        return schemas.Solution(exercise_id=exercise_id, title=ex.title, code=reference_source(path),
+                                your_code=store.latest_passing_code(lr.id, exercise_id))
+
+    @app.get("/api/certificates/{course_id}", response_model=schemas.Certificate)
+    def get_certificate(course_id: str, lr: Learner = Depends(learner), cat: Catalog = Depends(catalog)):
+        course = cat.course_by_id.get(course_id)
+        if not course:
+            raise HTTPException(404, f"Unknown course {course_id!r}")
+        if lr.progression.courses[course_id].status != "completed":
+            raise HTTPException(403, "Complete every step of this course to earn its certificate")
+        steps = cat.steps_by_course[course_id]
+        done_at = [lr.lessons[s.id] if s.kind == "lesson" else lr.stats[s.id]["completed_at"] for s in steps]
+        digest = hashlib.sha256(f"{lr.id}:{course_id}".encode()).hexdigest()[:16].upper()
+        return schemas.Certificate(
+            id="-".join(digest[i:i + 4] for i in range(0, 16, 4)),
+            course_id=course_id, course_title=course["title"], track_id=course["track_id"],
+            track_title=cat.track_by_id[course["track_id"]]["title"], level=course.get("level", ""),
+            display_name=lr.user["display_name"], completed_at=max(done_at),
+            total_xp=sum(cat.xp(s) for s in steps),
+            lessons=sum(s.kind == "lesson" for s in steps), exercises=sum(s.kind == "exercise" for s in steps),
+            estimated_minutes=sum(cat.minutes(s) for s in steps),
+            concepts=[c for m in course["modules"] for c in m.get("concepts", [])
+                      if any(s.module_id == m["id"] for s in steps)],
         )
 
     return app
