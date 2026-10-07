@@ -1,0 +1,32 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "A loss is a single scalar computed from 10 million weights. Why do frameworks use reverse mode rather than forward mode?",
+      "options": ["Forward mode can't handle tanh", "Reverse mode gets all 10 million partial derivatives in one backward pass", "Reverse mode needs no memory for intermediate values", "Forward mode is only approximate"],
+      "answer": 1,
+      "explanation": "Forward mode costs one pass per input, while reverse mode costs one pass per output. With one scalar output, reverse mode wins by a factor of millions. The price is storing intermediates for the backward pass."
+    },
+    {
+      "id": "q2",
+      "prompt": "For y = x * x with x = 3, an engine reports x.grad = 3. What's the most likely bug?",
+      "options": ["The power rule is wrong", "The seed gradient wasn't set to 1", "Gradients are overwritten (=) instead of accumulated (+=)", "The topological sort is reversed"],
+      "answer": 2,
+      "explanation": "x feeds both inputs of the multiply, contributing 3 + 3 = 6. With =, the second write replaces the first, leaving 3."
+    },
+    {
+      "id": "q3",
+      "prompt": "Why must backward() visit nodes in reverse topological order?",
+      "options": ["So each node's gradient is complete before it is passed to its inputs", "Because Python dictionaries are ordered", "To avoid computing the forward pass twice", "So leaf nodes are processed first"],
+      "answer": 0,
+      "explanation": "A node's grad is the sum over all its consumers. Reverse topological order guarantees every consumer has already contributed before the node propagates further."
+    },
+    {
+      "id": "q4",
+      "prompt": "Your AD gradient is 0.4127 and the central finite difference with h = 1e-6 gives 0.4127001. What should you conclude?",
+      "options": ["The AD gradient is wrong in the 7th digit", "h is too large", "Finite differences are always exact", "They agree to rounding and truncation error, so the gradient is fine"],
+      "answer": 3,
+      "explanation": "Central differences carry O(h²) truncation error plus rounding error of order ε/h, so agreement to about 6 significant digits is what a correct gradient looks like."
+    }
+  ]
+}

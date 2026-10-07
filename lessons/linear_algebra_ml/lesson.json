@@ -1,0 +1,37 @@
+{
+  "id": "linear_algebra_ml",
+  "title": "Least Squares, Projections & Conditioning",
+  "estimated_minutes": 15,
+  "summary": "Least squares as an orthogonal projection, the normal equations and why they square the condition number, and how Householder QR solves the same problem stably.",
+  "takeaways": [
+    "The least-squares fit projects b onto the column space of A, so the residual is orthogonal to every column.",
+    "An orthogonal projector is symmetric and idempotent (P² = P), and its trace equals the rank.",
+    "The condition number σ_max/σ_min estimates the digits you lose. Forming AᵀA squares it.",
+    "Householder QR solves Rx = Qᵀb without squaring κ. Choose the reflection sign opposite to x[0] to avoid cancellation."
+  ],
+  "flow": {
+    "title": "Least squares via Householder QR",
+    "steps": [
+      {"label": "Reflect", "detail": "For each column k, a reflection I − 2vvᵀ zeroes everything below the diagonal."},
+      {"label": "Accumulate", "detail": "The reflected matrix is R. Applying the reflectors to the identity gives Q."},
+      {"label": "Rotate b", "detail": "Compute Qᵀb; Q preserves lengths, so the problem becomes Rx ≈ Qᵀb."},
+      {"label": "Back-substitute", "detail": "Solve the triangular system from the last row up."},
+      {"label": "Check", "detail": "The residual b − Ax must be orthogonal to the columns: Aᵀ(b − Ax) ≈ 0."}
+    ]
+  },
+  "terms": [
+    {"term": "Normal equations", "definition": "AᵀA x = Aᵀb, the condition that the residual is orthogonal to the column space."},
+    {"term": "Projection matrix", "definition": "P = A(AᵀA)⁻¹Aᵀ = QQᵀ, which maps any vector to its closest point in the column space."},
+    {"term": "Condition number", "definition": "κ(A) = σ_max / σ_min, the worst-case amplification of relative input error."},
+    {"term": "Householder reflection", "definition": "H = I − 2vvᵀ with ‖v‖ = 1: an orthogonal matrix that mirrors vectors across the plane perpendicular to v."},
+    {"term": "Catastrophic cancellation", "definition": "Subtracting two nearly equal floating-point numbers, which leaves only rounding noise in the result."}
+  ],
+  "sources": [
+    {"title": "18.06 Linear Algebra (Spring 2010)", "author": "G. Strang", "publisher": "MIT OpenCourseWare", "year": 2010, "url": "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/", "kind": "course"},
+    {"title": "Numerical Linear Algebra", "author": "L. N. Trefethen, D. Bau III", "publisher": "SIAM", "year": 1997, "url": "https://people.maths.ox.ac.uk/trefethen/text.html", "kind": "book"},
+    {"title": "The Elements of Statistical Learning (Ch. 3: Linear Methods for Regression)", "author": "T. Hastie, R. Tibshirani, J. Friedman", "publisher": "Springer", "year": 2009, "url": "https://hastie.su.domains/ElemStatLearn/", "kind": "book"},
+    {"title": "Deep Learning (Ch. 4: Numerical Computation)", "author": "I. Goodfellow, Y. Bengio, A. Courville", "publisher": "MIT Press", "year": 2016, "url": "https://www.deeplearningbook.org/", "kind": "book"},
+    {"title": "numpy.linalg.lstsq", "author": "NumPy", "publisher": "numpy.org", "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html", "kind": "docs"},
+    {"title": "numpy.linalg.cond", "author": "NumPy", "publisher": "numpy.org", "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.cond.html", "kind": "docs"}
+  ]
+}

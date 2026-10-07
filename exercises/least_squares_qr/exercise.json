@@ -1,0 +1,25 @@
+{
+  "id": "least_squares_qr",
+  "title": "Least Squares by Hand: Normal Equations vs Householder QR",
+  "summary": "Solve least-squares problems two ways, via the normal equations and via a Householder QR you write yourself, then build the projection matrix, measure conditioning with singular values, and watch QR stay accurate on an ill-conditioned polynomial fit where the normal equations fall apart.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["linear-algebra", "numerical-methods", "least-squares", "numpy"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "Thin QR means Q is (m, n) and R is (n, n). Each reflector v only touches rows k: onward, so update R[k:, k:] with np.outer(v, v @ R[k:, k:])."},
+    "NaNInSoftmax": {"hint": "A NaN inside QR usually means you divided by ‖v‖ = 0. Choose the reflection sign so v[0] = x[0] + sign(x[0])·‖x‖, which can't cancel, and skip columns whose ‖x‖ is exactly 0."}
+  },
+  "hints": {
+    "test_householder_qr_reconstructs": "For each column k take x = R[k:, k], build v = x − α·e1 with α = −sign(x[0])·‖x‖, normalise v and apply R[k:, k:] −= 2·v(vᵀR[k:, k:]). Build Q by applying the stored reflectors to the first n columns of the identity in reverse order.",
+    "test_householder_nearly_triangular_input": "If x already points along +e1, then x − ‖x‖·e1 is (almost) zero and subtracting two nearly equal numbers destroys the digits. Use α = −copysign(‖x‖, x[0]) so v[0] = x[0] + sign(x[0])‖x‖ is always a sum of same-sign terms.",
+    "test_qr_does_not_call_numpy_solvers": "householder_qr, qr_least_squares and projection_matrix must not call np.linalg.qr, lstsq or pinv. Norms, outer products and np.linalg.svd (for the condition number) are fine.",
+    "test_back_substitution_known_system": "The last row has a single unknown, so solve it first: loop i from n − 1 down to 0 and use x[i] = (y[i] − R[i, i+1:] @ x[i+1:]) / R[i, i]. Going top-down uses unknowns you haven't computed yet.",
+    "test_invalid_inputs_raise": "Raise ValueError for a zero on R's diagonal, for A that is not 2-D or has fewer rows than columns, and let a rank-deficient A (an all-zero column gives R[k, k] = 0) surface as that same ValueError.",
+    "test_least_squares_matches_reference": "Normal equations: np.linalg.solve(A.T @ A, A.T @ b). QR: Q, R = householder_qr(A), then back_substitution(R, Q.T @ b). The residual b − Ax must be orthogonal to every column of A.",
+    "test_projection_matrix_properties": "With the thin Q from your QR, P = Q @ Q.T. It equals A(AᵀA)⁻¹Aᵀ but never forms AᵀA. It is symmetric, satisfies P² = P, leaves A unchanged, and its trace is the rank.",
+    "test_condition_number": "Use the singular values s = np.linalg.svd(A, compute_uv=False) and return float(s[0] / s[-1]), or inf when s[-1] is 0.",
+    "test_qr_beats_normal_equations_on_vandermonde": "vandermonde(t, d) has columns t**0 … t**d (t[:, None] ** np.arange(d + 1)). Forming AᵀA squares the condition number, so the normal equations lose about twice as many digits as QR.",
+    "test_inputs_not_mutated": "Work on R = A.copy() inside householder_qr, and create x with np.zeros in back_substitution instead of writing into y."
+  }
+}

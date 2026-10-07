@@ -1,0 +1,32 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "With β₁ = 0.9, β₂ = 0.999 and bias correction, how big is Adam's very first step for a coordinate whose gradient is 250?",
+      "options": ["lr · 250", "About lr", "About 3.2 · lr", "Zero, because m starts at 0"],
+      "answer": 1,
+      "explanation": "After one step m̂ = g and v̂ = g², so the update is lr·g/|g| = lr·sign(g), independent of the gradient's scale. Without bias correction it would be 0.1/√0.001 ≈ 3.2× larger."
+    },
+    {
+      "id": "q2",
+      "prompt": "Why does AdamW apply weight decay directly to the weights instead of adding λ·p to the gradient?",
+      "options": ["It's cheaper to compute", "Adding it to g would make momentum diverge", "PyTorch doesn't support L2 penalties", "In Adam, a penalty inside g gets divided by √v̂, so weights with large gradients would hardly be regularised"],
+      "answer": 3,
+      "explanation": "For SGD the two are equivalent, but Adam rescales everything in g per coordinate. Decoupling keeps the decay at a uniform lr·λ for every weight."
+    },
+    {
+      "id": "q3",
+      "prompt": "On a narrow valley (one steep and one flat direction), what does momentum mainly do?",
+      "options": ["Cancels the oscillations across the valley and builds up speed along it", "Increases the learning rate on the steep axis", "Normalises each coordinate by its gradient RMS", "Guarantees convergence for any learning rate"],
+      "answer": 0,
+      "explanation": "Alternating gradients across the valley average out in the velocity, while the consistent gradient along the floor accumulates to about g/(1 − μ)."
+    },
+    {
+      "id": "q4",
+      "prompt": "A schedule has base_lr = 1, 4 warmup steps and 12 total steps, with lr = base·step/warmup during warmup. What is the learning rate at step 8?",
+      "options": ["1.0", "0.25", "0.5", "0.0"],
+      "answer": 2,
+      "explanation": "Cosine decay covers steps 4–12, so step 8 is halfway: ½(1 + cos(π/2)) = 0.5."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "mini_autograd",
+  "title": "Build a Tiny Autograd Engine",
+  "summary": "Write a micrograd-style scalar Value class: each operation records its inputs and a local derivative, and backward() walks the graph in reverse topological order, accumulating gradients through the chain rule. Check it against finite differences and use it to train a single neuron.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 45,
+  "tags": ["autodiff", "backprop", "calculus", "python"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "hints": {
+    "test_forward_values": "Every operator returns a new Value whose data is the plain-float result. Wrap int/float operands with Value(...) first, and implement the r-versions (radd, rsub, rmul, rtruediv) so 1 - a and 2 / a work.",
+    "test_basic_gradients": "Each op sets out._backward to push out.grad into its inputs: + passes it through unchanged, * multiplies by the other input's data. Subtraction and division can be built from +, neg, * and ** -1.",
+    "test_reused_node_accumulates": "A node used twice receives gradient from both uses. Inside every _backward write self.grad += ..., never self.grad = ..., or the second contribution overwrites the first.",
+    "test_power_rule": "d/dx xⁿ = n·xⁿ⁻¹. Multiply by the exponent and lower the power by one: self.grad += n * self.data ** (n - 1) * out.grad.",
+    "test_unary_gradients": "Local derivatives: tanh → 1 − t², exp → eˣ (reuse the output), relu → 1 if x > 0 else 0, log → 1/x, neg → −1.",
+    "test_deep_graph_needs_topological_order": "A node may only run _backward once every node that uses it has finished. Build a topological order (each node after its inputs) with a DFS over _prev, then call _backward on the reversed list.",
+    "test_matches_finite_differences": "If one op is wrong, isolate it: compare each op's gradient with (f(x + h) − f(x − h)) / 2h on its own before testing a big expression.",
+    "test_zero_grad_resets": "Walk the same topological order as backward and set grad = 0.0 on every node, intermediates included.",
+    "test_trains_tiny_neuron": "Each step: build the loss, call loss.zero_grad(), then loss.backward(), then nudge every parameter with p.data -= lr * p.grad. Without zero_grad, gradients pile up across steps.",
+    "test_invalid_inputs_raise": "log needs data > 0, so raise ValueError otherwise. __pow__ only supports a constant int/float exponent: raise TypeError if it's given a Value."
+  }
+}

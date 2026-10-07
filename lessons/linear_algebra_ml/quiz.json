@@ -1,0 +1,32 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "A has condition number 10⁶. Roughly what is the condition number of AᵀA?",
+      "options": ["10³", "10⁶", "10¹²", "It depends on b"],
+      "answer": 2,
+      "explanation": "The singular values of AᵀA are the squares of A's, so κ(AᵀA) = κ(A)². That is why the normal equations lose about twice as many digits as QR."
+    },
+    {
+      "id": "q2",
+      "prompt": "Which pair of properties characterises an orthogonal projection matrix P?",
+      "options": ["P is symmetric and P² = P", "P is invertible and Pᵀ = P⁻¹", "P is diagonal with entries 0 or 1", "P is upper triangular and P² = I"],
+      "answer": 0,
+      "explanation": "Projecting twice changes nothing (P² = P), and orthogonality of the error makes P symmetric. It is singular unless it projects onto the whole space."
+    },
+    {
+      "id": "q3",
+      "prompt": "In Householder QR the column x = (5, 1e-9, 0) is about to be reflected. Why use α = −sign(x₀)·‖x‖?",
+      "options": ["It makes R's diagonal positive", "It avoids computing x₀ − ‖x‖, which cancels catastrophically here", "It is required for Q to be orthogonal", "It halves the number of flops"],
+      "answer": 1,
+      "explanation": "Here ‖x‖ ≈ 5, so x₀ − ‖x‖ subtracts two nearly equal numbers. With the opposite sign v₀ = x₀ + ‖x‖ is a sum, and no digits are lost. Both choices are orthogonal in exact arithmetic."
+    },
+    {
+      "id": "q4",
+      "prompt": "You solve Rx = y for upper-triangular R. Which unknown can you compute first?",
+      "options": ["x₀, from the first row", "Any of them, in any order", "The one with the largest diagonal entry", "xₙ₋₁, from the last row"],
+      "answer": 3,
+      "explanation": "The last row of an upper-triangular system has a single unknown. Back-substitution solves it first and works upwards."
+    }
+  ]
+}

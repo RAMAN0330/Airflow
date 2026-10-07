@@ -1,0 +1,37 @@
+{
+  "id": "autodiff_intuition",
+  "title": "Automatic Differentiation: The Chain Rule as an Algorithm",
+  "estimated_minutes": 15,
+  "summary": "How reverse-mode automatic differentiation turns any program into exact gradients: record a computational graph, then apply each operation's local derivative in reverse topological order, accumulating over every path.",
+  "takeaways": [
+    "Every computation is a graph of elementary operations, and each one knows its local derivative.",
+    "Reverse mode gets the gradient of one scalar loss with respect to every input in a single backward pass.",
+    "Gradients from different uses of a value add up: use +=, never =.",
+    "Visit nodes in reverse topological order, and check results against finite differences."
+  ],
+  "flow": {
+    "title": "One reverse-mode backward pass",
+    "steps": [
+      {"label": "Forward", "detail": "Run the program; every operation creates a node that remembers its inputs."},
+      {"label": "Sort", "detail": "Topologically order the graph so every node comes after its inputs."},
+      {"label": "Seed", "detail": "Set the output's grad to 1 (∂L/∂L)."},
+      {"label": "Propagate", "detail": "In reverse order, each node adds local derivative × its grad into each input's grad."},
+      {"label": "Use & reset", "detail": "Read the leaf gradients for the update, then zero them before the next step."}
+    ]
+  },
+  "terms": [
+    {"term": "Computational graph", "definition": "A DAG whose nodes are intermediate values and whose edges record which values each operation consumed."},
+    {"term": "Reverse mode", "definition": "AD that propagates adjoints ∂L/∂node from the output back to the inputs; backpropagation is a special case."},
+    {"term": "Local derivative", "definition": "The derivative of one operation's output with respect to one of its inputs, e.g. 1 − tanh² for tanh."},
+    {"term": "Topological order", "definition": "An ordering of a DAG's nodes in which every node appears after all of its inputs."},
+    {"term": "Gradient check", "definition": "Comparing analytic gradients with central finite differences (f(x+h) − f(x−h)) / 2h."}
+  ],
+  "sources": [
+    {"title": "Automatic Differentiation in Machine Learning: a Survey", "author": "A. G. Baydin, B. A. Pearlmutter, A. A. Radul, J. M. Siskind", "publisher": "JMLR", "year": 2018, "url": "https://arxiv.org/abs/1502.05767", "kind": "paper"},
+    {"title": "micrograd: a tiny scalar-valued autograd engine", "author": "A. Karpathy", "publisher": "GitHub", "url": "https://github.com/karpathy/micrograd", "kind": "article"},
+    {"title": "CS231n: Backpropagation, Intuitions", "author": "Stanford CS231n", "publisher": "Stanford University", "url": "https://cs231n.github.io/optimization-2/", "kind": "course"},
+    {"title": "Dive into Deep Learning (2.5: Automatic Differentiation)", "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola", "publisher": "d2l.ai", "url": "https://d2l.ai/chapter_preliminaries/autograd.html", "kind": "book"},
+    {"title": "Autograd mechanics", "author": "PyTorch", "publisher": "pytorch.org", "url": "https://pytorch.org/docs/stable/notes/autograd.html", "kind": "docs"},
+    {"title": "Deep Learning (Ch. 6.5: Back-Propagation)", "author": "I. Goodfellow, Y. Bengio, A. Courville", "publisher": "MIT Press", "year": 2016, "url": "https://www.deeplearningbook.org/", "kind": "book"}
+  ]
+}

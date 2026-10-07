@@ -1,0 +1,25 @@
+{
+  "id": "optimizers_from_scratch",
+  "title": "Optimizers from Scratch: Momentum, Adam & AdamW",
+  "summary": "Implement the optimizers behind every training loop, SGD with momentum and Nesterov, RMSProp, bias-corrected Adam and AdamW's decoupled weight decay, as stateful step functions over lists of parameter arrays, plus a linear-warmup cosine learning-rate schedule. Check them against hand-computed steps and on an ill-conditioned quadratic and the Rosenbrock function.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 45,
+  "tags": ["optimization", "deep-learning", "training", "numpy"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "Keep one state array per parameter, created with np.zeros_like(p) on the first step, and pair params[i] with grads[i]. Check len(params) == len(grads) and matching shapes up front."},
+    "NaNInSoftmax": {"hint": "A NaN or inf in an adaptive optimizer usually means dividing by √v with no eps, or bias correction with t = 0. Increment the step counter before computing 1 − β^t, and always add eps to the denominator."}
+  },
+  "hints": {
+    "test_sgd_step_hand_computed": "Plain SGD is p -= lr * g. In SGD, weight_decay is an L2 penalty: use g + weight_decay * p as the gradient.",
+    "test_momentum_and_nesterov_hand_computed": "Velocity v = μ·v + g (starting from zeros), then p -= lr·v. Nesterov looks ahead: p -= lr·(g + μ·v) using the freshly updated v.",
+    "test_rmsprop_hand_computed": "s = α·s + (1 − α)·g², then p -= lr·g / (√s + eps). s starts at zero and is kept per parameter.",
+    "test_adam_bias_correction_first_steps": "m and v start at zero, so early on they are biased towards 0. Divide by (1 − β₁ᵗ) and (1 − β₂ᵗ), with t counted from 1 and incremented once per step() call, not once per parameter.",
+    "test_adam_matches_reference": "m = β₁m + (1 − β₁)g, v = β₂v + (1 − β₂)g², m̂ = m/(1 − β₁ᵗ), v̂ = v/(1 − β₂ᵗ), p -= lr·m̂/(√v̂ + eps). Adam's weight_decay is L2: add wd·p to g before the moments.",
+    "test_adamw_decay_is_decoupled": "AdamW must not put weight decay into g. Shrink the weights directly with p -= lr·wd·p and run the Adam update on the raw gradient. Folding it into g (plain Adam's L2) gets rescaled by 1/√v̂.",
+    "test_step_updates_in_place_and_keeps_grads": "Use p -= ... or p[...] = ... so the caller's arrays change. Never write g += ... into a gradient you were given; use g = g + ... to make a new array. Raise ValueError for mismatched lengths or shapes.",
+    "test_cosine_warmup_schedule": "For step < warmup_steps return base_lr·step/warmup_steps (0 at step 0, base_lr at step warmup_steps). Then progress = (step − warmup)/(total − warmup) and lr = min_lr + ½(base_lr − min_lr)(1 + cos(π·progress)). Clamp to min_lr after total_steps.",
+    "test_momentum_beats_sgd_on_ill_conditioned_quadratic": "With curvatures 1 and 50, a learning rate that's stable for the steep direction crawls along the flat one. Momentum accumulates the small consistent gradient. If momentum doesn't help, check that the velocity persists between step() calls.",
+    "test_adam_with_schedule_solves_rosenbrock": "The test sets opt.lr before every step, so read self.lr inside step() rather than caching it in the constructor's state."
+  }
+}

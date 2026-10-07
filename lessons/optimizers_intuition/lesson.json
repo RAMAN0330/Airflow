@@ -1,0 +1,39 @@
+{
+  "id": "optimizers_intuition",
+  "title": "Optimizers: Momentum, Adam & Learning-Rate Schedules",
+  "estimated_minutes": 15,
+  "summary": "Why plain gradient descent struggles on ill-conditioned losses and how momentum, RMSProp, bias-corrected Adam, AdamW's decoupled weight decay and warmup-plus-cosine schedules each fix part of the problem.",
+  "takeaways": [
+    "Momentum averages gradients over time: oscillations cancel and consistent directions build up speed.",
+    "Adam divides by a running RMS of each coordinate's gradient. Bias correction makes the first step exactly lr·sign(g).",
+    "For Adam, L2 in the gradient and decoupled weight decay differ. AdamW shrinks the weights directly.",
+    "Warm up linearly, then decay along a cosine. Check the boundary steps for off-by-one errors."
+  ],
+  "flow": {
+    "title": "One AdamW step",
+    "steps": [
+      {"label": "Schedule", "detail": "lr = warmup/cosine(step), set before the update."},
+      {"label": "Decay", "detail": "p -= lr·λ·p, directly on the weights and not through g."},
+      {"label": "Moments", "detail": "m = β₁m + (1 − β₁)g and v = β₂v + (1 − β₂)g², kept per parameter."},
+      {"label": "Bias-correct", "detail": "m̂ = m/(1 − β₁ᵗ), v̂ = v/(1 − β₂ᵗ), with t counted from 1."},
+      {"label": "Update", "detail": "p -= lr·m̂/(√v̂ + ε), in place."}
+    ]
+  },
+  "terms": [
+    {"term": "Momentum", "definition": "A velocity v = μv + g that accumulates past gradients; the parameter steps along v instead of g."},
+    {"term": "Adam", "definition": "Adaptive moment estimation: momentum divided by the running RMS of gradients, with bias correction for the zero initialisation."},
+    {"term": "Bias correction", "definition": "Dividing the moment estimates by 1 − βᵗ so their expected value isn't pulled towards zero early in training."},
+    {"term": "Decoupled weight decay", "definition": "Shrinking weights by lr·λ·p separately from the gradient-based update, as in AdamW."},
+    {"term": "Warmup", "definition": "Linearly increasing the learning rate from 0 over the first steps, before the main schedule takes over."},
+    {"term": "Cosine schedule", "definition": "lr = min + ½(base − min)(1 + cos(π·progress)), a smooth decay from base to min."}
+  ],
+  "sources": [
+    {"title": "Adam: A Method for Stochastic Optimization", "author": "D. P. Kingma, J. Ba", "publisher": "ICLR", "year": 2015, "url": "https://arxiv.org/abs/1412.6980", "kind": "paper"},
+    {"title": "Decoupled Weight Decay Regularization", "author": "I. Loshchilov, F. Hutter", "publisher": "ICLR", "year": 2019, "url": "https://arxiv.org/abs/1711.05101", "kind": "paper"},
+    {"title": "SGDR: Stochastic Gradient Descent with Warm Restarts", "author": "I. Loshchilov, F. Hutter", "publisher": "ICLR", "year": 2017, "url": "https://arxiv.org/abs/1608.03983", "kind": "paper"},
+    {"title": "An overview of gradient descent optimization algorithms", "author": "S. Ruder", "publisher": "arXiv", "year": 2016, "url": "https://arxiv.org/abs/1609.04747", "kind": "paper"},
+    {"title": "Dive into Deep Learning (Optimization Algorithms: Adam)", "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola", "publisher": "d2l.ai", "url": "https://d2l.ai/chapter_optimization/adam.html", "kind": "book"},
+    {"title": "Deep Learning (Ch. 8: Optimization for Training Deep Models)", "author": "I. Goodfellow, Y. Bengio, A. Courville", "publisher": "MIT Press", "year": 2016, "url": "https://www.deeplearningbook.org/", "kind": "book"},
+    {"title": "torch.optim.AdamW", "author": "PyTorch", "publisher": "pytorch.org", "url": "https://docs.pytorch.org/docs/stable/generated/torch.optim.AdamW.html", "kind": "docs"}
+  ]
+}

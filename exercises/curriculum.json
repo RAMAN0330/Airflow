@@ -520,8 +520,8 @@
                 "Least squares",
                 "Conditioning"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "linear_algebra_ml",
+              "exercise": "least_squares_qr"
             },
             {
               "id": "autodiff",
@@ -531,8 +531,8 @@
                 "Reverse mode",
                 "Chain rule"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "autodiff_intuition",
+              "exercise": "mini_autograd"
             },
             {
               "id": "optimizers",
@@ -542,8 +542,8 @@
                 "Adam",
                 "LR schedules"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "optimizers_intuition",
+              "exercise": "optimizers_from_scratch"
             }
           ]
         }
