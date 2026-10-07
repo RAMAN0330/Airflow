@@ -1,0 +1,22 @@
+{
+  "id": "star_schema_scd2",
+  "title": "Build a Star Schema with SCD Type 2",
+  "summary": "Turn the shop's OLTP tables into a star schema with surrogate keys, a date dimension and an order-line fact table, answer a business question over it, and track customer changes as Slowly Changing Dimension Type 2.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["sql", "sqlite", "dimensional-modeling", "star-schema", "scd"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_dimensions_have_surrogate_keys": "Give each dimension an INTEGER PRIMARY KEY surrogate (SQLite assigns 1, 2, 3, ...) and keep the natural key (customer_id, product_id) as an ordinary column. Initial customer rows get valid_from '1900-01-01', valid_to '9999-12-31', is_current 1.",
+    "test_dim_date_is_contiguous": "Generate every day from MIN(order_date) to MAX(order_date) with datetime.date and timedelta(days=1), not just the days that had orders. date_key is the integer YYYYMMDD and quarter is (month - 1) // 3 + 1.",
+    "test_fact_grain_is_order_line": "Declare the grain first: one fact row per completed order line. Select from order_items joined to completed orders, with no GROUP BY, and store revenue = quantity * unit_price.",
+    "test_fact_foreign_keys_resolve": "Look up surrogate keys by joining the natural keys: dim_customer on customer_id (and the order date inside [valid_from, valid_to)), dim_product on product_id. date_key comes from the order date.",
+    "test_revenue_query_matches_oltp": "Join fact_sales to dim_customer and dim_date on their surrogate keys, GROUP BY country, year, quarter, and ORDER BY year, quarter, revenue DESC, country. Don't touch the OLTP tables.",
+    "test_scd2_change_adds_version_and_closes_old": "When an attribute changes, UPDATE the current row to valid_to = as_of, is_current = 0, then INSERT a new row with valid_from = as_of, valid_to = '9999-12-31', is_current = 1. Never overwrite name or country in place.",
+    "test_scd2_unchanged_rows_untouched": "Compare the incoming (name, country) with the current row's. If they're equal, skip the row entirely: no UPDATE, no new version.",
+    "test_scd2_is_idempotent": "Only compare against the row WHERE is_current = 1. After the first run that row already holds the new values, so a re-run finds nothing to change.",
+    "test_scd2_new_customer_inserted": "A customer_id with no current row is new: insert it with valid_from = as_of and count it as inserted.",
+    "test_history_preserved_for_old_facts": "Old facts keep pointing at the old surrogate key, and the closed row keeps the old country, so history doesn't move. Point-in-time lookup: valid_from <= date AND date < valid_to."
+  }
+}

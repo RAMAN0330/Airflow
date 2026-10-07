@@ -1,0 +1,38 @@
+{
+  "id": "streaming_cdc",
+  "title": "Streaming & Change Data Capture",
+  "estimated_minutes": 16,
+  "summary": "How change data capture turns a database's write-ahead log into an event stream, why windows must use event time with watermarks for out-of-order data, and how commit-after-processing plus idempotent writes gives effectively-once results across crashes.",
+  "takeaways": [
+    "CDC reads committed changes from the database log in order. The LSN tells you what you've already applied.",
+    "Window by event time, not processing time. Watermarks decide when a window is complete, and late data is handled explicitly.",
+    "Commit offsets after processing (at-least-once). Committing before processing loses data on a crash.",
+    "At-least-once delivery plus idempotent or deduplicated writes gives effectively-once results."
+  ],
+  "flow": {
+    "title": "One consumer batch",
+    "steps": [
+      {"label": "Poll", "detail": "Read the next records from the last committed offset."},
+      {"label": "Deduplicate", "detail": "Skip records whose id (or LSN) has already been applied."},
+      {"label": "Process + write", "detail": "Update the sink, and record the id in the same atomic write."},
+      {"label": "Commit offset", "detail": "Only now advance the committed offset past the batch."},
+      {"label": "Crash? Restart", "detail": "Resume from the last commit. Redelivered records are harmless duplicates."}
+    ]
+  },
+  "terms": [
+    {"term": "Change data capture (CDC)", "definition": "Streaming every committed insert, update and delete from a database, usually by reading its write-ahead log."},
+    {"term": "LSN", "definition": "Log sequence number: a position in the write-ahead log that increases with commit order."},
+    {"term": "Event time vs processing time", "definition": "When an event happened, versus when the system happens to process it."},
+    {"term": "Watermark", "definition": "The system's estimate that no events older than time t are still to come. It closes event-time windows."},
+    {"term": "Allowed lateness", "definition": "Extra time a window stays open after the watermark passes its end, so stragglers still count."},
+    {"term": "Offset commit", "definition": "Durably recording how far a consumer has read in a partition, so a restart resumes there."}
+  ],
+  "sources": [
+    {"title": "The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing", "author": "T. Akidau, R. Bradshaw, C. Chambers, et al.", "publisher": "VLDB", "year": 2015, "url": "https://www.vldb.org/pvldb/vol8/p1792-Akidau.pdf", "kind": "paper"},
+    {"title": "Timely Stream Processing (event time and watermarks)", "author": "Apache Software Foundation", "publisher": "nightlies.apache.org/flink", "url": "https://nightlies.apache.org/flink/flink-docs-stable/docs/concepts/time/", "kind": "docs"},
+    {"title": "Apache Kafka Design: Message Delivery Semantics", "author": "Apache Software Foundation", "publisher": "kafka.apache.org", "url": "https://kafka.apache.org/41/design/design/", "kind": "docs"},
+    {"title": "Exactly-once Semantics Are Possible: Here's How Apache Kafka Does It", "author": "Neha Narkhede", "publisher": "Confluent", "year": 2017, "url": "https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/", "kind": "article"},
+    {"title": "Debezium Connector for PostgreSQL", "author": "Debezium", "publisher": "debezium.io", "url": "https://debezium.io/documentation/reference/stable/connectors/postgresql.html", "kind": "docs"},
+    {"title": "Designing Data-Intensive Applications (Ch. 11, Stream Processing)", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"}
+  ]
+}

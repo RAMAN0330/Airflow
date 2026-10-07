@@ -1,0 +1,38 @@
+{
+  "id": "nosql_columnar",
+  "title": "Beyond Relational: Documents, Columns & Partitions",
+  "estimated_minutes": 15,
+  "summary": "Why analytical engines store data by column and compress it with run-length and dictionary encoding, how document stores query nested data, and how hash and range partitioning spread data out and let queries skip what they don't need.",
+  "takeaways": [
+    "Column stores read only the columns a query touches, and similar values stored together compress very well.",
+    "Run-length and dictionary encoding shrink low-cardinality and sorted columns, often by an order of magnitude.",
+    "Hash partitioning needs a hash that's stable across processes. Python's built-in hash() of a str isn't.",
+    "Range partitioning lets the planner prune partitions. A value equal to a bound belongs to the next partition."
+  ],
+  "flow": {
+    "title": "A query over a partitioned column store",
+    "steps": [
+      {"label": "Prune partitions", "detail": "Compare the WHERE range with each partition's bounds and skip those that can't match."},
+      {"label": "Prune columns", "detail": "Open only the columns the query references, not whole rows."},
+      {"label": "Decode", "detail": "Expand dictionary codes and RLE runs back into values, or operate on them directly."},
+      {"label": "Filter + aggregate", "detail": "Scan the needed columns position by position and accumulate per group."}
+    ]
+  },
+  "terms": [
+    {"term": "Column store", "definition": "A layout that stores each column's values contiguously, instead of each row's, as in Parquet, BigQuery or C-Store."},
+    {"term": "Run-length encoding (RLE)", "definition": "Storing repeated consecutive values as (value, count) pairs."},
+    {"term": "Dictionary encoding", "definition": "Replacing each value with a small integer code into a list of distinct values."},
+    {"term": "Hash partitioning", "definition": "Assigning a row to partition hash(key) mod N, so equal keys always land together."},
+    {"term": "Partition pruning", "definition": "Skipping partitions whose bounds prove they can't contain rows matching the query."},
+    {"term": "Document store", "definition": "A database of self-describing, nested JSON-like documents queried by field paths, such as MongoDB."}
+  ],
+  "sources": [
+    {"title": "C-Store: A Column-oriented DBMS", "author": "M. Stonebraker, D. J. Abadi, A. Batkin, et al.", "publisher": "VLDB", "year": 2005, "url": "https://vldb.org/conf/2005/papers/p553-stonebraker.pdf", "kind": "paper"},
+    {"title": "Dremel: Interactive Analysis of Web-Scale Datasets", "author": "S. Melnik, A. Gubarev, J. J. Long, G. Romer, S. Shivakumar, M. Tolton, T. Vassilakis", "publisher": "VLDB", "year": 2010, "url": "https://research.google/pubs/pub36632/", "kind": "paper"},
+    {"title": "Apache Parquet: Encodings", "author": "Apache Software Foundation", "publisher": "parquet.apache.org", "url": "https://parquet.apache.org/docs/file-format/data-pages/encodings", "kind": "docs"},
+    {"title": "Query on Embedded/Nested Documents", "author": "MongoDB", "publisher": "mongodb.com", "url": "https://www.mongodb.com/docs/manual/tutorial/query-embedded-documents/", "kind": "docs"},
+    {"title": "Table Partitioning (Partition Pruning)", "author": "PostgreSQL Global Development Group", "publisher": "postgresql.org", "url": "https://www.postgresql.org/docs/current/ddl-partitioning.html", "kind": "docs"},
+    {"title": "Data model: object.__hash__ (hash randomization)", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/reference/datamodel.html#object.__hash__", "kind": "docs"},
+    {"title": "Designing Data-Intensive Applications (Ch. 2-3, Data Models and Storage; Ch. 6, Partitioning)", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "stream_cdc_processor",
+  "title": "Stream Processing: CDC, Windows & Effectively-Once",
+  "summary": "Replay a database change log into a table idempotently, aggregate events into event-time tumbling windows with a watermark and allowed lateness, and build a consumer that survives a crash without losing or double-counting messages.",
+  "difficulty": "advanced",
+  "estimated_minutes": 45,
+  "tags": ["streaming", "cdc", "exactly-once", "windowing"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_cdc_applies_insert_update_delete": "Ops 'c' and 'u' set state[key] = a copy of the 'after' image, and 'd' removes the key. Return the LSN of the last event you applied.",
+    "test_cdc_skips_already_applied_lsns": "Track the highest LSN applied so far and skip any event with lsn <= it. Replays after a connector restart and duplicates inside a batch both disappear that way.",
+    "test_cdc_orders_events_by_lsn": "The log position (LSN) is the source of truth for order. Sort the batch by lsn before applying.",
+    "test_cdc_is_idempotent_and_pure": "Start from a copy, {k: dict(v) for k, v in state.items()}, so the caller's state and the returned state never share row dicts.",
+    "test_windows_use_event_time": "Bucket by when the event happened, event_time - event_time % size, not by arrival_time. Processing time depends on network delays.",
+    "test_late_events_dropped_after_watermark": "Keep watermark = the max event_time accepted so far. An event is late when its window end (start + size) + allowed_lateness <= watermark. Return late events in arrival order.",
+    "test_allowed_lateness_accepts_stragglers": "allowed_lateness keeps a window open that much longer after the watermark passes its end, so slightly late events still count.",
+    "test_consumer_processes_everything_and_commits": "Loop while store['offset'] < len(log): take log[offset:offset + batch_size], process every message, then set store['offset'] to the end of the batch.",
+    "test_consumer_dedupes_redelivered_messages": "Keep store['processed_ids']. If a message id is already in it, skip the message. Otherwise update the balance and add the id together.",
+    "test_crash_restart_is_effectively_once": "Commit the offset only AFTER the batch is processed. Committing first loses the rest of the batch on a crash (at-most-once). Committing after makes it at-least-once, and dedup by id makes the redelivery harmless."
+  }
+}

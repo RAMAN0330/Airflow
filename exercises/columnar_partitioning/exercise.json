@@ -1,0 +1,22 @@
+{
+  "id": "columnar_partitioning",
+  "title": "Columnar Storage, Encodings & Partition Pruning",
+  "summary": "Pivot row records into columns, compress them with run-length and dictionary encoding, route data with stable hash and range partitioning, prune partitions a query can't touch, and query nested documents by dotted path.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["columnar", "partitioning", "nosql", "encoding"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_to_columnar_shapes_and_missing": "First collect the column names in the order you first see them across all rows, then build each column with row.get(col) so missing fields become None.",
+    "test_rle_roundtrip_and_runs": "Walk the values once. If v equals the last run's value, bump its count; otherwise start a new run with count 1. Decoding is extend([v] * n).",
+    "test_dictionary_encoding_roundtrip": "Keep a dict value -> code. The first time you see a value, its code is len(dictionary) and it's appended to the dictionary.",
+    "test_hash_partition_matches_crc32": "Use exactly zlib.crc32(str(key).encode('utf-8')) % num_partitions, and raise ValueError when num_partitions < 1.",
+    "test_hash_partition_stable_across_processes": "Python's built-in hash() of a str is salted per process (PYTHONHASHSEED), so the same key lands in different partitions on different runs or machines. Use a fixed hash like CRC32.",
+    "test_partition_rows_preserves_all_rows": "Create num_partitions empty lists and append each row to parts[hash_partition(row[key], n)].",
+    "test_range_partition_boundaries": "bisect.bisect_right(bounds, value) counts the bounds <= value, which is exactly the partition id when lower bounds are inclusive.",
+    "test_prune_includes_boundary_partitions": "The first partition is the one holding lo and the last is the one holding hi, both via range_partition. Keep both ends: range(first, last + 1). A value equal to a bound belongs to the partition after it.",
+    "test_find_nested_paths_and_operators": "Split the path on '.', descend only through dicts, and treat a missing step as no match. A dict whose keys all start with '$' is a set of operators; anything else is an equality match. A TypeError from comparing means no match.",
+    "test_aggregate_touches_only_needed_columns": "Index the table only by the columns you need: table[group_by], table[value_col] and the where columns. Don't loop over table.items() or table.values()."
+  }
+}

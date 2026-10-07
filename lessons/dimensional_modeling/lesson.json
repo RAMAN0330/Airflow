@@ -1,0 +1,38 @@
+{
+  "id": "dimensional_modeling",
+  "title": "Dimensional Modeling: Star Schemas & Slowly Changing Dimensions",
+  "estimated_minutes": 15,
+  "summary": "How Kimball-style star schemas split a business process into facts and dimensions, why the grain must be declared first, and how SCD Type 2 keeps history so last year's reports don't change when a customer moves.",
+  "takeaways": [
+    "A star schema is one fact table of measurements surrounded by dimension tables of descriptive context.",
+    "Declare the grain before anything else. Every fact row must mean the same thing, like one order line.",
+    "Dimensions use warehouse-owned surrogate keys, so one natural key can have many historical versions.",
+    "SCD Type 2 closes the current row and inserts a new version. Old facts keep pointing at the old one."
+  ],
+  "flow": {
+    "title": "Applying an SCD Type 2 snapshot",
+    "steps": [
+      {"label": "Read snapshot", "detail": "Today's source rows, keyed by the natural key (customer_id)."},
+      {"label": "Find current row", "detail": "Look up the dimension row WHERE customer_id = ? AND is_current = 1."},
+      {"label": "Compare", "detail": "No row means a new member. Same tracked attributes means do nothing."},
+      {"label": "Close old version", "detail": "On a change, set valid_to = as_of and is_current = 0. Never overwrite the values."},
+      {"label": "Insert new version", "detail": "A new surrogate key, valid_from = as_of, valid_to = 9999-12-31, is_current = 1."}
+    ]
+  },
+  "terms": [
+    {"term": "Fact table", "definition": "Numeric measurements of a business process event (quantity, revenue), plus foreign keys to its dimensions."},
+    {"term": "Dimension table", "definition": "The who, what, where and when context for facts: customers, products, dates."},
+    {"term": "Grain", "definition": "The precise meaning of one fact row, such as one row per order line. Declared before choosing facts or dimensions."},
+    {"term": "Surrogate key", "definition": "A meaningless integer primary key assigned by the warehouse, independent of the source system's natural key."},
+    {"term": "SCD Type 1 / Type 2", "definition": "Type 1 overwrites an attribute and loses history. Type 2 adds a new row with effective and expiration dates."},
+    {"term": "Degenerate dimension", "definition": "A dimension key with no table of its own, like an order number stored directly on the fact."}
+  ],
+  "sources": [
+    {"title": "Star Schemas and OLAP Cubes (Kimball Dimensional Modeling Techniques)", "author": "Kimball Group", "publisher": "kimballgroup.com", "url": "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/star-schema-olap-cube/", "kind": "article"},
+    {"title": "Grain (Kimball Dimensional Modeling Techniques)", "author": "Kimball Group", "publisher": "kimballgroup.com", "url": "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/grain/", "kind": "article"},
+    {"title": "Dimension Surrogate Keys (Kimball Dimensional Modeling Techniques)", "author": "Kimball Group", "publisher": "kimballgroup.com", "url": "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/dimension-surrogate-key/", "kind": "article"},
+    {"title": "Type 2: Add New Row (Slowly Changing Dimension Techniques)", "author": "Kimball Group", "publisher": "kimballgroup.com", "url": "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/type-2/", "kind": "article"},
+    {"title": "Design Tip #107: Using the SQL MERGE Statement for Slowly Changing Dimension Processing", "author": "Kimball Group", "publisher": "kimballgroup.com", "year": 2008, "url": "https://www.kimballgroup.com/2008/11/design-tip-107-using-the-sql-merge-statement-for-slowly-changing-dimension-processing/", "kind": "article"},
+    {"title": "The Data Warehouse Toolkit: The Definitive Guide to Dimensional Modeling (3rd ed.)", "author": "Ralph Kimball, Margy Ross", "publisher": "Wiley", "year": 2013, "url": "https://www.oreilly.com/library/view/the-data-warehouse/9781118530801/", "kind": "book"}
+  ]
+}

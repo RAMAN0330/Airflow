@@ -1,0 +1,8 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "A query sums amount grouped by country over a 60-column table. Why is a column store faster than a row store here?", "options": ["It uses more indexes", "It reads only the 2 needed columns, and those columns compress well", "It stores rows in sorted order", "It caches query results"], "answer": 1, "explanation": "Column pruning skips the other 58 columns entirely, and similar values stored together compress well with RLE and dictionary encoding, so even less is read."},
+    {"id": "q2", "prompt": "A producer routes events with hash(user_id) % 8 in Python. A consumer in another process recomputes the partition to find a user's events. What goes wrong?", "options": ["Nothing, hash() is deterministic", "Modulo 8 is too small", "String hashes are salted per process, so the two processes disagree", "hash() is too slow"], "answer": 2, "explanation": "Since Python 3.3, str and bytes hashes are randomized per process (PYTHONHASHSEED). Use a fixed function like zlib.crc32."},
+    {"id": "q3", "prompt": "Range partitions use bounds [10, 20, 30] with inclusive lower bounds. Which partitions must a query for 15 <= x <= 20 scan?", "options": ["Only [10, 20)", "Only [20, 30)", "[0, 10) and [10, 20)", "[10, 20) and [20, 30)"], "answer": 3, "explanation": "x = 20 belongs to [20, 30), since lower bounds are inclusive. Pruning it would silently drop matching rows."},
+    {"id": "q4", "prompt": "What does run-length encoding turn [A, A, A, B, A] into?", "options": ["[(A, 4), (B, 1)]", "[(A, 3), (B, 1), (A, 1)]", "[(A, 2), (B, 1), (A, 1)]", "[A, B]"], "answer": 1, "explanation": "RLE only collapses consecutive repeats, and order is preserved. That's why it works best on sorted or clustered columns."}
+  ]
+}
