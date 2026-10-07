@@ -8,6 +8,7 @@ import { EASE } from "@/components/motion/primitives"
 import { Button } from "@/components/ui/button"
 import { stepHref } from "@/lib/links"
 import type { StepRef } from "@/lib/types"
+import { BRAND } from "@/lib/brand"
 import { useJourneyStore } from "@/stores/journey-store"
 
 const STEPS = [
@@ -34,7 +35,7 @@ export function Onboarding({ show, next }: { show: boolean; next: StepRef | null
           className="mb-10 overflow-hidden"
           aria-label="How your learning path works"
         >
-          <div className="relative rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/10 via-card to-fuchsia-500/5 p-6 sm:p-8">
+          <div className="relative rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/10 via-card to-ember/10 p-6 sm:p-8">
             <Button
               variant="ghost"
               size="icon-sm"
@@ -45,13 +46,13 @@ export function Onboarding({ show, next }: { show: boolean; next: StepRef | null
               <XIcon />
             </Button>
             <div className="mb-6 space-y-1.5 pr-8">
-              <p className="text-sm font-medium text-brand">Welcome to Gradient 👋</p>
+              <p className="text-sm font-medium text-brand">Welcome to {BRAND.name} 👋</p>
               <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">Here&apos;s how your path works</h2>
             </div>
             <ol className="relative grid gap-5 sm:grid-cols-4 sm:gap-4">
               <motion.span
                 aria-hidden
-                className="absolute top-5 left-5 hidden h-0.5 origin-left bg-gradient-to-r from-brand to-fuchsia-500 sm:block"
+                className="absolute top-5 left-5 hidden h-0.5 origin-left bg-gradient-to-r from-primary via-brand to-ember sm:block"
                 style={{ right: "12.5%" }}
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}

@@ -141,14 +141,14 @@ function PlanCard({
   return (
     <div
       className={cn(
-        "relative flex w-full flex-col gap-6 rounded-2xl border bg-card p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
-        plan.highlighted && "border-brand shadow-lg ring-1 ring-brand/30 lg:-my-2 lg:py-8",
+        "relative flex w-full flex-col gap-6 rounded-2xl border bg-card p-6 shadow-xs transition-[box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-elevated motion-reduce:hover:translate-y-0",
+        plan.highlighted && "border-brand/60 shadow-glow lg:-my-2 lg:py-8",
         plan.comingSoon && "bg-muted/30"
       )}
     >
       {plan.highlighted && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand to-fuchsia-500 text-white">
-          Most popular
+        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-gradient border-transparent text-white">
+          Recommended
         </Badge>
       )}
       <div className="space-y-1.5">

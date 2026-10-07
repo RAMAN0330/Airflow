@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useEffect, useMemo } from "react"
 import { BookOpenIcon, ChevronRightIcon, ClockIcon, CrownIcon, LibraryIcon } from "lucide-react"
 
+import { getLab } from "@/components/labs/registry"
 import { KeyTerms, Takeaways } from "@/components/learning/aids"
 import { CourseOutline } from "@/components/learning/course-outline"
 import { FlowDiagram } from "@/components/learning/flow-diagram"
@@ -38,6 +39,7 @@ export function LessonView({ lessonId }: { lessonId: string }) {
     if (lesson.takeaways.length) items.push({ id: "takeaways", label: "Key takeaways" })
     if (lesson.flow) items.push({ id: "flow", label: lesson.flow.title })
     items.push(...markdownHeadings(lesson.markdown))
+    if (getLab(lesson.id)) items.push({ id: "interactive-lab", label: "Interactive lab" })
     if (lesson.terms.length) items.push({ id: "key-terms", label: "Key terms" })
     if (lesson.questions.length) items.push({ id: "quiz-title", label: "Check your understanding" })
     if (lesson.sources.length) items.push({ id: "sources", label: "Sources & further reading" })
@@ -142,6 +144,7 @@ export function LessonView({ lessonId }: { lessonId: string }) {
               <div className="text-[15px] [&_.prose-task]:text-[15px] [&_h1]:hidden [&_h2]:mt-10 [&_h2]:text-xl [&_p]:leading-7">
                 <Markdown>{lesson.markdown}</Markdown>
               </div>
+              <LabSection lessonId={lesson.id} />
               <KeyTerms terms={lesson.terms} />
               <Quiz lesson={lesson} />
               <SourcesSection lesson={lesson} />
@@ -175,6 +178,25 @@ export function LessonView({ lessonId }: { lessonId: string }) {
         </aside>
       </div>
     </>
+  )
+}
+
+function LabSection({ lessonId }: { lessonId: string }) {
+  const lab = getLab(lessonId)
+  if (!lab) return null
+  const { Component } = lab
+  return (
+    <section id="interactive-lab" aria-labelledby="interactive-lab-title" className="scroll-mt-24 space-y-3">
+      <div className="space-y-1">
+        <h2 id="interactive-lab-title" className="text-lg font-semibold tracking-tight">
+          Interactive lab
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Play with the idea from this lesson. Change the controls and watch what happens; nothing here is graded.
+        </p>
+      </div>
+      <Component />
+    </section>
   )
 }
 

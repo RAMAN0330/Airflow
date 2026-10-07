@@ -3,7 +3,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export const FAQ_ITEMS = [
   {
     q: "What do I need to know before starting?",
-    a: "Comfortable Python and basic NumPy (arrays, shapes, matrix multiplication). The lessons cover the math you need as you go, starting from derivatives of a simple loss.",
+    a: "Comfortable Python and basic NumPy (arrays, shapes, matrix multiplication). The Math & Statistics track covers the foundations, and every lesson introduces the math it needs as it goes.",
   },
   {
     q: "How is my code graded?",
@@ -11,7 +11,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Why do lessons and courses unlock in order?",
-    a: "Each step builds on the one before it. You pass a short quiz on a lesson before writing its code, and you finish a course before the next course in the same track opens. Tracks are independent, so you can start Data Engineering and Machine Learning at the same time.",
+    a: "Each step builds on the one before it. You pass a short quiz on a lesson before writing its code, and you finish a course before the next course in the same track opens. Tracks are independent, so you can work on Math & Statistics, Data Engineering and Machine Learning at the same time.",
   },
   {
     q: "Where does the material come from?",
@@ -19,7 +19,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "What's included for free?",
-    a: "Four full courses: Classical ML and Deep Learning Foundations in the Machine Learning track, plus Databases & SQL and ETL/ELT Pipelines in the Data Engineering track. Every lesson, quiz and graded exercise in them is included, along with the SQL Playground, the Library and the leaderboard. Pro adds Generative AI & LLMs, MLOps Foundations and future Pro courses.",
+    a: "Every free course, including all of its lessons, quizzes and graded exercises, plus the SQL Playground, the Library and the leaderboard. Courses marked Pro, such as Generative AI & LLMs and MLOps, need a Pro plan. The Learn page and the pricing page show which is which.",
   },
   {
     q: "Can I cancel Pro at any time?",

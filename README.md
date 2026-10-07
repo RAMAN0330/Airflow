@@ -1,9 +1,11 @@
-# Gradient: ML/AI Practice Platform
+# Groundwork: build ML, data & MLOps from the ground up
 
-Gradient is an interactive platform where learners implement machine-learning algorithms, database
-queries, data pipelines and MLOps tooling from scratch, across three learning tracks. Each exercise has hidden tests that run in a sandbox,
-and lessons, exercises and courses unlock one after another as the learner progresses. Learners earn XP
-for a leaderboard, and a Pro plan opens the advanced course.
+Groundwork is an interactive platform where learners implement the math, machine-learning algorithms, database
+queries, data pipelines and MLOps tooling themselves, across four tracks: **10 courses, 37 cited lessons and 37
+sandbox-graded exercises (362 hidden tests)**. Lessons, exercises and courses unlock one after another as the
+learner progresses. Interactive labs, spaced-repetition review, a Skill Map, reference-solution compare and
+course certificates help the ideas stick. Learners earn XP for a leaderboard, and a Pro plan opens the advanced
+courses.
 
 | Layer | Stack |
 |---|---|
@@ -25,7 +27,7 @@ All screenshots are taken from the running app during an end-to-end run. The ful
 
 | | |
 |---|---|
-| ![Courses](docs/screenshots/03-learn-all-tracks.png) **Courses**: track navigator, three tracks, live progress rail | ![Lesson](docs/screenshots/06-lesson-three-column.png) **Lesson reader**: outline, takeaways, animated flow, on-this-page |
+| ![Courses](docs/screenshots/03-learn-all-tracks.png) **Courses**: track navigator, every track, live progress rail | ![Lesson](docs/screenshots/06-lesson-three-column.png) **Lesson reader**: outline, takeaways, animated flow, on-this-page |
 | ![Playground](docs/screenshots/10-playground.png) **SQL Playground**: schema explorer, samples, per-statement results | ![Library](docs/screenshots/11-library-sources.png) **Library**: every cited paper, doc and book, filterable |
 | ![Sources](docs/screenshots/07-lesson-sources.png) **Cited sources** at the end of every lesson | ![Course complete](docs/screenshots/09-databases-course-complete.png) **Course complete** opens the next course in the track |
 
@@ -57,31 +59,36 @@ make check   # pytest + typecheck + lint
 
 | Route | Page |
 |---|---|
-| `/` | **Landing**: hero, how it works, the three tracks (live from the API), a SQL Playground showcase, features, pricing teaser, FAQ |
+| `/` | **Landing**: hero, how it works, the four tracks (live from the API), a features grid, a SQL Playground showcase, features, pricing teaser, FAQ |
 | `/learn` | **Courses**: full-width explorer. Left: track navigator with per-track progress. Center: each track's courses in order, with lock reasons. Right: stats, up next, practice links, top learners |
 | `/learn/[courseId]` | **Syllabus**: modules as a step timeline, plus a rail with a progress ring, what you'll learn, the track path and sources |
-| `/lessons/[id]` | **Lesson reader**, three columns: course outline · article (summary, key takeaways, animated flow diagram, content, key terms, quiz, sources) · on-this-page with scroll-spy. Includes a reading progress bar |
-| `/exercises/[id]` | **IDE workspace**: Monaco editor, hidden-test results, hints, mentor tips, history |
+| `/lessons/[id]` | **Lesson reader**, three columns: course outline · article (summary, key takeaways, animated flow diagram, content, an **interactive lab** on 17 lessons, key terms, quiz, sources) · on-this-page with scroll-spy. Includes a reading progress bar |
+| `/exercises/[id]` | **IDE workspace**: Monaco editor, hidden-test results, hints, mentor tips, history, and once you pass, a side-by-side **compare with the reference solution** |
 | `/playground` | **SQL Playground**: schema explorer (keys, relationships, row counts), sample queries, history, Monaco SQL editor, a result tab per statement |
 | `/library` | **Library**: all cited sources (filter by track and type, search) and an A–Z glossary linked to the lessons that teach each term |
+| `/map` | **Skill Map**: every track → course → module as a graph, with live status and animated unlock paths |
+| `/review` | **Review**: spaced-repetition flashcards (SM-2 style) built from the glossary terms and quiz questions of lessons you've passed |
+| `/certificate/[courseId]` | **Certificate** for a completed course, printable / save as PDF, with a deterministic certificate id |
+| ⌘K / Ctrl K | **Command palette**: fuzzy search across pages, tracks, courses, lessons, exercises, glossary terms and sources |
 | `/pricing`, `/leaderboard`, `/progress` | Plans and demo checkout · XP standings (all-time and weekly) · personal stats, per-course progress by track |
 
 ## Tracks & curriculum
 
-Three independent tracks. Within a track, courses unlock in order. Every module is a **lesson (reading + quiz)
-followed by a graded exercise**.
+Four independent tracks. Within a track, courses unlock in order. Every module is a **lesson (reading + quiz)
+followed by a graded exercise**, and every exercise is pure Python/NumPy (or SQLite) so it runs in the sandbox.
 
-| Track | Course (tier) | Modules: lesson → exercise |
+| Track | Course (tier) | Exercises, in order |
 |---|---|---|
-| Machine Learning | Classical ML (free) | Gradient descent → `linear_regression_gd` |
-| | Deep Learning Foundations (free) | Activations & backprop → `activation_functions` |
-| | Generative AI & LLMs (Pro) | Attention → `self_attention_head` |
-| **Data Engineering** | **Databases & SQL** (free) | Relational model & analytical SQL → `sql_analytics_queries` · Indexes, query plans & ACID → `sql_indexes_transactions` |
-| | **ETL/ELT Pipelines** (free) | ETL vs ELT → `etl_pipeline` · Data quality & incremental loads → `data_quality_checks` · Orchestration with DAGs → `dag_scheduler` |
-| **MLOps** | **MLOps Foundations** (Pro) | Tracking & registry → `model_registry` · Drift monitoring → `drift_detection` · Feature stores & point-in-time joins → `point_in_time_join` |
-
-Further modules (dimensional modeling, NoSQL, streaming/CDC, CI/CD for ML, MLPs, CNNs, RNNs, LoRA, RAG…) are
-listed as *coming soon* and never block progress.
+| **Machine Learning** | Classical Machine Learning (free) | `linear_regression_gd` · `logistic_regression_svm` · `decision_tree_forest` · `kmeans_gmm` · `pca_from_scratch` |
+| | Deep Learning Foundations (free) | `activation_functions` · `mlp_backprop` · `conv2d_pooling` · `rnn_lstm_cell` |
+| | Generative AI & LLMs (Pro) | `self_attention_head` · `multi_head_attention_rope` · `lora_adapter` · `rag_retriever` |
+| **Data Engineering** | Databases & SQL (free) | `sql_analytics_queries` · `sql_indexes_transactions` · `star_schema_scd2` · `columnar_partitioning` |
+| | ETL/ELT Pipelines (free) | `etl_pipeline` · `data_quality_checks` · `dag_scheduler` · `stream_cdc_processor` |
+| | Distributed Data Processing (free) | `mapreduce_engine` · `distributed_join_strategies` · `skew_salting` |
+| **MLOps** | MLOps Foundations (Pro) | `model_registry` · `drift_detection` · `point_in_time_join` · `ml_cicd_gates` |
+| | LLMOps & Evaluation (Pro) | `llm_eval_metrics` · `judge_harness` · `llm_gateway` |
+| **Math & Statistics** | Statistics & Experimentation (free) | `bootstrap_inference` · `ab_test_analysis` · `bayesian_ab_fdr` |
+| | Linear Algebra, Autodiff & Optimization (free) | `least_squares_qr` · `mini_autograd` · `optimizers_from_scratch` |
 
 ### What the data exercises practise
 
@@ -110,8 +117,8 @@ Applications*, dbt's data-test and incremental-model docs, Breck et al. (MLSys 2
 Airflow docs, Sculley et al. *Hidden Technical Debt in ML Systems* (NeurIPS 2015), Google's MLOps guide, the MLflow
 Tracking/Registry docs, *The ML Test Score*, Rabanser et al. *Failing Loudly* (NeurIPS 2019), Kaufman et al. on
 leakage, the Feast point-in-time-join docs, *Attention Is All You Need* and the GELU paper. The catalog rejects a
-source without an `https` URL, and the Library page deduplicates sources across lessons (37 sources and 57 terms
-today).
+source without an `https` URL, and the Library page deduplicates sources across lessons (206 sources and 206 glossary
+terms today).
 
 ## SQL Playground
 
@@ -263,14 +270,19 @@ common mistakes each fail a specific, explainable test:
 
 ## Tests
 
-`python -m pytest` runs 66 tests:
+`python -m pytest` runs 244 tests:
 
 - **Grader:** reference solutions pass; starters fail; injected bugs are
   caught and tagged; syntax errors, CPU- and wall-clock timeouts and memory
   bombs are classified correctly.
 - **API:** sequential unlocking (lesson → exercise → next course), quiz grading without leaking answers,
   the Pro paywall (including withheld content), demo checkout and downgrade, XP and leaderboard ranking,
-  display-name validation, progress, and catalog validation.
+  display-name validation, progress, and catalog validation. API expectations (course order, step counts, XP,
+  unlock targets) are derived from `curriculum.json`, so adding modules doesn't break them.
+- **Features:** the review deck only reveals answers for passed lessons, reference solutions and certificates
+  are gated on passing/completion, and streaks count UTC days.
+- **Content (`tests/test_content_*.py`):** for every exercise, realistic bugs are injected into the reference
+  solution and each must be caught by a specific hidden test.
 
 CI (`.github/workflows/ci.yml`) runs these plus the frontend typecheck, lint
 and production build.

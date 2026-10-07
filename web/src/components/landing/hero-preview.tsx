@@ -1,6 +1,7 @@
 "use client"
 
-import { motion } from "motion/react"
+import { useRef } from "react"
+import { motion, useInView } from "motion/react"
 import { CheckIcon, LightbulbIcon, PlayIcon, XIcon } from "lucide-react"
 
 import { EASE } from "@/components/motion/primitives"
@@ -24,18 +25,22 @@ const TESTS: [boolean, string][] = [
 /** Illustrative, animated preview of the exercise workspace: code types in, tests tick, a hint appears. */
 export function HeroPreview() {
   const codeDone = 0.35 + LINES.length * 0.12
+  const ref = useRef<HTMLDivElement>(null)
+  // Plays when scrolled into view rather than on mount, since it sits below the fold.
+  const inView = useInView(ref, { once: true, margin: "-80px" })
   return (
     <motion.div
+      ref={ref}
       className="relative"
       initial={{ opacity: 0, y: 30, rotateX: 8 }}
-      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+      animate={inView ? { opacity: 1, y: 0, rotateX: 0 } : undefined}
       transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
       style={{ transformPerspective: 1200 }}
     >
-      <div className="animate-blob absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-brand/30 via-fuchsia-500/15 to-sky-400/10 blur-2xl" />
+      <div className="animate-blob absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-brand/30 via-primary/15 to-ember/15 blur-2xl" />
       <motion.div
         className="overflow-hidden rounded-xl border bg-card shadow-2xl shadow-brand/10"
-        animate={{ y: [0, -6, 0] }}
+        animate={inView ? { y: [0, -6, 0] } : undefined}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
       >
         <div className="flex items-center gap-2 border-b px-4 py-2.5">
@@ -46,7 +51,7 @@ export function HeroPreview() {
           <motion.span
             className="ml-auto flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground"
             initial={{ scale: 1 }}
-            animate={{ scale: [1, 0.92, 1] }}
+            animate={inView ? { scale: [1, 0.92, 1] } : undefined}
             transition={{ duration: 0.3, delay: codeDone }}
           >
             <PlayIcon className="size-3" /> Run tests
@@ -58,7 +63,7 @@ export function HeroPreview() {
               key={i}
               className="whitespace-pre"
               initial={{ opacity: 0, x: -6 }}
-              animate={{ opacity: 1, x: 0 }}
+              animate={inView ? { opacity: 1, x: 0 } : undefined}
               transition={{ duration: 0.3, delay: 0.35 + i * 0.12 }}
             >
               <span className="mr-4 inline-block w-4 text-right text-muted-foreground/60 select-none">{i + 1}</span>
@@ -73,7 +78,7 @@ export function HeroPreview() {
           <motion.div
             className="flex items-center justify-between font-medium"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={inView ? { opacity: 1 } : undefined}
             transition={{ delay: codeDone + 0.2 }}
           >
             <span>13 of 14 tests passing</span>
@@ -83,7 +88,7 @@ export function HeroPreview() {
             <motion.div
               className="h-full rounded-full bg-brand"
               initial={{ width: "0%" }}
-              animate={{ width: "93%" }}
+              animate={inView ? { width: "93%" } : undefined}
               transition={{ duration: 1, ease: EASE, delay: codeDone + 0.2 }}
             />
           </div>
@@ -92,12 +97,12 @@ export function HeroPreview() {
               key={name}
               className="flex items-center gap-2"
               initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={inView ? { opacity: 1, y: 0 } : undefined}
               transition={{ duration: 0.35, delay: codeDone + 0.45 + i * 0.18 }}
             >
               <motion.span
                 initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
+                animate={inView ? { scale: 1 } : undefined}
                 transition={{ type: "spring", stiffness: 500, damping: 15, delay: codeDone + 0.5 + i * 0.18 }}
               >
                 {ok ? <CheckIcon className="size-3.5 text-success" /> : <XIcon className="size-3.5 text-destructive" />}
@@ -108,7 +113,7 @@ export function HeroPreview() {
           <motion.div
             className="flex items-start gap-2 rounded-md bg-brand/10 px-2 py-1.5 text-muted-foreground"
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={inView ? { opacity: 1, height: "auto" } : undefined}
             transition={{ duration: 0.4, ease: EASE, delay: codeDone + 1.1 }}
           >
             <LightbulbIcon className="mt-0.5 size-3.5 shrink-0 text-brand" />

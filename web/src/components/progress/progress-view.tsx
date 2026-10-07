@@ -75,7 +75,9 @@ export function ProgressView() {
 }
 
 function ProgressContent({ progress }: { progress: ProgressData }) {
-  const streak = currentStreak(progress.activity)
+  // Server streak counts passing runs and finished lessons (UTC days); fall back for older APIs.
+  const streak = progress.current_streak ?? currentStreak(progress.activity)
+  const longest = progress.longest_streak ?? streak
   const stats = [
     {
       label: "Total XP",
@@ -98,7 +100,17 @@ function ProgressContent({ progress }: { progress: ProgressData }) {
       icon: TargetIcon,
       tone: "text-warning",
     },
-    { label: "Day streak", value: streak, sub: streak ? "Keep it going" : "Run code today to start one", icon: FlameIcon, tone: "text-orange-500" },
+    {
+      label: "Day streak",
+      value: streak,
+      sub: streak
+        ? `Longest: ${longest} day${longest === 1 ? "" : "s"} · keep it going`
+        : longest
+          ? `Longest: ${longest} day${longest === 1 ? "" : "s"} · pass something today`
+          : "Pass a test or a quiz today to start one",
+      icon: FlameIcon,
+      tone: "text-orange-500",
+    },
   ]
 
   return (

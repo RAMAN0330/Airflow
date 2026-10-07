@@ -1,13 +1,15 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect } from "react"
 import { motion } from "motion/react"
-import { ArrowRightIcon, CrownIcon, TrophyIcon } from "lucide-react"
+import { ArrowRightIcon, AwardIcon, CrownIcon, TrophyIcon } from "lucide-react"
 
 import { AnimatedNumber, EASE } from "@/components/motion/primitives"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { stepHref } from "@/lib/links"
+import { useCatalogStore } from "@/stores/catalog-store"
 import { useJourneyStore } from "@/stores/journey-store"
 import { useSessionStore } from "@/stores/session-store"
 
@@ -18,6 +20,12 @@ export function CourseCelebration() {
   const me = useSessionStore((s) => s.me)
   const next = celebration?.next ?? null
   const needsPro = next?.status === "locked"
+  // Celebrations carry the course title; resolve its id for the certificate link.
+  const loadTracks = useCatalogStore((s) => s.loadTracks)
+  const courseId = useCatalogStore((s) => s.courses?.find((c) => c.title === celebration?.courseTitle)?.id)
+  useEffect(() => {
+    if (celebration) loadTracks()
+  }, [celebration, loadTracks])
 
   return (
     <Dialog open={!!celebration} onOpenChange={(o) => !o && close()}>
@@ -81,6 +89,13 @@ export function CourseCelebration() {
                 <Button asChild size="lg" onClick={close}>
                   <Link href="/pricing">
                     <CrownIcon /> Unlock the next course with Pro
+                  </Link>
+                </Button>
+              )}
+              {courseId && (
+                <Button asChild variant="outline" onClick={close}>
+                  <Link href={`/certificate/${courseId}`}>
+                    <AwardIcon /> View your certificate
                   </Link>
                 </Button>
               )}

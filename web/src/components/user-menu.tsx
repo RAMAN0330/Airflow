@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { BarChart3Icon, CrownIcon, PencilIcon, TrophyIcon } from "lucide-react"
+import { BarChart3Icon, CrownIcon, FlameIcon, PencilIcon, TrophyIcon } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
 
 import { AnimatedNumber, EASE } from "@/components/motion/primitives"
@@ -44,12 +44,12 @@ export function UserMenu() {
 
   return (
     <>
-      <XpPill xp={me.xp} />
+      <XpPill xp={me.xp} streak={me.current_streak ?? 0} />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon-sm" className="rounded-full" aria-label="Account menu">
             <Avatar className="size-8">
-              <AvatarFallback className="bg-gradient-to-br from-brand/80 to-fuchsia-500/80 text-xs font-semibold text-white">
+              <AvatarFallback className="bg-brand-gradient text-xs font-semibold text-white">
                 {initials(me.display_name)}
               </AvatarFallback>
             </Avatar>
@@ -64,6 +64,11 @@ export function UserMenu() {
             <span className="text-xs font-normal text-muted-foreground tabular-nums">
               {me.xp} XP{me.rank ? ` · Rank #${me.rank}` : ""}
             </span>
+            {(me.current_streak ?? 0) > 0 && (
+              <span className="flex items-center gap-1 text-xs font-normal text-orange-500">
+                <FlameIcon className="size-3.5" /> {me.current_streak}-day streak
+              </span>
+            )}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
@@ -93,7 +98,7 @@ export function UserMenu() {
 }
 
 /** XP counter that counts up and floats a "+N" when XP increases. */
-function XpPill({ xp }: { xp: number }) {
+function XpPill({ xp, streak }: { xp: number; streak: number }) {
   const [prev, setPrev] = useState(xp)
   const [gain, setGain] = useState<{ amount: number; key: number } | null>(null)
 
@@ -113,8 +118,13 @@ function XpPill({ xp }: { xp: number }) {
     <Link
       href="/leaderboard"
       className="relative hidden items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-accent sm:flex"
-      title="Your XP"
+      title={streak ? `Your XP · ${streak}-day streak` : "Your XP"}
     >
+      {streak > 0 && (
+        <span className="flex items-center gap-0.5 border-r pr-1.5 text-orange-500 tabular-nums" aria-label={`${streak}-day streak`}>
+          <FlameIcon className="size-3.5" aria-hidden /> {streak}
+        </span>
+      )}
       <motion.span
         key={gain?.key ?? "idle"}
         className="text-brand"

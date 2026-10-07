@@ -5,12 +5,13 @@ import { useEffect } from "react"
 import { ArrowRightIcon, CrownIcon } from "lucide-react"
 
 import { Stagger, StaggerItem } from "@/components/motion/primitives"
-import { TrackIcon } from "@/components/track-icon"
+import { TrackIcon, trackTone } from "@/components/track-icon"
 import { Skeleton } from "@/components/ui/skeleton"
 import { plural } from "@/lib/format"
+import { cn } from "@/lib/utils"
 import { useCatalogStore } from "@/stores/catalog-store"
 
-/** The three learning tracks with their courses in order, loaded live from the API. */
+/** The learning tracks with their courses in order, loaded live from the API. */
 export function CoursePreview() {
   const tracks = useCatalogStore((s) => s.tracks)
   const load = useCatalogStore((s) => s.loadTracks)
@@ -20,8 +21,8 @@ export function CoursePreview() {
 
   if (!tracks) {
     return (
-      <div className="grid gap-5 lg:grid-cols-3">
-        {[0, 1, 2].map((i) => (
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-96 rounded-2xl" />
         ))}
       </div>
@@ -29,18 +30,19 @@ export function CoursePreview() {
   }
 
   return (
-    <Stagger as="ol" inView step={0.12} className="grid gap-5 lg:grid-cols-3">
+    <Stagger as="ol" inView step={0.1} className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
       {tracks.map((t) => {
         const exercises = t.courses.flatMap((c) => c.modules).filter((m) => m.exercise).length
         return (
           <StaggerItem as="li" key={t.id}>
             <Link
               href={`/learn?track=${t.id}`}
-              className="group flex h-full flex-col gap-5 rounded-2xl border bg-card p-6 shadow-xs transition-all hover:-translate-y-1 hover:shadow-lg"
+              className="group relative flex h-full flex-col gap-5 overflow-hidden rounded-2xl border bg-card p-6 shadow-xs transition-[box-shadow,transform] duration-300 outline-none hover:-translate-y-1 hover:shadow-elevated focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:hover:translate-y-0"
             >
+              <span aria-hidden className={cn("absolute inset-x-0 top-0 h-1 bg-gradient-to-r", trackTone(t.id))} />
               <div className="flex items-center gap-3">
                 <TrackIcon icon={t.icon} trackId={t.id} className="size-11" />
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-lg font-semibold tracking-tight">{t.title}</h3>
                   <p className="text-sm text-muted-foreground">{t.tagline}</p>
                 </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect } from "react"
-import { ArrowRightIcon, ChevronLeftIcon, ClockIcon, CrownIcon, LibraryIcon, PartyPopperIcon, SparklesIcon } from "lucide-react"
+import { ArrowRightIcon, AwardIcon, ChevronLeftIcon, ClockIcon, CrownIcon, LibraryIcon, PartyPopperIcon, SparklesIcon } from "lucide-react"
 import { motion } from "motion/react"
 
 import { StepRow } from "@/components/learn/step-row"
@@ -111,6 +111,13 @@ export function CourseView({ courseId }: { courseId: string }) {
               <Button asChild>
                 <Link href={stepHref(current)}>
                   {current.status === "in_progress" || course.completed_steps > 0 ? "Continue" : "Start"} <ArrowRightIcon />
+                </Link>
+              </Button>
+            )}
+            {course.status === "completed" && (
+              <Button asChild variant="outline">
+                <Link href={`/certificate/${course.id}`}>
+                  <AwardIcon /> View certificate
                 </Link>
               </Button>
             )}

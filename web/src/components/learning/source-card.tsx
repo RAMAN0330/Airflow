@@ -36,7 +36,7 @@ export function SourceCard({ source, compact, children }: { source: Source; comp
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "group flex h-full flex-col gap-2 rounded-xl border bg-card transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md",
+        "group flex h-full min-w-0 flex-col gap-2 rounded-xl border bg-card [overflow-wrap:anywhere] transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md",
         compact ? "p-3" : "p-4"
       )}
     >

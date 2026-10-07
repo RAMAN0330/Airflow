@@ -1,5 +1,6 @@
 import { useUserStore } from "@/stores/user-store"
 import type {
+  Certificate,
   Course,
   ExerciseDetail,
   Leaderboard,
@@ -12,6 +13,8 @@ import type {
   Me,
   Progress,
   QuizAttemptResult,
+  ReviewDeck,
+  Solution,
   Submission,
   SubmissionOut,
 } from "@/lib/types"
@@ -69,7 +72,11 @@ export const api = {
   exercise: (id: string) => request<ExerciseDetail>(`/exercises/${enc(id)}`),
   submissions: (id: string) => request<Submission[]>(`/exercises/${enc(id)}/submissions`),
   submit: (id: string, code: string) => request<SubmissionOut>(`/exercises/${enc(id)}/submissions`, post({ code })),
+  solution: (id: string) => request<Solution>(`/exercises/${enc(id)}/solution`),
 
   progress: () => request<Progress>("/progress"),
   leaderboard: (period: LeaderboardPeriod) => request<Leaderboard>(`/leaderboard?period=${period}`),
+
+  reviewCards: () => request<ReviewDeck>("/review/cards"),
+  certificate: (courseId: string) => request<Certificate>(`/certificates/${enc(courseId)}`),
 }

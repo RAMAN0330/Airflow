@@ -60,7 +60,7 @@ export function CoursesView() {
   return (
     <div className="mx-auto grid w-full max-w-[1600px] gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8 2xl:grid-cols-[240px_minmax(0,1fr)_320px]">
       {/* Track navigator */}
-      <aside className="lg:sticky lg:top-20 lg:self-start">
+      <aside className="min-w-0 lg:sticky lg:top-20 lg:self-start">
         <TrackNav tracks={tracks} selected={selected} onSelect={select} />
       </aside>
 
@@ -69,7 +69,7 @@ export function CoursesView() {
           <p className="text-sm font-medium text-brand">Your learning paths</p>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Courses</h1>
           <p className="max-w-3xl text-muted-foreground">
-            Three independent tracks. In each one, courses unlock in order, and every module pairs a short lesson
+            Four independent tracks. In each one, courses unlock in order, and every module pairs a short lesson
             with a graded coding exercise. Start any track whenever you like.
           </p>
         </header>

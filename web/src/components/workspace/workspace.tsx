@@ -47,6 +47,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { ResultsPanel } from "@/components/workspace/results-panel"
+import { SolutionCompare } from "@/components/workspace/solution-compare"
 import { TaskPane } from "@/components/workspace/task-pane"
 import { useFreshUnlock } from "@/hooks/use-fresh-unlock"
 import { useMediaQuery } from "@/hooks/use-media-query"
@@ -251,6 +252,7 @@ function Toolbar({
       </div>
 
       <div className="ml-auto flex items-center gap-1.5">
+        <SolutionCompare exercise={exercise} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon-sm" aria-label="Editor settings">

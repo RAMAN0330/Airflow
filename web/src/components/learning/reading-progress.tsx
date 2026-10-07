@@ -9,7 +9,7 @@ export function ReadingProgress() {
   return (
     <motion.div
       aria-hidden
-      className="fixed inset-x-0 top-14 z-30 h-0.5 origin-left bg-gradient-to-r from-brand to-fuchsia-500"
+      className="fixed inset-x-0 top-14 z-30 h-0.5 origin-left bg-gradient-to-r from-primary via-brand to-ember"
       style={{ scaleX }}
     />
   )

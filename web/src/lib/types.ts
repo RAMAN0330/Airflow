@@ -223,6 +223,7 @@ export interface Me {
   exercises_completed: number
   lessons_completed: number
   billing_mode: "demo" | "disabled" | string
+  current_streak: number
 }
 
 export interface ActivityDay {
@@ -261,6 +262,8 @@ export interface Progress {
   recent: Submission[]
   activity: ActivityDay[]
   next_up: StepRef | null
+  current_streak: number
+  longest_streak: number
 }
 
 export type LeaderboardPeriod = "all" | "week"
@@ -300,6 +303,48 @@ export interface LibraryTerm extends Term {
 export interface Library {
   sources: LibrarySource[]
   terms: LibraryTerm[]
+}
+
+export interface ReviewTerm extends Term {
+  id: string
+  lesson: LessonLink
+}
+
+export interface ReviewQuestion {
+  id: string
+  prompt: string
+  options: string[]
+  answer: number
+  explanation: string | null
+  lesson: LessonLink
+}
+
+export interface ReviewDeck {
+  terms: ReviewTerm[]
+  questions: ReviewQuestion[]
+}
+
+export interface Solution {
+  exercise_id: string
+  title: string
+  code: string
+  your_code: string | null
+}
+
+export interface Certificate {
+  id: string
+  course_id: string
+  course_title: string
+  track_id: string
+  track_title: string
+  level: string
+  display_name: string
+  completed_at: string
+  total_xp: number
+  lessons: number
+  exercises: number
+  estimated_minutes: number
+  concepts: string[]
 }
 
 export interface PlaygroundColumn {

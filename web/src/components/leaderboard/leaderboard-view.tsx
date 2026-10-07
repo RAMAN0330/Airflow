@@ -161,7 +161,7 @@ function PodiumCard({ entry: e, place }: { entry: LeaderboardEntry; place: numbe
         <MedalIcon className={cn("size-5", MEDAL[place])} />
       )}
       <Avatar className={place === 0 ? "size-14" : "size-11"}>
-        <AvatarFallback className="bg-gradient-to-br from-brand/80 to-fuchsia-500/80 font-semibold text-white">
+        <AvatarFallback className="bg-brand-gradient font-semibold text-white">
           {initials(e.display_name)}
         </AvatarFallback>
       </Avatar>

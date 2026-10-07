@@ -17,7 +17,7 @@ const PRICING_FAQ = [
   },
   {
     q: "Is there a free trial?",
-    a: "The Free plan is the trial: two full courses with no time limit. Upgrade once you're ready for transformers and LLMs.",
+    a: "The Free plan is the trial: complete courses with no time limit. Upgrade once you're ready for the Pro courses.",
   },
   {
     q: "Do you offer team or classroom pricing?",
@@ -37,20 +37,26 @@ function Cell({ value }: { value: boolean | string }) {
 export function PricingPage() {
   return (
     <>
-      <section className="mx-auto w-full max-w-7xl px-4 pt-16 pb-12 sm:px-6">
+      <section className="relative isolate">
+        <div aria-hidden className="bg-aurora pointer-events-none absolute inset-0 -z-10" />
+        <div aria-hidden className="bg-grid pointer-events-none absolute inset-0 -z-10" />
+        <div className="mx-auto w-full max-w-7xl px-4 pt-16 pb-12 sm:px-6 lg:pt-20">
         <div className="mx-auto mb-10 max-w-2xl space-y-3 text-center">
-          <p className="text-sm font-medium text-brand">Pricing</p>
-          <h1 className="text-4xl font-semibold tracking-tight text-balance">Simple plans for a long path</h1>
+          <p className="text-sm font-semibold tracking-wide text-brand uppercase">Pricing</p>
+          <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+            Simple plans for a <span className="text-gradient-brand">long path</span>
+          </h1>
           <p className="text-muted-foreground">
-            Two complete courses are free, forever. Pro opens the advanced track on transformers and LLMs.
+            The foundations are free, forever. Pro opens the advanced courses, from transformers and LLMs to production MLOps.
           </p>
         </div>
         <PlanCards />
+        </div>
       </section>
 
       <section className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6">
         <h2 className="mb-6 text-2xl font-semibold tracking-tight">Compare plans</h2>
-        <div className="rounded-xl border">
+        <div className="overflow-hidden rounded-xl border bg-card shadow-xs">
           <Table>
             <TableHeader>
               <TableRow>
