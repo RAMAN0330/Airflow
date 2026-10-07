@@ -132,7 +132,7 @@ def test_unstable_softmax_is_tagged_and_hinted():
 
 def test_every_hidden_test_has_a_hint():
     import ast, json
-    assert len(ALL_EXERCISES) == 11
+    assert len(ALL_EXERCISES) >= 11
     for ex in ALL_EXERCISES:
         hints = json.loads((ex / "exercise.json").read_text())["hints"]
         tree = ast.parse((ex / "tests_hidden.py").read_text())

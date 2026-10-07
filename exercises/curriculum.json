@@ -35,8 +35,8 @@
                 "Max margin",
                 "Kernels"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "logistic_svm_intuition",
+              "exercise": "logistic_regression_svm"
             },
             {
               "id": "trees",
@@ -46,8 +46,8 @@
                 "Gini impurity",
                 "Bagging"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "trees_and_forests",
+              "exercise": "decision_tree_forest"
             },
             {
               "id": "clustering",
@@ -57,8 +57,8 @@
                 "EM loop",
                 "Centroid updates"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "clustering_kmeans_gmm",
+              "exercise": "kmeans_gmm"
             },
             {
               "id": "pca",
@@ -68,8 +68,8 @@
                 "Eigendecomposition",
                 "SVD"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "pca_intuition",
+              "exercise": "pca_from_scratch"
             }
           ]
         },
@@ -101,8 +101,8 @@
                 "Jacobians",
                 "Chain rule"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "mlp_backprop",
+              "exercise": "mlp_backprop"
             },
             {
               "id": "cnn",
@@ -112,8 +112,8 @@
                 "Stride & padding",
                 "Max-pooling"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "cnn_convolutions",
+              "exercise": "conv2d_pooling"
             },
             {
               "id": "rnn",
@@ -123,8 +123,8 @@
                 "BPTT",
                 "Gradient clipping"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "rnn_lstm",
+              "exercise": "rnn_lstm_cell"
             }
           ]
         },
@@ -153,8 +153,8 @@
                 "Head slicing",
                 "Rotary embeddings"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "mha_rope",
+              "exercise": "multi_head_attention_rope"
             },
             {
               "id": "lora",
@@ -163,8 +163,8 @@
                 "Frozen base weights",
                 "Low-rank ΔW = BA"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "lora_finetuning",
+              "exercise": "lora_adapter"
             },
             {
               "id": "rag",
@@ -174,8 +174,8 @@
                 "Cosine similarity",
                 "Context injection"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "rag_fundamentals",
+              "exercise": "rag_retriever"
             }
           ]
         }
@@ -228,8 +228,8 @@
                 "Facts & dimensions",
                 "Slowly changing dimensions"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "dimensional_modeling",
+              "exercise": "star_schema_scd2"
             },
             {
               "id": "nosql",
@@ -239,8 +239,8 @@
                 "Column stores",
                 "Partitioning"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "nosql_columnar",
+              "exercise": "columnar_partitioning"
             }
           ]
         },
@@ -295,8 +295,8 @@
                 "CDC",
                 "Exactly-once"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "streaming_cdc",
+              "exercise": "stream_cdc_processor"
             }
           ]
         },
@@ -403,8 +403,8 @@
                 "Canary releases",
                 "Model serving"
               ],
-              "lesson": null,
-              "exercise": null
+              "lesson": "ml_cicd_serving",
+              "exercise": "ml_cicd_gates"
             }
           ]
         },

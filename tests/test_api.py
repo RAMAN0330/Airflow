@@ -86,14 +86,48 @@ def test_me_defaults_and_rename(client):
 
 
 # ------------------------------------------------------------------ sequencing
+# Expectations are derived from curriculum.json so new modules don't break the rules being tested.
+
+CURRICULUM = json.loads((EX / "curriculum.json").read_text())["tracks"]
+COURSES = [(t["id"], c) for t in CURRICULUM for c in t["courses"]]
+COURSE = {c["id"]: c for _, c in COURSES}
+
+
+def course_steps(course_id):
+    return [(kind, m[kind]) for m in COURSE[course_id]["modules"] for kind in ("lesson", "exercise") if m[kind]]
+
+
+def next_step(course_id, step_id):
+    ids = [sid for _, sid in course_steps(course_id)]
+    return ids[ids.index(step_id) + 1]
+
+
+def exercise_xp(eid):
+    return {"beginner": 100, "intermediate": 200, "advanced": 300}[json.loads((EX / eid / "exercise.json").read_text())["difficulty"]]
+
+
+def complete_course(client, course_id, headers=H):
+    """Pass every step of a course in order; returns the response for the final step."""
+    last = None
+    for kind, sid in course_steps(course_id):
+        last = pass_lesson(client, sid, headers) if kind == "lesson" else pass_exercise(client, sid, headers)
+    return last
+
+
+def expected_fresh_status(track_id, course):
+    if course.get("tier", "free") == "pro":
+        return "upgrade_required"
+    earlier = next(t for t in CURRICULUM if t["id"] == track_id)["courses"]
+    earlier = earlier[:earlier.index(course)]
+    # A course opens once every earlier course in its track is done (a course with no released steps is trivially done).
+    return "available" if all(not course_steps(c["id"]) for c in earlier) else "locked"
+
 
 def test_fresh_learner_sees_only_first_lesson_unlocked(client):
     courses = client.get("/api/courses", headers=H).json()
-    assert [c["id"] for c in courses] == [
-        "classical-ml", "deep-learning", "genai-llms", "databases-sql", "etl-pipelines", "mlops-foundations"]
-    assert [(c["track_id"], c["position"]) for c in courses] == [
-        ("machine-learning", 1), ("machine-learning", 2), ("machine-learning", 3),
-        ("data-engineering", 1), ("data-engineering", 2), ("mlops", 1)]
+    assert [c["id"] for c in courses] == [c["id"] for _, c in COURSES]
+    positions = [(t["id"], i) for t in CURRICULUM for i, _ in enumerate(t["courses"], start=1)]
+    assert [(c["track_id"], c["position"]) for c in courses] == positions
     s = statuses(client)
     assert {k: s[k] for k in ("classical-ml", "gradient_descent_intuition", "linear_regression_gd", "deep-learning",
                               "activations_and_backprop", "genai-llms", "self_attention_head")} == {
@@ -106,15 +140,19 @@ def test_fresh_learner_sees_only_first_lesson_unlocked(client):
         "self_attention_head": "locked",
     }
     # Tracks are independent: the first course of each free track is open from the start.
-    assert (s["databases-sql"], s["relational_sql_basics"], s["sql_analytics_queries"]) == ("available", "available", "locked")
-    assert (s["etl-pipelines"], s["mlops-foundations"]) == ("locked", "upgrade_required")
+    assert {c["id"]: c["status"] for c in courses} == {c["id"]: expected_fresh_status(t, c) for t, c in COURSES}
+    assert (s["relational_sql_basics"], s["sql_analytics_queries"]) == ("available", "locked")
     ex = courses[0]["modules"][0]["exercise"]
     assert ex["lock_reason"]["kind"] == "previous_step"
     assert ex["lock_reason"]["target"]["id"] == "gradient_descent_intuition"
     assert courses[1]["lock_reason"]["kind"] == "previous_course"
     assert courses[2]["lock_reason"]["kind"] == "plan"
-    assert courses[0]["modules"][1]["coming_soon"] is True
-    assert courses[0]["total_steps"] == 2 and courses[0]["total_xp"] == 125
+    for c in courses:
+        for m in c["modules"]:
+            assert m["coming_soon"] == (m["lesson"] is None and m["exercise"] is None)
+    steps = course_steps("classical-ml")
+    assert courses[0]["total_steps"] == len(steps)
+    assert courses[0]["total_xp"] == sum(25 if k == "lesson" else exercise_xp(sid) for k, sid in steps)
 
 
 def test_exercise_locked_until_lesson_passed(client):
@@ -126,10 +164,10 @@ def test_exercise_locked_until_lesson_passed(client):
     assert detail["status"] == "locked"
     assert "def predict" in detail["starter_code"], "sequence-locked exercises stay previewable"
     assert detail["lesson"]["id"] == "gradient_descent_intuition"
-    assert detail["next"]["id"] == "activations_and_backprop"
+    assert detail["next"]["id"] == next_step("classical-ml", "linear_regression_gd")
     assert detail["course"] == {"id": "classical-ml", "title": "Classical Machine Learning", "tier": "free",
                                 "track_id": "machine-learning", "track_title": "Machine Learning"}
-    assert [st["id"] for m in detail["outline"] for st in m["steps"]] == ["gradient_descent_intuition", "linear_regression_gd"]
+    assert [st["id"] for m in detail["outline"] for st in m["steps"]] == [sid for _, sid in course_steps("classical-ml")]
 
 
 def test_quiz_grading_hides_answers_until_correct(client):
@@ -173,11 +211,9 @@ def test_completing_a_course_unlocks_the_next(client):
     assert statuses(client)["classical-ml"] == "in_progress"
 
     passed = pass_exercise(client, "linear_regression_gd")
-    assert passed["newly_completed"] and passed["xp_earned"] == 100
-    assert [u["id"] for u in passed["unlocked"]] == ["activations_and_backprop"]
-    s = statuses(client)
-    assert s["classical-ml"] == "completed" and s["deep-learning"] == "available"
-    assert s["activation_functions"] == "locked"
+    assert passed["newly_completed"] and passed["xp_earned"] == exercise_xp("linear_regression_gd")
+    assert [u["id"] for u in passed["unlocked"]] == [next_step("classical-ml", "linear_regression_gd")]
+    assert statuses(client)["classical-ml"] == "in_progress"
 
     again = pass_exercise(client, "linear_regression_gd")
     assert again["newly_completed"] is False and again["xp_earned"] == 0 and again["unlocked"] == []
@@ -186,11 +222,16 @@ def test_completing_a_course_unlocks_the_next(client):
     assert [h["status"] for h in history] == ["passed", "passed", "failed"]
     assert history[-1]["code"] == starter
 
+    last = complete_course(client, "classical-ml")
+    assert [u["id"] for u in last["unlocked"]] == ["activations_and_backprop"], "finishing a course opens the next"
+    s = statuses(client)
+    assert s["classical-ml"] == "completed" and s["deep-learning"] == "available"
+    assert s["activation_functions"] == "locked"
+
 
 def test_pro_course_requires_plan_and_demo_checkout(client):
-    for lesson, ex in (("gradient_descent_intuition", "linear_regression_gd"), ("activations_and_backprop", "activation_functions")):
-        pass_lesson(client, lesson)
-        pass_exercise(client, ex)
+    complete_course(client, "classical-ml")
+    complete_course(client, "deep-learning")
     s = statuses(client)
     assert s["deep-learning"] == "completed" and s["genai-llms"] == "upgrade_required"
     r = client.post("/api/lessons/attention_intuition/attempts", headers=H, json={"answers": correct_answers("attention_intuition")})
@@ -209,7 +250,10 @@ def test_pro_course_requires_plan_and_demo_checkout(client):
 
     pass_lesson(client, "attention_intuition")
     done = pass_exercise(client, "self_attention_head")
-    assert done["xp_earned"] == 200 and done["unlocked"] == []
+    assert done["xp_earned"] == exercise_xp("self_attention_head")
+    assert [u["id"] for u in done["unlocked"]] == [next_step("genai-llms", "self_attention_head")]
+    final = complete_course(client, "genai-llms")
+    assert final["unlocked"] == [], "the last course of a track unlocks nothing"
     assert statuses(client)["genai-llms"] == "completed"
 
     # Downgrading keeps completed work; the Pro course locks again.
@@ -230,14 +274,16 @@ def test_progress(client):
     pass_lesson(client, "gradient_descent_intuition")
     pass_exercise(client, "linear_regression_gd")
     p = client.get("/api/progress", headers=H).json()
-    assert (p["xp"], p["rank"]) == (125, 1)
-    assert (p["exercises_completed"], p["total_exercises"]) == (1, 11)
-    assert (p["lessons_completed"], p["total_lessons"]) == (1, 11)
+    assert (p["xp"], p["rank"]) == (25 + exercise_xp("linear_regression_gd"), 1)
+    n_lessons = sum(1 for _, c in COURSES for k, _ in course_steps(c["id"]) if k == "lesson")
+    n_exercises = sum(1 for _, c in COURSES for k, _ in course_steps(c["id"]) if k == "exercise")
+    assert (p["exercises_completed"], p["total_exercises"]) == (1, n_exercises)
+    assert (p["lessons_completed"], p["total_lessons"]) == (1, n_lessons)
     assert p["total_submissions"] == 1 and p["pass_rate"] == 1.0
-    assert p["next_up"] == {"kind": "lesson", "id": "activations_and_backprop", "title": p["next_up"]["title"],
-                            "status": "available", "course_id": "deep-learning"}
-    assert [c["status"] for c in p["courses"]] == [
-        "completed", "available", "upgrade_required", "available", "locked", "upgrade_required"]
+    assert p["next_up"] == {"kind": "lesson", "id": next_step("classical-ml", "linear_regression_gd"),
+                            "title": p["next_up"]["title"], "status": "available", "course_id": "classical-ml"}
+    expected = {c["id"]: expected_fresh_status(t, c) for t, c in COURSES} | {"classical-ml": "in_progress"}
+    assert {c["id"]: c["status"] for c in p["courses"]} == expected
     assert p["recent"][0]["code"] is None and p["activity"][0]["submissions"] == 1
 
     fresh = client.get("/api/progress", headers=H2).json()
@@ -254,12 +300,12 @@ def test_leaderboard_ranks_by_xp(client):
     board = client.get("/api/leaderboard", headers=H2).json()
     assert board["total_learners"] == 2
     assert [(e["rank"], e["display_name"], e["xp"], e["is_me"]) for e in board["entries"]] == [
-        (1, "Ada", 125, False), (2, "Grace", 25, True)]
+        (1, "Ada", 25 + exercise_xp("linear_regression_gd"), False), (2, "Grace", 25, True)]
     assert board["me"]["rank"] == 2 and board["me"]["lessons_completed"] == 1
     assert "user_id" not in json.dumps(board), "learner ids must not leak"
 
     week = client.get("/api/leaderboard?period=week", headers=H).json()
-    assert week["period"] == "week" and week["entries"][0]["xp"] == 125
+    assert week["period"] == "week" and week["entries"][0]["xp"] == 25 + exercise_xp("linear_regression_gd")
 
     nobody = client.get("/api/leaderboard", headers={"X-User-Id": "lurker-00003"}).json()
     assert nobody["me"] is None
@@ -309,11 +355,13 @@ def test_catalog_rejects_duplicate_steps(tmp_path):
 
 def test_tracks_summarize_courses(client):
     tracks = client.get("/api/tracks", headers=H).json()
-    assert [t["id"] for t in tracks] == ["machine-learning", "data-engineering", "mlops"]
+    assert [t["id"] for t in tracks] == [t["id"] for t in CURRICULUM]
     by_id = {t["id"]: t for t in tracks}
-    assert by_id["data-engineering"]["status"] == "available" and by_id["data-engineering"]["total_steps"] == 10
+    de = next(t for t in CURRICULUM if t["id"] == "data-engineering")
+    assert by_id["data-engineering"]["status"] == "available"
+    assert by_id["data-engineering"]["total_steps"] == sum(len(course_steps(c["id"])) for c in de["courses"])
     assert by_id["mlops"]["status"] == "upgrade_required"
-    assert [c["id"] for c in by_id["data-engineering"]["courses"]] == ["databases-sql", "etl-pipelines"]
+    assert [c["id"] for c in by_id["data-engineering"]["courses"]] == [c["id"] for c in de["courses"]]
 
 
 def test_data_engineering_track_sequence(client):
@@ -322,7 +370,8 @@ def test_data_engineering_track_sequence(client):
     assert [u["id"] for u in first["unlocked"]] == ["indexes_and_transactions"]
     pass_lesson(client, "indexes_and_transactions")
     done = pass_exercise(client, "sql_indexes_transactions")
-    assert done["xp_earned"] == 200
+    assert done["xp_earned"] == exercise_xp("sql_indexes_transactions")
+    done = complete_course(client, "databases-sql")
     assert [u["id"] for u in done["unlocked"]] == ["etl_vs_elt"], "finishing Databases & SQL opens ETL/ELT Pipelines"
     s = statuses(client)
     assert s["databases-sql"] == "completed" and s["etl-pipelines"] == "available"
@@ -338,7 +387,7 @@ def test_lesson_detail_has_learning_aids(client):
     assert len(lesson["takeaways"]) >= 3 and lesson["flow"]["steps"] and lesson["terms"]
     assert all(src["url"].startswith("https://") for src in lesson["sources"])
     assert lesson["course"]["track_title"] == "Data Engineering"
-    assert [m["id"] for m in lesson["outline"]] == ["etl-basics", "data-quality", "orchestration"]
+    assert [m["id"] for m in lesson["outline"]] == [m["id"] for m in COURSE["etl-pipelines"]["modules"] if m["lesson"]]
 
 
 def test_library_aggregates_sources_and_terms(client):
@@ -347,8 +396,8 @@ def test_library_aggregates_sources_and_terms(client):
     assert len(urls) == len(set(urls)), "sources are deduplicated by URL"
     assert len(lib["sources"]) >= 25 and len(lib["terms"]) >= 40
     ddia = next(s for s in lib["sources"] if s["url"] == "https://dataintensive.net/")
-    assert {l["id"] for l in ddia["lessons"]} == {"etl_vs_elt", "orchestration_dags"}
-    assert ddia["track_ids"] == ["data-engineering"]
+    assert {"etl_vs_elt", "orchestration_dags"} <= {l["id"] for l in ddia["lessons"]}
+    assert "data-engineering" in ddia["track_ids"]
     assert [t["term"].lower() for t in lib["terms"]] == sorted(t["term"].lower() for t in lib["terms"])
     assert {s["kind"] for s in lib["sources"]} <= {"paper", "docs", "book", "course", "article"}
 
