@@ -78,6 +78,28 @@
       "year": 2016,
       "url": "https://www.deeplearningbook.org/",
       "kind": "book"
+    },
+    {
+      "title": "An overview of gradient descent optimization algorithms",
+      "author": "Sebastian Ruder",
+      "publisher": "arXiv",
+      "year": 2016,
+      "url": "https://arxiv.org/abs/1609.04747",
+      "kind": "paper"
+    },
+    {
+      "title": "Dive into Deep Learning (12.3: Gradient Descent)",
+      "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola",
+      "publisher": "d2l.ai",
+      "url": "https://d2l.ai/chapter_optimization/gd.html",
+      "kind": "book"
+    },
+    {
+      "title": "CS231n: Optimization: Stochastic Gradient Descent",
+      "author": "Stanford CS231n",
+      "publisher": "cs231n.github.io",
+      "url": "https://cs231n.github.io/optimization-1/",
+      "kind": "course"
     }
   ]
 }

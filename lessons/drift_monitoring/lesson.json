@@ -31,6 +31,9 @@
     {"title": "Failing Loudly: An Empirical Study of Methods for Detecting Dataset Shift", "author": "S. Rabanser, S. Günnemann, Z. C. Lipton", "publisher": "NeurIPS", "year": 2019, "url": "https://arxiv.org/abs/1810.11953", "kind": "paper"},
     {"title": "The ML Test Score: A Rubric for ML Production Readiness and Technical Debt Reduction", "author": "E. Breck, S. Cai, E. Nielsen, M. Salib, D. Sculley", "publisher": "IEEE Big Data / Google Research", "year": 2017, "url": "https://research.google/pubs/pub46555/", "kind": "paper"},
     {"title": "scipy.stats.ks_2samp", "author": "SciPy", "publisher": "docs.scipy.org", "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ks_2samp.html", "kind": "docs"},
-    {"title": "Rules of Machine Learning (training-serving skew)", "author": "Martin Zinkevich", "publisher": "Google for Developers", "url": "https://developers.google.com/machine-learning/guides/rules-of-ml/", "kind": "article"}
+    {"title": "Rules of Machine Learning (training-serving skew)", "author": "Martin Zinkevich", "publisher": "Google for Developers", "url": "https://developers.google.com/machine-learning/guides/rules-of-ml/", "kind": "article"},
+    {"title": "A Survey on Concept Drift Adaptation", "author": "J. Gama, I. Žliobaitė, A. Bifet, M. Pechenizkiy, A. Bouchachia", "publisher": "ACM Computing Surveys", "year": 2014, "url": "https://doi.org/10.1145/2523813", "kind": "paper"},
+    {"title": "Detecting and Correcting for Label Shift with Black Box Predictors", "author": "Z. C. Lipton, Y.-X. Wang, A. J. Smola", "publisher": "ICML (PMLR 80)", "year": 2018, "url": "https://proceedings.mlr.press/v80/lipton18a.html", "kind": "paper"},
+    {"title": "Introduction to Vertex AI Model Monitoring", "author": "Google Cloud", "publisher": "cloud.google.com", "url": "https://docs.cloud.google.com/vertex-ai/docs/model-monitoring/overview", "kind": "docs"}
   ]
 }

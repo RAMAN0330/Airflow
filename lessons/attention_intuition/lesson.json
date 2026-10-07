@@ -75,6 +75,28 @@
       "year": 2016,
       "url": "https://www.deeplearningbook.org/",
       "kind": "book"
+    },
+    {
+      "title": "Neural Machine Translation by Jointly Learning to Align and Translate",
+      "author": "D. Bahdanau, K. Cho, Y. Bengio",
+      "publisher": "ICLR",
+      "year": 2015,
+      "url": "https://arxiv.org/abs/1409.0473",
+      "kind": "paper"
+    },
+    {
+      "title": "Dive into Deep Learning (11.1: Queries, Keys, and Values)",
+      "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola",
+      "publisher": "d2l.ai",
+      "url": "https://d2l.ai/chapter_attention-mechanisms-and-transformers/queries-keys-values.html",
+      "kind": "book"
+    },
+    {
+      "title": "torch.nn.functional.scaled_dot_product_attention",
+      "author": "PyTorch",
+      "publisher": "pytorch.org",
+      "url": "https://pytorch.org/docs/main/generated/torch.nn.functional.scaled_dot_product_attention.html",
+      "kind": "docs"
     }
   ]
 }

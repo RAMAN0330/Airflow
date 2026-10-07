@@ -33,6 +33,9 @@
     {"title": "Use The Index, Luke: SQL Indexing and Tuning", "author": "Markus Winand", "publisher": "use-the-index-luke.com", "url": "https://use-the-index-luke.com/", "kind": "book"},
     {"title": "Transactions (BEGIN / COMMIT / ROLLBACK)", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/lang_transaction.html", "kind": "docs"},
     {"title": "UPSERT (INSERT … ON CONFLICT)", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/lang_upsert.html", "kind": "docs"},
-    {"title": "sqlite3: DB-API 2.0 interface for SQLite databases", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/sqlite3.html", "kind": "docs"}
+    {"title": "sqlite3: DB-API 2.0 interface for SQLite databases", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/sqlite3.html", "kind": "docs"},
+    {"title": "Organization and Maintenance of Large Ordered Indexes", "author": "R. Bayer, E. McCreight", "publisher": "Acta Informatica", "year": 1972, "url": "https://doi.org/10.1007/BF00288683", "kind": "paper"},
+    {"title": "Principles of Transaction-Oriented Database Recovery", "author": "T. Haerder, A. Reuter", "publisher": "ACM Computing Surveys", "year": 1983, "url": "https://doi.org/10.1145/289.291", "kind": "paper"},
+    {"title": "Transaction Isolation", "author": "The PostgreSQL Global Development Group", "publisher": "postgresql.org", "url": "https://www.postgresql.org/docs/current/transaction-iso.html", "kind": "docs"}
   ]
 }

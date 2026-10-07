@@ -32,6 +32,9 @@
     {"title": "MLOps: Continuous delivery and automation pipelines in machine learning", "author": "Google Cloud", "publisher": "cloud.google.com", "url": "https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning", "kind": "article"},
     {"title": "MLflow Tracking", "author": "MLflow", "publisher": "mlflow.org", "url": "https://mlflow.org/docs/latest/ml/tracking.html", "kind": "docs"},
     {"title": "MLflow Model Registry", "author": "MLflow", "publisher": "mlflow.org", "url": "https://mlflow.org/docs/latest/ml/model-registry", "kind": "docs"},
-    {"title": "Rules of Machine Learning: Best Practices for ML Engineering", "author": "Martin Zinkevich", "publisher": "Google for Developers", "url": "https://developers.google.com/machine-learning/guides/rules-of-ml/", "kind": "article"}
+    {"title": "Rules of Machine Learning: Best Practices for ML Engineering", "author": "Martin Zinkevich", "publisher": "Google for Developers", "url": "https://developers.google.com/machine-learning/guides/rules-of-ml/", "kind": "article"},
+    {"title": "Machine Learning Operations (MLOps): Overview, Definition, and Architecture", "author": "D. Kreuzberger, N. Kühl, S. Hirschl", "publisher": "IEEE Access", "year": 2023, "url": "https://arxiv.org/abs/2205.02302", "kind": "paper"},
+    {"title": "Accelerating the Machine Learning Lifecycle with MLflow", "author": "M. Zaharia et al.", "publisher": "IEEE Data Engineering Bulletin", "year": 2018, "url": "https://www.cs.berkeley.edu/~alig/papers/mlflow.pdf", "kind": "paper"},
+    {"title": "Designing Machine Learning Systems", "author": "Chip Huyen", "publisher": "O'Reilly", "year": 2022, "url": "https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/", "kind": "book"}
   ]
 }

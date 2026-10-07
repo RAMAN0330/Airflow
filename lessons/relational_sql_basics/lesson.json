@@ -31,6 +31,8 @@
     {"title": "A Relational Model of Data for Large Shared Data Banks", "author": "E. F. Codd", "publisher": "Communications of the ACM", "year": 1970, "url": "https://doi.org/10.1145/362384.362685", "kind": "paper"},
     {"title": "SQL As Understood By SQLite: SELECT", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/lang_select.html", "kind": "docs"},
     {"title": "Window Functions", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/windowfunctions.html", "kind": "docs"},
-    {"title": "PostgreSQL Tutorial (Part I)", "author": "The PostgreSQL Global Development Group", "publisher": "postgresql.org", "url": "https://www.postgresql.org/docs/current/tutorial.html", "kind": "docs"}
+    {"title": "PostgreSQL Tutorial (Part I)", "author": "The PostgreSQL Global Development Group", "publisher": "postgresql.org", "url": "https://www.postgresql.org/docs/current/tutorial.html", "kind": "docs"},
+    {"title": "Database System Concepts (7th ed.)", "author": "A. Silberschatz, H. F. Korth, S. Sudarshan", "publisher": "McGraw-Hill", "year": 2019, "url": "https://db-book.com/", "kind": "book"},
+    {"title": "CMU 15-445/645: Intro to Database Systems", "author": "Carnegie Mellon Database Group", "publisher": "Carnegie Mellon University", "url": "https://15445.courses.cs.cmu.edu/", "kind": "course"}
   ]
 }

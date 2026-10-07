@@ -29,6 +29,9 @@
   "sources": [
     {"title": "Apache Airflow: Core Concepts (DAGs, Tasks)", "author": "Apache Software Foundation", "publisher": "airflow.apache.org", "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/", "kind": "docs"},
     {"title": "graphlib: Functionality to operate with graph-like structures", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/graphlib.html", "kind": "docs"},
-    {"title": "Designing Data-Intensive Applications (Ch. 10, Batch Processing)", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"}
+    {"title": "Designing Data-Intensive Applications (Ch. 10, Batch Processing)", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"},
+    {"title": "Topological sorting of large networks", "author": "A. B. Kahn", "publisher": "Communications of the ACM", "year": 1962, "url": "https://doi.org/10.1145/368996.369025", "kind": "paper"},
+    {"title": "Apache Airflow: DAG Runs (catchup and backfill)", "author": "Apache Airflow", "publisher": "airflow.apache.org", "url": "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dag-run.html", "kind": "docs"},
+    {"title": "Functional Data Engineering: a modern paradigm for batch data processing", "author": "Maxime Beauchemin", "publisher": "Medium", "year": 2018, "url": "https://maximebeauchemin.medium.com/functional-data-engineering-a-modern-paradigm-for-batch-data-processing-2327ec32c42a", "kind": "article"}
   ]
 }

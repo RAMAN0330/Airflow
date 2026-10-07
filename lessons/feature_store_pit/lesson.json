@@ -30,6 +30,9 @@
     {"title": "Point-in-time joins", "author": "Feast", "publisher": "docs.feast.dev", "url": "https://docs.feast.dev/v0.46/getting-started/concepts/point-in-time-joins", "kind": "docs"},
     {"title": "Leakage in Data Mining: Formulation, Detection, and Avoidance", "author": "S. Kaufman, S. Rosset, C. Perlich, O. Stitelman", "publisher": "ACM TKDD (extended from KDD 2011)", "year": 2012, "url": "https://doi.org/10.1145/2382577.2382579", "kind": "paper"},
     {"title": "Meet Michelangelo: Uber's Machine Learning Platform", "author": "J. Hermann, M. Del Balso", "publisher": "Uber Engineering Blog", "year": 2017, "url": "https://www.uber.com/blog/michelangelo-machine-learning-platform/", "kind": "article"},
-    {"title": "bisect: Array bisection algorithm", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/bisect.html", "kind": "docs"}
+    {"title": "bisect: Array bisection algorithm", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/bisect.html", "kind": "docs"},
+    {"title": "pandas.merge_asof", "author": "pandas", "publisher": "pandas.pydata.org", "url": "https://pandas.pydata.org/docs/reference/api/pandas.merge_asof.html", "kind": "docs"},
+    {"title": "Use time series feature tables with point-in-time support", "author": "Databricks", "publisher": "docs.databricks.com", "url": "https://docs.databricks.com/machine-learning/feature-store/time-series.html", "kind": "docs"},
+    {"title": "The Hopsworks Feature Store for Machine Learning", "author": "J. de la Rúa Martínez et al.", "publisher": "SIGMOD", "year": 2024, "url": "https://doi.org/10.1145/3626246.3653389", "kind": "paper"}
   ]
 }

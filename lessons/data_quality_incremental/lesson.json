@@ -29,6 +29,8 @@
   "sources": [
     {"title": "Add data tests to your DAG", "author": "dbt Labs", "publisher": "docs.getdbt.com", "url": "https://docs.getdbt.com/docs/build/data-tests", "kind": "docs"},
     {"title": "Configure incremental models", "author": "dbt Labs", "publisher": "docs.getdbt.com", "url": "https://docs.getdbt.com/docs/build/incremental-models", "kind": "docs"},
-    {"title": "Data Validation for Machine Learning", "author": "E. Breck, N. Polyzotis, S. Roy, S. E. Whang, M. Zinkevich", "publisher": "SysML (MLSys) / Google Research", "year": 2019, "url": "https://research.google/pubs/data-validation-for-machine-learning/", "kind": "paper"}
+    {"title": "Data Validation for Machine Learning", "author": "E. Breck, N. Polyzotis, S. Roy, S. E. Whang, M. Zinkevich", "publisher": "SysML (MLSys) / Google Research", "year": 2019, "url": "https://research.google/pubs/data-validation-for-machine-learning/", "kind": "paper"},
+    {"title": "Automating Large-Scale Data Quality Verification", "author": "S. Schelter, D. Lange, P. Schmidt, M. Celikel, F. Biessmann, A. Grafberger", "publisher": "PVLDB", "year": 2018, "url": "https://www.vldb.org/pvldb/vol11/p1781-schelter.pdf", "kind": "paper"},
+    {"title": "INSERT (ON CONFLICT DO UPDATE)", "author": "The PostgreSQL Global Development Group", "publisher": "postgresql.org", "url": "https://www.postgresql.org/docs/current/sql-insert.html", "kind": "docs"}
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "id": "ml_cicd_gates",
+  "title": "Validation Gates, Canary Releases & Model Serving",
+  "summary": "Build the release path for a model: a validation gate that blocks overall, per-slice and latency regressions, a deterministic canary router, a canary analysis that knows when it has enough evidence, and a tiny batching model server that validates its inputs.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["mlops", "ci-cd", "canary", "serving"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {},
+  "hints": {
+    "test_percentile_nearest_rank": "Sort the values. The nearest-rank p-th percentile is the value at 1-based rank ceil(q·n/100), with a minimum rank of 1. It always returns one of the observed values, with no interpolation.",
+    "test_gate_overall_checks": "Fail 'min_metric:<metric>' when the candidate is below min_metric, and 'regression:<metric>' when production − candidate > max_regression. Landing exactly on the tolerance passes.",
+    "test_gate_catches_slice_regression": "A better overall number can hide a broken segment. Walk production's slices in sorted order. A slice missing from the candidate is 'missing_slice:<name>', and a drop larger than the slice tolerance is 'slice_regression:<name>'.",
+    "test_gate_latency_budget_uses_percentile": "Compute the nearest-rank percentile (latency_percentile, default 95) of candidate['latencies_ms'] and compare it with the budget. Don't use the mean or the max, and don't sort the caller's list in place.",
+    "test_bucket_is_stable_sha256": "Python's built-in hash() of a string is randomized per process, so it can't be used for routing. Use hashlib.sha256(str(request_id).encode('utf-8')), take the first 8 bytes as a big-endian int, then take it mod buckets.",
+    "test_route_percentages_and_sticky": "A request goes to canary when bucket(request_id) < canary_percent * BUCKETS / 100. A fixed threshold on a stable bucket makes routing sticky, and raising the percentage only adds users. Reject percentages outside [0, 100].",
+    "test_canary_decision": "Compare error rates (errors / requests). Roll back when canary_rate − baseline_rate > max_increase, otherwise promote. errors > requests is invalid input.",
+    "test_canary_waits_for_min_samples": "Before deciding anything, check that both arms have at least min_samples requests. If either has fewer, return 'continue'. A handful of requests is noise, not evidence.",
+    "test_server_batches_preserve_order": "Validate every request first and remember its original index. Send only valid rows to the model in chunks of max_batch_size, keeping arrival order, and write each prediction back to results[index].",
+    "test_server_schema_validation": "Check for a dict, missing keys, unexpected keys, and types: bools are never numbers, 'int' needs an int, and 'float' accepts int or float but only finite ones. Invalid requests never reach the model. A model that returns the wrong number of predictions should raise RuntimeError."
+  }
+}

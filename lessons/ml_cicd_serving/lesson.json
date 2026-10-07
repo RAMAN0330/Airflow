@@ -1,0 +1,39 @@
+{
+  "id": "ml_cicd_serving",
+  "title": "CI/CD & Serving for ML: Gates, Canaries & Model Servers",
+  "estimated_minutes": 15,
+  "summary": "How a registered model safely reaches users: an automated validation gate that checks overall, per-slice and latency criteria, a canary release that exposes a small, stable share of traffic and decides from enough evidence, and a model server that validates inputs and batches requests without mixing up answers.",
+  "takeaways": [
+    "A validation gate compares the candidate with production, not just with a fixed bar. It checks the metric floor, the allowed regression, every important slice, and a latency percentile.",
+    "A better overall metric can hide a broken slice, so check slices separately.",
+    "Canary routing must hash request ids with a stable function (sha256, crc32), never Python's per-process hash(), so assignment is sticky across replicas and ramps.",
+    "Don't call a canary on a handful of requests. Wait for a minimum sample, then compare error rates. A server can batch for throughput, but each answer must go back to the request that asked."
+  ],
+  "flow": {
+    "title": "From registry to traffic",
+    "steps": [
+      {"label": "Candidate", "detail": "A new version is registered with its offline metrics, per-slice metrics and benchmark latencies."},
+      {"label": "Validation gate", "detail": "CI compares it with production: metric floor, max regression, every slice, p95 latency. Any failure blocks the release."},
+      {"label": "Canary", "detail": "Deploy beside production. A stable hash of the request id sends a small percentage of traffic to the candidate."},
+      {"label": "Canary analysis", "detail": "Once both arms have enough requests, compare error rates and promote, roll back, or keep collecting."},
+      {"label": "Ramp & serve", "detail": "Raise the percentage step by step (sticky users stay put) until the candidate serves everyone."}
+    ]
+  },
+  "terms": [
+    {"term": "Validation gate", "definition": "An automated check in the release pipeline that blocks a model unless it meets agreed criteria relative to production."},
+    {"term": "Slice", "definition": "A meaningful subset of the evaluation data (device, country, customer tier) whose metric is checked separately."},
+    {"term": "Canary release", "definition": "Rolling a new version out to a small subset of traffic first, watching it, then ramping up or rolling back."},
+    {"term": "Sticky assignment", "definition": "The same user or request id always lands in the same arm, and raising the canary percentage only adds users to it."},
+    {"term": "Nearest-rank percentile", "definition": "The value at rank ceil(q·n/100) in the sorted sample. It is always an observed value."},
+    {"term": "Dynamic batching", "definition": "Grouping concurrent requests into one model call to raise throughput, then splitting the outputs back to their callers."}
+  ],
+  "sources": [
+    {"title": "Continuous Delivery for Machine Learning", "author": "D. Sato, A. Wider, C. Windheuser", "publisher": "martinfowler.com", "year": 2019, "url": "https://martinfowler.com/articles/cd4ml.html", "kind": "article"},
+    {"title": "CanaryRelease", "author": "Danilo Sato", "publisher": "martinfowler.com", "year": 2014, "url": "https://martinfowler.com/bliki/CanaryRelease.html", "kind": "article"},
+    {"title": "The Site Reliability Workbook (Ch. 16: Canarying Releases)", "author": "B. Beyer, N. R. Murphy, D. K. Rensin, K. Kawahara, S. Thorne (eds.)", "publisher": "O'Reilly / Google", "year": 2018, "url": "https://sre.google/workbook/canarying-releases/", "kind": "book"},
+    {"title": "The Evaluator TFX Pipeline Component", "author": "TensorFlow", "publisher": "tensorflow.org", "url": "https://www.tensorflow.org/tfx/guide/evaluator", "kind": "docs"},
+    {"title": "Hidden Stratification Causes Clinically Meaningful Failures in Machine Learning for Medical Imaging", "author": "L. Oakden-Rayner, J. Dunnmon, G. Carneiro, C. Ré", "publisher": "ACM CHIL", "year": 2020, "url": "https://arxiv.org/abs/1909.12475", "kind": "paper"},
+    {"title": "Clipper: A Low-Latency Online Prediction Serving System", "author": "D. Crankshaw, X. Wang, G. Zhou, M. J. Franklin, J. E. Gonzalez, I. Stoica", "publisher": "NSDI", "year": 2017, "url": "https://arxiv.org/abs/1612.03079", "kind": "paper"},
+    {"title": "TensorFlow-Serving: Flexible, High-Performance ML Serving", "author": "C. Olston et al.", "publisher": "NIPS Workshop on ML Systems", "year": 2017, "url": "https://arxiv.org/abs/1712.06139", "kind": "paper"}
+  ]
+}

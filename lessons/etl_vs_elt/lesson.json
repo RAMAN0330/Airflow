@@ -31,6 +31,9 @@
     {"title": "Dimensional Modeling Techniques", "author": "Kimball Group", "publisher": "kimballgroup.com", "url": "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling/", "kind": "article"},
     {"title": "Designing Data-Intensive Applications", "author": "Martin Kleppmann", "publisher": "O'Reilly", "year": 2017, "url": "https://dataintensive.net/", "kind": "book"},
     {"title": "UPSERT (INSERT … ON CONFLICT)", "author": "SQLite", "publisher": "sqlite.org", "url": "https://www.sqlite.org/lang_upsert.html", "kind": "docs"},
-    {"title": "csv: CSV File Reading and Writing", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/csv.html", "kind": "docs"}
+    {"title": "csv: CSV File Reading and Writing", "author": "Python Software Foundation", "publisher": "docs.python.org", "url": "https://docs.python.org/3/library/csv.html", "kind": "docs"},
+    {"title": "The Data Warehouse Toolkit (3rd ed.)", "author": "R. Kimball, M. Ross", "publisher": "Wiley", "year": 2013, "url": "https://www.oreilly.com/library/view/the-data-warehouse/9781118530801/", "kind": "book"},
+    {"title": "Lakehouse: A New Generation of Open Platforms that Unify Data Warehousing and Advanced Analytics", "author": "M. Armbrust, A. Ghodsi, R. Xin, M. Zaharia", "publisher": "CIDR", "year": 2021, "url": "https://vldb.org/cidrdb/2021/lakehouse-a-new-generation-of-open-platforms-that-unify-data-warehousing-and-advanced-analytics.html", "kind": "paper"},
+    {"title": "DataLake", "author": "Martin Fowler", "publisher": "martinfowler.com", "year": 2015, "url": "https://martinfowler.com/bliki/DataLake.html", "kind": "article"}
   ]
 }

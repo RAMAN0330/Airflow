@@ -79,6 +79,29 @@
       "year": 2016,
       "url": "https://www.deeplearningbook.org/",
       "kind": "book"
+    },
+    {
+      "title": "Learning representations by back-propagating errors",
+      "author": "D. E. Rumelhart, G. E. Hinton, R. J. Williams",
+      "publisher": "Nature",
+      "year": 1986,
+      "url": "https://doi.org/10.1038/323533a0",
+      "kind": "paper"
+    },
+    {
+      "title": "Deep Sparse Rectifier Neural Networks",
+      "author": "X. Glorot, A. Bordes, Y. Bengio",
+      "publisher": "AISTATS (PMLR 15)",
+      "year": 2011,
+      "url": "https://proceedings.mlr.press/v15/glorot11a.html",
+      "kind": "paper"
+    },
+    {
+      "title": "Dive into Deep Learning (5.1: Multilayer Perceptrons)",
+      "author": "A. Zhang, Z. C. Lipton, M. Li, A. J. Smola",
+      "publisher": "d2l.ai",
+      "url": "https://d2l.ai/chapter_multilayer-perceptrons/mlp.html",
+      "kind": "book"
     }
   ]
 }
