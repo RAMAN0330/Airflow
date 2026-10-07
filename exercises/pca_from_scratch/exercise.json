@@ -1,0 +1,24 @@
+{
+  "id": "pca_from_scratch",
+  "title": "PCA from Scratch: Eigendecomposition and SVD",
+  "summary": "Implement principal component analysis two ways, eigendecomposing the covariance matrix and taking the SVD of the centered data, with a deterministic sign convention, explained variance ratios, projection and reconstruction, and a rule for choosing k.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 35,
+  "tags": ["dimensionality-reduction", "linear-algebra", "unsupervised", "numpy"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "Components are rows of shape (k, d). Project with Xc @ components.T to get (n, k), and reconstruct with Z @ components to get back (n, d).", "exercise": "linear_regression_gd"}
+  },
+  "hints": {
+    "test_center_and_covariance_match_numpy": "Subtract the column means, then Xc.T @ Xc / (n − 1). Dividing by n gives the biased estimate, which doesn't match np.cov.",
+    "test_covariance_requires_two_samples": "With n = 1 the n − 1 denominator is 0. Check the number of rows first and raise ValueError.",
+    "test_pca_eigh_sorted_descending": "np.linalg.eigh returns eigenvalues in ascending order. Reorder with np.argsort(evals)[::-1] and reorder the eigenvector columns the same way.",
+    "test_pca_eigh_components_and_sign_convention": "Eigenvectors are columns of the eigh output, so transpose to rows. An eigenvector's sign is arbitrary: multiply each row by the sign of its largest-magnitude entry.",
+    "test_pca_is_shift_invariant": "Adding a constant to every row must not change the components. If it does, something isn't centering the data first, often the SVD path.",
+    "test_pca_svd_matches_eigh": "SVD of the centered data: Xc = U S Vᵀ. Rows of Vᵀ are the components and S² / (n − 1) are the variances. Apply the same sign flip.",
+    "test_explained_variance_ratio": "Divide each explained variance by the total variance, which is the trace of the covariance matrix (all d components), not just the k you kept.",
+    "test_transform_inverse_roundtrip": "transform: (X − mean_) @ components_.T. inverse_transform: Z @ components_ + mean_. Use the mean learned in fit, not the mean of the new data.",
+    "test_choose_k": "Take np.cumsum of the ratios and return the first position (1-based) where it reaches the threshold. Reject thresholds outside (0, 1].",
+    "test_inputs_not_mutated": "Build new arrays (X - mean, components * signs) instead of using in-place operators like -= or *= on the inputs."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "kmeans_gmm",
+  "title": "K-Means and Gaussian Mixtures from Scratch",
+  "summary": "Build clustering from the distance matrix up: vectorized pairwise distances, k-means++ seeding, Lloyd's algorithm with empty-cluster repair, then a diagonal Gaussian mixture fitted by EM with responsibilities computed safely in log space.",
+  "difficulty": "advanced",
+  "estimated_minutes": 50,
+  "tags": ["clustering", "unsupervised", "em", "numpy"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "Write down shapes: ||x||² must be (n, 1), ||c||² must be (1, k) and X @ C.T is (n, k). Add [:, None] and [None, :] so they broadcast to (n, k)."},
+    "NaNInSoftmax": {"hint": "Responsibilities are a softmax over components. exp of a log-density like -5e5 underflows to 0, and 0/0 is NaN. Normalize with logsumexp (subtract the row max) before exponentiating.", "exercise": "activation_functions"}
+  },
+  "hints": {
+    "test_pairwise_sq_dists_matches_brute_force": "Expand ||x − c||² = ||x||² − 2·x·c + ||c||². Round-off can make tiny results negative, so clip at 0.",
+    "test_pairwise_sq_dists_rectangular_shapes": "(X**2).sum(1) has shape (n,). Make it a column with [:, None] and make the centroid norms a row with [None, :], or the sum only works when n == k.",
+    "test_kmeans_pp_matches_reference_and_is_seeded": "One rng = np.random.default_rng(seed). First index: rng.integers(n). Each next index: rng.choice(n, p=d2 / d2.sum()), where d2 is each point's squared distance to its nearest chosen centre. Return X[idx].copy().",
+    "test_kmeans_pp_degenerate_data_has_no_nan": "If every point coincides with a chosen centre, d2.sum() is 0 and d2 / 0 is NaN. Fall back to rng.integers(n) in that case.",
+    "test_update_centroids_handles_empty_cluster": "Divide sums by np.maximum(counts, 1). For each empty cluster (in order), move it to the point with the largest squared distance to its own cluster's mean, then mark that point as used.",
+    "test_kmeans_recovers_blobs": "Alternate: assign each point to its nearest centroid, then recompute the means. Stop when the total squared centroid shift is <= tol. Inertia is the sum of each point's squared distance to its final centroid.",
+    "test_kmeans_far_init_leaves_no_empty_cluster": "A centroid placed far from all data gets no points. Without empty-cluster handling its mean is NaN and the run collapses. Copy init, don't modify it.",
+    "test_e_step_is_stable_in_log_space": "Work in logs: log_r = log(weight) + log N(x | mean, var). Normalize each row with logsumexp (max-subtraction), then exponentiate. The log-likelihood is the sum of those row logsumexps.",
+    "test_m_step_matches_reference": "N_k = resp.sum(0). weights = N_k / n, means = resp.T @ X / N_k, variances = Σ_i r_ik (x_i − mean_k)² / N_k + reg.",
+    "test_fit_gmm_increases_log_likelihood": "Initialize means with kmeans_pp_init(X, k, seed), every variance with X.var(0) + reg and uniform weights. Record the E-step log-likelihood each iteration and stop when it improves by less than tol."
+  }
+}

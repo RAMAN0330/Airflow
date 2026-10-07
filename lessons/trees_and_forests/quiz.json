@@ -1,0 +1,32 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "A node holds labels [0, 0, 1, 1]. What are its Gini impurity and entropy (in bits)?",
+      "options": ["0.25 and 0.5", "0 and 0", "0.5 and 1.0", "1.0 and 0.5"],
+      "answer": 2,
+      "explanation": "Gini = 1 − (0.5² + 0.5²) = 0.5. Entropy = −2·0.5·log2(0.5) = 1 bit. Both are at their maximum for two classes."
+    },
+    {
+      "id": "q2",
+      "prompt": "Why weight each child's impurity by n_child / n when computing information gain?",
+      "options": ["So that a split peeling off a single pure row doesn't look artificially good", "To make entropy and Gini give identical results", "Because thresholds are midpoints", "To keep the gain negative"],
+      "answer": 0,
+      "explanation": "Without weights, a one-row pure child counts as much as the large mixed child, which rewards splits that separate almost nothing."
+    },
+    {
+      "id": "q3",
+      "prompt": "You draw a bootstrap sample of n rows from a dataset of n rows. Roughly what fraction of the distinct original rows does it contain for large n?",
+      "options": ["100%", "50%", "36.8%", "63.2%"],
+      "answer": 3,
+      "explanation": "Each row is missed with probability (1 − 1/n)ⁿ ≈ 1/e ≈ 0.368, so about 63.2% appear at least once. The rest are out-of-bag."
+    },
+    {
+      "id": "q4",
+      "prompt": "What does a random forest add on top of plain bagging of trees?",
+      "options": ["Pruning every tree to depth 1", "Random feature subsets at each split, which decorrelate the trees", "Weighting trees by their training accuracy", "Sampling rows without replacement"],
+      "answer": 1,
+      "explanation": "Restricting each split to a random subset of features keeps strong features from dominating every tree, so the votes are less correlated and average out better."
+    }
+  ]
+}

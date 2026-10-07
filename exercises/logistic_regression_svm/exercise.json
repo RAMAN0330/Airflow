@@ -1,0 +1,25 @@
+{
+  "id": "logistic_regression_svm",
+  "title": "Logistic Regression & Linear SVM from Scratch",
+  "summary": "Write a numerically stable sigmoid and cross-entropy, train L2-regularized logistic regression with gradient descent, fit a max-margin linear SVM with hinge-loss subgradients, and build an RBF kernel matrix.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 40,
+  "tags": ["numpy", "classification", "optimization", "svm"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "NaNInSoftmax": {"hint": "An overflow or NaN means np.exp saw a large positive number. Branch on the sign of z in sigmoid, and compute the loss as logaddexp(0, z) − y·z instead of log(sigmoid(z))."},
+    "ShapeMismatch": {"hint": "Check that y is (m,) and X @ w + b is (m,). A (m,) minus (m, 1) silently broadcasts to (m, m).", "exercise": "linear_regression_gd"}
+  },
+  "hints": {
+    "test_sigmoid_values_and_symmetry": "σ(z) = 1 / (1 + e^(−z)). Return a plain float for a scalar input and an array of the same shape otherwise.",
+    "test_sigmoid_is_overflow_safe": "For z ≥ 0 use 1 / (1 + e^(−z)); for z < 0 use e^z / (1 + e^z). Then np.exp only ever sees numbers ≤ 0 and can't overflow.",
+    "test_bce_loss_matches_reference": "Per example the loss is log(1 + e^z) − y·z with z = x·w + b; np.logaddexp(0, z) computes log(1 + e^z) stably. Add (λ/2m)·‖w‖², not on b.",
+    "test_bce_gradients_match_finite_differences": "The gradient has the same shape as linear regression's: dw = (1/m)·Xᵀ(p − y) + (λ/m)·w and db = mean(p − y). Don't forget the 1/m.",
+    "test_bias_is_not_regularized": "λ belongs only in the weight gradient. The bias gradient is the mean of p − y.",
+    "test_fit_logistic_matches_reference_descent": "Start from zeros, do exactly n_iters simultaneous updates w ← w − lr·dw, b ← b − lr·db, and forward lam to the gradient.",
+    "test_svm_subgradient_known_values": "Only examples with y·(x·w + b) < 1 (strictly) are active. dw = λ·w − (1/m)·Σ_active yᵢxᵢ and db = −(1/m)·Σ_active yᵢ.",
+    "test_linear_svm_separates_blobs": "Run full-batch subgradient descent from zeros with a fixed learning rate. Validate that every label is −1 or +1 first, and raise ValueError otherwise.",
+    "test_rbf_kernel_matches_reference": "Use ‖a − b‖² = ‖a‖² + ‖b‖² − 2a·b with broadcasting, clip tiny negatives to 0, then K = exp(−γ·d²).",
+    "test_inputs_not_mutated": "Avoid in-place operations such as y[y == 0] = -1 or X -= mean on the arrays you receive, and use NumPy only."
+  }
+}

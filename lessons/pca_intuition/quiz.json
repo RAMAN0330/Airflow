@@ -1,0 +1,8 @@
+{
+  "questions": [
+    {"id": "q1", "prompt": "You run PCA on X and on X + 1000 and get very different first components. What went wrong?", "options": ["Nothing, because PCA depends on location", "The data wasn't centered before the eigendecomposition or SVD", "You divided by n instead of n − 1", "You used eigh instead of eig"], "answer": 1, "explanation": "PCA describes variation around the mean. Without centering, the first direction mostly points toward the mean, which moves when you shift the data."},
+    {"id": "q2", "prompt": "evals, evecs = np.linalg.eigh(C). Which is the first principal component?", "options": ["evecs[0]", "evecs[:, 0]", "evecs[:, -1]", "evecs[-1]"], "answer": 2, "explanation": "eigh returns eigenvalues in ascending order, and eigenvectors are columns. The largest-variance direction is the last column."},
+    {"id": "q3", "prompt": "For centered data with thin SVD Xc = U S Vᵀ, what are the explained variances?", "options": ["S", "S / n", "S² / (n − 1)", "diag(U Uᵀ)"], "answer": 2, "explanation": "Xcᵀ Xc = V S² Vᵀ, so the covariance Xcᵀ Xc / (n − 1) has eigenvalues S² / (n − 1) and eigenvectors given by the rows of Vᵀ."},
+    {"id": "q4", "prompt": "eigh and SVD give components that match except some rows have opposite signs. Is that a bug?", "options": ["No, v and −v are equally valid. Apply a sign convention to make outputs deterministic", "Yes, the SVD is wrong", "Yes, the data must be standardized", "Yes, use more components"], "answer": 0, "explanation": "An eigenvector is defined only up to sign. Flip each component so a chosen entry (for example the largest-magnitude one) is positive, and both methods then agree."}
+  ]
+}

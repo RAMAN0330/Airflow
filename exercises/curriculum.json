@@ -299,6 +299,50 @@
               "exercise": null
             }
           ]
+        },
+        {
+          "id": "distributed-processing",
+          "title": "Distributed Data Processing",
+          "tagline": "How engines like Spark split, shuffle and join at scale.",
+          "description": "Build a mini MapReduce engine, implement broadcast, shuffle-hash and sort-merge joins, and tame data skew with salting and smart partitioning, all as deterministic simulations you can reason about.",
+          "level": "Advanced",
+          "tier": "free",
+          "modules": [
+            {
+              "id": "mapreduce",
+              "title": "MapReduce & the Shuffle",
+              "concepts": [
+                "Map",
+                "Shuffle",
+                "Reduce",
+                "Combiners"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "distributed-joins",
+              "title": "Distributed Joins",
+              "concepts": [
+                "Broadcast join",
+                "Shuffle hash join",
+                "Sort-merge join"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "data-skew",
+              "title": "Data Skew & Partitioning",
+              "concepts": [
+                "Hot keys",
+                "Salting",
+                "Partition pruning"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
         }
       ]
     },
@@ -358,6 +402,145 @@
                 "Validation gates",
                 "Canary releases",
                 "Model serving"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        },
+        {
+          "id": "llmops-evaluation",
+          "title": "LLMOps & Evaluation",
+          "tagline": "Measure, judge and safely serve language models.",
+          "description": "Score LLM outputs with exact match, token F1 and ROUGE-L, build a position-bias-aware LLM-as-a-judge harness with Elo and Bradley–Terry ratings, and put a gateway in front of models with caching, rate limits and PII guardrails.",
+          "level": "Advanced",
+          "tier": "pro",
+          "modules": [
+            {
+              "id": "llm-eval",
+              "title": "Evaluating LLM Outputs",
+              "concepts": [
+                "Exact match",
+                "Token F1",
+                "ROUGE-L",
+                "Golden sets"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "llm-judge",
+              "title": "LLM-as-a-Judge & Eval Harnesses",
+              "concepts": [
+                "Pairwise comparison",
+                "Position bias",
+                "Elo / Bradley–Terry"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "llm-gateway",
+              "title": "Serving LLMs: Caching, Limits & Guardrails",
+              "concepts": [
+                "Semantic cache",
+                "Token bucket",
+                "PII redaction"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "math-statistics",
+      "title": "Math & Statistics",
+      "icon": "sigma",
+      "tagline": "The foundations everything else stands on.",
+      "description": "Statistics you can defend in a design review and the math under every model: bootstrap inference, A/B tests done right, Bayesian testing and FDR control, then least squares, automatic differentiation and the optimizers that train networks.",
+      "courses": [
+        {
+          "id": "statistics-experimentation",
+          "title": "Statistics & Experimentation",
+          "tagline": "Estimate, test and decide without fooling yourself.",
+          "description": "Quantify uncertainty with standard errors and the bootstrap, run A/B tests with power analysis and sample-ratio checks, and go Bayesian while controlling false discoveries.",
+          "level": "Beginner",
+          "tier": "free",
+          "modules": [
+            {
+              "id": "bootstrap",
+              "title": "Sampling, Estimation & the Bootstrap",
+              "concepts": [
+                "Standard error",
+                "Confidence intervals",
+                "Bootstrap"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "ab-testing",
+              "title": "Hypothesis Tests & A/B Testing",
+              "concepts": [
+                "z-test",
+                "Power & sample size",
+                "SRM"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "bayesian-fdr",
+              "title": "Bayesian A/B & Multiple Testing",
+              "concepts": [
+                "Beta-Binomial",
+                "P(B > A)",
+                "False discovery rate"
+              ],
+              "lesson": null,
+              "exercise": null
+            }
+          ]
+        },
+        {
+          "id": "linalg-optimization",
+          "title": "Linear Algebra, Autodiff & Optimization",
+          "tagline": "Build the engine that trains every model.",
+          "description": "Solve least squares stably with Householder QR, write a reverse-mode autodiff engine from scratch, and implement SGD, momentum, Adam and AdamW with warmup and cosine schedules.",
+          "level": "Intermediate",
+          "tier": "free",
+          "modules": [
+            {
+              "id": "linear-algebra",
+              "title": "Linear Algebra for ML",
+              "concepts": [
+                "Projections",
+                "Least squares",
+                "Conditioning"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "autodiff",
+              "title": "Automatic Differentiation",
+              "concepts": [
+                "Computational graph",
+                "Reverse mode",
+                "Chain rule"
+              ],
+              "lesson": null,
+              "exercise": null
+            },
+            {
+              "id": "optimizers",
+              "title": "Optimizers",
+              "concepts": [
+                "Momentum",
+                "Adam",
+                "LR schedules"
               ],
               "lesson": null,
               "exercise": null

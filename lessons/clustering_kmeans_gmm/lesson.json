@@ -1,0 +1,39 @@
+{
+  "id": "clustering_kmeans_gmm",
+  "title": "Clustering with K-Means & Gaussian Mixtures",
+  "estimated_minutes": 16,
+  "summary": "K-means and Gaussian mixtures both alternate between assigning points to clusters and updating the clusters. Learn the vectorized distance matrix behind both, k-means++ seeding, empty-cluster repair, and why the EM E-step must run in log space.",
+  "takeaways": [
+    "Compute all point-to-centre distances at once with ||x||² − 2x·c + ||c||², broadcasting an (n,1) column against a (1,k) row.",
+    "Lloyd's algorithm never increases inertia, but it only finds a local minimum, so seed it with k-means++.",
+    "An empty cluster's mean is 0/0 = NaN. Re-seed it on the worst-explained point instead.",
+    "A GMM's E-step is a softmax over components. Compute it with logsumexp, or far-away points produce NaN."
+  ],
+  "flow": {
+    "title": "One clustering run",
+    "steps": [
+      {"label": "Seed", "detail": "k-means++: each new centre is sampled with probability ∝ squared distance to the nearest existing centre."},
+      {"label": "Distance matrix", "detail": "D = ||x||² − 2·X Cᵀ + ||c||², shape (n, k), clipped at 0."},
+      {"label": "Assign / E-step", "detail": "K-means takes argmin per row. A GMM takes a log-space softmax over components."},
+      {"label": "Update / M-step", "detail": "Recompute means (and weights and variances for a GMM), repairing empty clusters."},
+      {"label": "Check convergence", "detail": "Stop when centroids stop moving or the log-likelihood stops improving."}
+    ]
+  },
+  "terms": [
+    {"term": "Inertia", "definition": "The k-means objective: the sum of squared distances from each point to its assigned centroid."},
+    {"term": "Lloyd's algorithm", "definition": "The standard k-means loop: assign points to the nearest centroid, then move each centroid to its points' mean."},
+    {"term": "k-means++", "definition": "Seeding that samples each new centre with probability proportional to its squared distance from the nearest chosen centre."},
+    {"term": "Responsibility", "definition": "r_ij, the posterior probability that mixture component j generated point i."},
+    {"term": "EM algorithm", "definition": "Expectation–Maximization: alternate computing responsibilities (E) and re-estimating parameters (M). The likelihood never decreases."},
+    {"term": "logsumexp", "definition": "log Σ exp(a) computed as m + log Σ exp(a − m) with m = max(a), which avoids overflow and underflow."}
+  ],
+  "sources": [
+    {"title": "Least Squares Quantization in PCM", "author": "S. P. Lloyd", "publisher": "IEEE Transactions on Information Theory", "year": 1982, "url": "https://doi.org/10.1109/TIT.1982.1056489", "kind": "paper"},
+    {"title": "k-means++: The Advantages of Careful Seeding", "author": "D. Arthur, S. Vassilvitskii", "publisher": "SODA (ACM-SIAM Symposium on Discrete Algorithms)", "year": 2007, "url": "https://dl.acm.org/doi/10.5555/1283383.1283494", "kind": "paper"},
+    {"title": "Maximum Likelihood from Incomplete Data via the EM Algorithm", "author": "A. P. Dempster, N. M. Laird, D. B. Rubin", "publisher": "Journal of the Royal Statistical Society, Series B", "year": 1977, "url": "https://doi.org/10.1111/j.2517-6161.1977.tb01600.x", "kind": "paper"},
+    {"title": "Pattern Recognition and Machine Learning (Ch. 9: Mixture Models and EM)", "author": "C. M. Bishop", "publisher": "Springer / Microsoft Research", "year": 2006, "url": "https://www.microsoft.com/en-us/research/publication/pattern-recognition-machine-learning/", "kind": "book"},
+    {"title": "CS229 Lecture Notes: Expectation Maximization for Mixtures of Gaussians", "author": "Stanford CS229", "publisher": "Stanford University", "year": 2022, "url": "https://cs229.stanford.edu/notes2022fall/em.pdf", "kind": "course"},
+    {"title": "Clustering: K-means (User Guide 2.3)", "author": "scikit-learn developers", "publisher": "scikit-learn.org", "url": "https://scikit-learn.org/stable/modules/clustering.html#k-means", "kind": "docs"},
+    {"title": "Gaussian Mixture Models (User Guide 2.1)", "author": "scikit-learn developers", "publisher": "scikit-learn.org", "url": "https://scikit-learn.org/stable/modules/mixture.html", "kind": "docs"}
+  ]
+}

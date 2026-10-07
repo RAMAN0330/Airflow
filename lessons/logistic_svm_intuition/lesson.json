@@ -1,0 +1,38 @@
+{
+  "id": "logistic_svm_intuition",
+  "title": "Linear Classifiers: Logistic Regression & SVMs",
+  "estimated_minutes": 16,
+  "summary": "Turn a linear score into a class: logistic regression reads it as a probability and trains on cross-entropy, while the SVM asks for a margin and trains on the hinge loss. Kernels then bend the boundary.",
+  "takeaways": [
+    "The sigmoid maps the score z = x·w + b to a probability. Code it stably by branching on the sign of z.",
+    "Binary cross-entropy is log(1 + e^z) − y·z, and its gradient (1/m)·Xᵀ(p − y) has the same form as linear regression's.",
+    "An SVM maximizes the margin. The hinge loss ignores points with margin ≥ 1, so the boundary depends only on the support vectors.",
+    "An RBF kernel exp(−γ‖a − b‖²) gives a non-linear boundary. Its Gram matrix is symmetric, PSD and has ones on the diagonal."
+  ],
+  "flow": {
+    "title": "From score to classifier",
+    "steps": [
+      {"label": "Score", "detail": "z = X @ w + b, one number per example, as in linear regression."},
+      {"label": "Read the score", "detail": "Logistic: p = σ(z). SVM: the sign of z, with margin y·z."},
+      {"label": "Charge mistakes", "detail": "Cross-entropy log(1 + e^z) − y·z, or hinge max(0, 1 − y·z), plus an L2 penalty on w."},
+      {"label": "Descend", "detail": "Gradient (1/m)·Xᵀ(p − y) for logistic; the subgradient over active margins (< 1) for the SVM."},
+      {"label": "Go non-linear", "detail": "Replace dot products with a kernel such as RBF to bend the boundary."}
+    ]
+  },
+  "terms": [
+    {"term": "Sigmoid (logistic function)", "definition": "σ(z) = 1 / (1 + e^(−z)), mapping a real-valued score to a probability in (0, 1)."},
+    {"term": "Binary cross-entropy", "definition": "The negative log-likelihood of 0/1 labels under predicted probabilities p: −[y·log p + (1 − y)·log(1 − p)]."},
+    {"term": "Margin", "definition": "y·(x·w + b) for labels in {−1, +1}: positive when correct, and larger the further the point is from the boundary."},
+    {"term": "Hinge loss", "definition": "max(0, 1 − y·z): zero for points beyond the margin, growing linearly for points inside it or misclassified."},
+    {"term": "Support vectors", "definition": "The training points on or inside the margin. They alone determine the SVM's decision boundary."},
+    {"term": "Kernel trick", "definition": "Replacing inner products with a kernel K(a, b) to learn linear boundaries in an implicit, richer feature space."}
+  ],
+  "sources": [
+    {"title": "Support-Vector Networks", "author": "C. Cortes, V. Vapnik", "publisher": "Machine Learning 20, 273–297", "year": 1995, "url": "https://link.springer.com/article/10.1007/BF00994018", "kind": "paper"},
+    {"title": "Pegasos: Primal Estimated sub-GrAdient SOlver for SVM", "author": "S. Shalev-Shwartz, Y. Singer, N. Srebro", "publisher": "ICML", "year": 2007, "url": "https://www.cs.huji.ac.il/~shais/papers/ShalevSiSr07.pdf", "kind": "paper"},
+    {"title": "CS229: Machine Learning (lecture notes: logistic regression, kernel methods, SVMs)", "author": "Andrew Ng, Tengyu Ma", "publisher": "Stanford University", "url": "https://cs229.stanford.edu/", "kind": "course"},
+    {"title": "The Elements of Statistical Learning (Ch. 4 and Ch. 12)", "author": "T. Hastie, R. Tibshirani, J. Friedman", "publisher": "Springer", "year": 2009, "url": "https://hastie.su.domains/ElemStatLearn/", "kind": "book"},
+    {"title": "Linear Models: Logistic regression", "author": "scikit-learn developers", "publisher": "scikit-learn.org", "url": "https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression", "kind": "docs"},
+    {"title": "Support Vector Machines", "author": "scikit-learn developers", "publisher": "scikit-learn.org", "url": "https://scikit-learn.org/stable/modules/svm.html", "kind": "docs"}
+  ]
+}

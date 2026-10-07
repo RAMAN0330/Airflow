@@ -1,0 +1,24 @@
+{
+  "id": "decision_tree_forest",
+  "title": "Decision Trees & Random Forests from Scratch",
+  "summary": "Implement Gini and entropy, an exhaustive best-split search by information gain, a recursive decision tree with depth and size limits, and a seeded bagged forest that predicts by majority vote.",
+  "difficulty": "intermediate",
+  "estimated_minutes": 45,
+  "tags": ["numpy", "classification", "trees", "ensembles"],
+  "limits": {"cpu_seconds": 10, "wall_seconds": 15, "memory_mb": 2048},
+  "remediation": {
+    "ShapeMismatch": {"hint": "Index rows with a boolean mask over X[:, j], not over X. Print the shapes of X[left] and y[left]: they must have the same number of rows."}
+  },
+  "hints": {
+    "test_impurity_known_values": "Get class proportions with np.unique(y, return_counts=True). Gini = 1 − Σp², entropy = −Σp·log2(p). Return 0.0 for an empty array.",
+    "test_best_split_simple_threshold": "Candidate thresholds are midpoints between consecutive sorted unique values, e.g. 2.5 between 2 and 3.",
+    "test_best_split_matches_brute_force": "Loop over every feature and every midpoint; gain = H(parent) − (n_L/n)·H(left) − (n_R/n)·H(right). Keep the first strictly better gain.",
+    "test_best_split_weights_children_by_size": "Weight each child's impurity by its share of rows, n_child / n. A plain average lets a tiny pure child win.",
+    "test_best_split_no_valid_split": "Return None when no threshold exists (one unique value per feature) or no split has positive gain (e.g. a pure node).",
+    "test_tree_fits_training_data": "Recurse until a node is pure (best_split returns None). Return self from fit, and copy rather than modify the input arrays.",
+    "test_tree_respects_stopping_rules": "Make a leaf when depth >= max_depth, when len(y) < min_samples_split, or when there's no split. Track the deepest node in self.depth_. np.bincount(y).argmax() breaks ties towards the smallest label.",
+    "test_threshold_ties_go_left": "Use the same rule in fit and predict: go left when x[feature] <= threshold.",
+    "test_forest_bootstrap_is_seeded": "bootstrap_sample is rng.integers(0, n, size=n). In fit, make one rng = np.random.default_rng(seed) and draw one sample per tree, in order.",
+    "test_forest_predicts_majority_vote": "Stack every tree's predictions into (n_trees, m) and take the most common label in each column, with ties going to the smallest label."
+  }
+}

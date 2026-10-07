@@ -1,0 +1,38 @@
+{
+  "id": "pca_intuition",
+  "title": "Principal Component Analysis: Directions of Variance",
+  "estimated_minutes": 14,
+  "summary": "PCA finds orthogonal directions that capture the most variance. Learn why you center first, how the covariance matrix's eigenvectors and the data's SVD give the same components, and how to project, reconstruct and choose how many components to keep.",
+  "takeaways": [
+    "Always center first. A correct PCA gives the same components when you shift the data.",
+    "The sample covariance divides by n − 1. Its eigenvectors are the components and its eigenvalues are the variances along them.",
+    "np.linalg.eigh returns eigenvalues in ascending order with eigenvectors in columns, so reverse and transpose.",
+    "SVD of the centered data gives the same components (rows of Vᵀ) and variances (S²/(n−1)), up to sign. Fix a sign convention."
+  ],
+  "flow": {
+    "title": "PCA, step by step",
+    "steps": [
+      {"label": "Center", "detail": "Subtract each feature's mean: Xc = X − mean."},
+      {"label": "Covariance or SVD", "detail": "Either C = Xcᵀ Xc / (n − 1), or the thin SVD Xc = U S Vᵀ."},
+      {"label": "Sort + sign-fix", "detail": "Order components by variance, largest first, and make each one's largest entry positive."},
+      {"label": "Choose k", "detail": "Keep the smallest k whose cumulative explained variance ratio reaches your threshold."},
+      {"label": "Project / reconstruct", "detail": "Z = Xc Wᵀ, and X̂ = Z W + mean."}
+    ]
+  },
+  "terms": [
+    {"term": "Principal component", "definition": "A unit vector along which the projected data has maximal variance, orthogonal to all earlier components."},
+    {"term": "Covariance matrix", "definition": "C = Xcᵀ Xc / (n − 1): pairwise co-variation of features. The diagonal holds each feature's variance."},
+    {"term": "Eigendecomposition", "definition": "C = V Λ Vᵀ for a symmetric C: orthonormal eigenvectors V and real eigenvalues Λ."},
+    {"term": "SVD", "definition": "Xc = U S Vᵀ. The right singular vectors are the principal components and S²/(n − 1) the variances."},
+    {"term": "Explained variance ratio", "definition": "Each component's variance divided by the total variance, trace(C)."}
+  ],
+  "sources": [
+    {"title": "On Lines and Planes of Closest Fit to Systems of Points in Space", "author": "K. Pearson", "publisher": "Philosophical Magazine", "year": 1901, "url": "https://doi.org/10.1080/14786440109462720", "kind": "paper"},
+    {"title": "A Tutorial on Principal Component Analysis", "author": "J. Shlens", "publisher": "arXiv", "year": 2014, "url": "https://arxiv.org/abs/1404.1100", "kind": "paper"},
+    {"title": "Principal Component Analysis: A Review and Recent Developments", "author": "I. T. Jolliffe, J. Cadima", "publisher": "Philosophical Transactions of the Royal Society A", "year": 2016, "url": "https://doi.org/10.1098/rsta.2015.0202", "kind": "paper"},
+    {"title": "The Elements of Statistical Learning (§14.5.1: Principal Components)", "author": "T. Hastie, R. Tibshirani, J. Friedman", "publisher": "Springer", "year": 2009, "url": "https://hastie.su.domains/ElemStatLearn/", "kind": "book"},
+    {"title": "numpy.linalg.eigh", "author": "NumPy", "publisher": "numpy.org", "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html", "kind": "docs"},
+    {"title": "numpy.linalg.svd", "author": "NumPy", "publisher": "numpy.org", "url": "https://numpy.org/doc/stable/reference/generated/numpy.linalg.svd.html", "kind": "docs"},
+    {"title": "Decomposing Signals in Components: PCA (User Guide 2.5.1)", "author": "scikit-learn developers", "publisher": "scikit-learn.org", "url": "https://scikit-learn.org/stable/modules/decomposition.html#pca", "kind": "docs"}
+  ]
+}

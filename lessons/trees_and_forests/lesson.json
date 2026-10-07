@@ -1,0 +1,38 @@
+{
+  "id": "trees_and_forests",
+  "title": "Decision Trees & Random Forests",
+  "estimated_minutes": 15,
+  "summary": "Grow a decision tree greedily by picking the split that most reduces Gini impurity or entropy, stop it before it memorizes noise, then average away its variance by bagging many trees into a random forest.",
+  "takeaways": [
+    "Gini (1 − Σp²) and entropy (−Σp·log2 p) both measure how mixed a node is, and both are 0 when it's pure.",
+    "A split's information gain is the parent's impurity minus the size-weighted impurity of its children.",
+    "Trees are grown greedily, one split at a time. max_depth and min_samples_split stop them from memorizing noise.",
+    "Bagging trains each tree on a bootstrap sample and takes a majority vote. Random forests also randomize features, which makes the trees less correlated."
+  ],
+  "flow": {
+    "title": "Growing a tree, then a forest",
+    "steps": [
+      {"label": "Measure impurity", "detail": "Compute Gini or entropy of the labels at the node."},
+      {"label": "Search splits", "detail": "For every feature and midpoint threshold, send x ≤ t left and the rest right."},
+      {"label": "Pick the best gain", "detail": "gain = H(parent) − (n_L/n)·H(L) − (n_R/n)·H(R). Keep the largest positive one."},
+      {"label": "Recurse or stop", "detail": "Split and recurse, or make a majority-class leaf at max_depth, below min_samples_split, or with no gain."},
+      {"label": "Bag and vote", "detail": "Fit many trees on bootstrap samples from one seeded rng, then predict by majority vote."}
+    ]
+  },
+  "terms": [
+    {"term": "Gini impurity", "definition": "1 − Σ p_k²: the chance that two labels drawn at random from the node disagree."},
+    {"term": "Entropy", "definition": "−Σ p_k·log2 p_k: the average number of bits needed to encode a label from the node."},
+    {"term": "Information gain", "definition": "The drop in impurity from parent to children, with each child weighted by its fraction of the rows."},
+    {"term": "Bootstrap sample", "definition": "n rows drawn with replacement from n. On average it contains about 63.2% of the distinct rows."},
+    {"term": "Bagging", "definition": "Bootstrap aggregating: train one model per bootstrap sample and combine them by voting or averaging."},
+    {"term": "Out-of-bag (OOB) rows", "definition": "The roughly 36.8% of rows a tree never saw. They give a free validation estimate."}
+  ],
+  "sources": [
+    {"title": "Induction of Decision Trees", "author": "J. R. Quinlan", "publisher": "Machine Learning 1, 81–106", "year": 1986, "url": "https://link.springer.com/article/10.1007/BF00116251", "kind": "paper"},
+    {"title": "Bagging Predictors", "author": "L. Breiman", "publisher": "Machine Learning 24, 123–140", "year": 1996, "url": "https://link.springer.com/article/10.1007/BF00058655", "kind": "paper"},
+    {"title": "Random Forests", "author": "L. Breiman", "publisher": "Machine Learning 45, 5–32", "year": 2001, "url": "https://link.springer.com/article/10.1023/A:1010933404324", "kind": "paper"},
+    {"title": "The Elements of Statistical Learning (Ch. 9.2, Ch. 8.7 and Ch. 15)", "author": "T. Hastie, R. Tibshirani, J. Friedman", "publisher": "Springer", "year": 2009, "url": "https://hastie.su.domains/ElemStatLearn/", "kind": "book"},
+    {"title": "Decision Trees", "author": "scikit-learn developers", "publisher": "scikit-learn.org", "url": "https://scikit-learn.org/stable/modules/tree.html", "kind": "docs"},
+    {"title": "Ensembles: Gradient boosting, random forests, bagging, voting, stacking", "author": "scikit-learn developers", "publisher": "scikit-learn.org", "url": "https://scikit-learn.org/stable/modules/ensemble.html", "kind": "docs"}
+  ]
+}

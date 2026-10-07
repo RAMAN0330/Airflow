@@ -1,0 +1,32 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "Why compute binary cross-entropy as logaddexp(0, z) − y·z instead of −[y·log σ(z) + (1 − y)·log(1 − σ(z))]?",
+      "options": ["It is a different loss that trains faster", "It avoids log(0) and overflow, so confidently wrong predictions give a large finite loss", "It removes the need for a bias term", "It makes the loss non-convex"],
+      "answer": 1,
+      "explanation": "The two forms are mathematically equal. The logaddexp form never rounds σ(z) to exactly 0 or 1, so it stays finite and exact for large |z|."
+    },
+    {
+      "id": "q2",
+      "prompt": "For logistic regression with L2, what is ∂J/∂w?",
+      "options": ["(1/m)·Xᵀ(σ(Xw + b) − y) + (λ/m)·w", "Xᵀ(σ(Xw + b) − y)", "(1/m)·Xᵀ(Xw + b − y)·σ'(z)", "(λ/m)·w only"],
+      "answer": 0,
+      "explanation": "Cross-entropy and the sigmoid cancel neatly: the gradient is the mean of (p − y)·x, plus (λ/m)·w from the penalty. Forgetting the 1/m scales the step by m."
+    },
+    {
+      "id": "q3",
+      "prompt": "In a soft-margin linear SVM, which training points affect the hinge-loss subgradient?",
+      "options": ["All of them equally", "Only misclassified points", "Only points with margin yᵢ(xᵢ·w + b) < 1", "Only points with margin exactly 1"],
+      "answer": 2,
+      "explanation": "Points with margin ≥ 1 sit outside the margin and have zero hinge loss. Points inside the margin, including misclassified ones, are the active ones."
+    },
+    {
+      "id": "q4",
+      "prompt": "For the RBF kernel K(a, b) = exp(−γ‖a − b‖²), what happens as γ grows large?",
+      "options": ["The boundary becomes linear", "K(x, x) grows above 1", "Kernel values become negative for distant points", "Each point influences only a tiny neighborhood, which risks overfitting"],
+      "answer": 3,
+      "explanation": "Large γ makes K decay quickly with distance, so the decision function becomes very local and can wrap around individual training points."
+    }
+  ]
+}
